@@ -1,6 +1,6 @@
 .vscode/
 build/
 unity/
-testing.c
-vm.h
+testing_*
+*_headers*
 *.exe
