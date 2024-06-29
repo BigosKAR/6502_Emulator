@@ -2,5 +2,5 @@
 build/
 unity/
 testing_*
-*_headers*
+*_header*
 *.exe
