@@ -1,2 +1,6 @@
 .vscode/
 build/
+unity/
+testing.c
+vm.h
+*.exe
