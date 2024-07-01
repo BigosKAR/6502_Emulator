@@ -26,11 +26,11 @@ void reset(void)
 
 int main()
 {
+
     int cycles = 2;
     int *ptr = &cycles;
     reset();
     memory.data[0xFFFC] = 0xA9;
-    printf("memory.data[0xFFFC]: %d\n", memory.data[0xFFFC]);
     memory.data[0xFFFD] = 0x05;
     execute(ptr);
     return 0;

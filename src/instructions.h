@@ -76,7 +76,7 @@
 
 
 struct {
-    unsigned short *ip; // Pointer pointing to the instructions
+    unsigned short *ip; // Pointer pointing to the instructions (high byte)
     
     // Registers
     unsigned char accumulator; // Accumulator register
@@ -93,5 +93,5 @@ struct{
     unsigned char data[MEM_MAX_SIZE];
 }memory;
 
-unsigned char fetch(unsigned int *cycles);
+unsigned char fetch(unsigned int *cycles, unsigned char *low_byte, unsigned char *high_byte);
 void execute(unsigned int *cycles);
