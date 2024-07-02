@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "instructions.h"
+#include "flags.h"
+#include <string.h>
 
 typedef enum result{
     SUCCESS, // will have value 0
@@ -20,18 +22,20 @@ void reset(void)
     vm.ip = (unsigned short*)&memory.data[0xFFFC];
     vm.sp = &memory.data[0x01FF];
 
-    vm.processor_status = 0x24;
-    vm.accumulator = vm.x = vm.y = 0;   
+    vm.processor_status = 0x20;
+    vm.accumulator = vm.x = vm.y = 0;  
 }
+
+struct VirtualMachine vm;
+struct Memory memory;
 
 int main()
 {
-
     int cycles = 2;
     int *ptr = &cycles;
     reset();
     memory.data[0xFFFC] = 0xA9;
-    memory.data[0xFFFD] = 0x05;
+    memory.data[0xFFFD] = 0x81;
     execute(ptr);
     return 0;
 }

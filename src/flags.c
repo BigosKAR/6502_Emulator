@@ -1,0 +1,51 @@
+#include "instructions.h"
+#include "flags.h"
+#include <stdbool.h>
+#include <string.h>
+#include <stdio.h>
+
+// Flag names
+
+const char flag_names[8][14] = {
+    "FLAG_CARRY",
+    "FLAG_ZERO",
+    "FLAG_INTERRUPT",
+    "FLAG_DECIMAL",
+    "FLAG_BREAK",
+    "UNUSED_FLAG",
+    "FLAG_OVERFLOW",
+    "FLAG_NEGATIVE"
+};
+
+// General flag functions
+
+void display_flags()
+{
+    for (int i = 7; i >= 0; i--) {
+        printf((vm.processor_status & (1 << i)) ? "Flag: %s SET\n" : "Flag: %s UNSET\n", flag_names[i]);
+    }
+    printf("\n");
+}
+
+void reset_flags()
+{
+    vm.processor_status = 0x20;
+}
+
+void set_flag(unsigned char flag)
+{
+    vm.processor_status |= flag; // Bitwise OR to change only the part of the processor status that is assigned to the flag
+}
+
+void clear_flag(unsigned char flag)
+{
+    vm.processor_status &= ~flag; // Bitwise AND to change only the part of the processor status that is assigned to the flag
+}
+
+// Instruction-specific flag functions
+
+void LDA_flags() // Low byte data needed to check the 7th bit of the accumulator
+{
+    if(vm.accumulator >= 128)set_flag(FLAG_NEGATIVE);
+    else if(vm.accumulator == 0)set_flag(FLAG_ZERO);
+}

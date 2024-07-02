@@ -1,15 +1,10 @@
+#ifndef INSTRUCTIONS_H
+#define INSTRUCTIONS_H
+
+#include "flags.h"
+#include <stdbool.h>
+#include <string.h>
 #include <stdio.h>
-
-// FLAGS
-
-#define FLAG_CARRY 0x00
-#define FLAG_ZERO 0x01
-#define FLAG_INTERRUPT 0x04
-#define FLAG_DECIMAL 0X08
-#define FLAG_BREAK 0x10
-#define UNUSED_FLAG 0x20
-#define FLAG_OVERFLOW 0x40
-#define FLAG_NEGATIVE 0x80
 
 // CONSTANTS
 
@@ -74,8 +69,7 @@
 #define TXS 0x9A
 #define TYA 0x98
 
-
-struct {
+struct VirtualMachine{
     unsigned short *ip; // Pointer pointing to the instructions (high byte)
     
     // Registers
@@ -87,11 +81,16 @@ struct {
     // Stack
     unsigned char *sp; // Stack pointer
     
-}vm;
+};
 
-struct{
+struct Memory{
     unsigned char data[MEM_MAX_SIZE];
-}memory;
+};
+
+extern struct VirtualMachine vm;
+extern struct Memory memory;
 
 unsigned char fetch(unsigned int *cycles, unsigned char *low_byte, unsigned char *high_byte);
 void execute(unsigned int *cycles);
+
+#endif
