@@ -47,5 +47,7 @@ void clear_flag(unsigned char flag)
 void LDA_flags() // Low byte data needed to check the 7th bit of the accumulator
 {
     if(vm.accumulator >= 128)set_flag(FLAG_NEGATIVE);
-    else if(vm.accumulator == 0)set_flag(FLAG_ZERO);
+    else clear_flag(FLAG_NEGATIVE); 
+    if(vm.accumulator == 0)set_flag(FLAG_ZERO);
+    else clear_flag(FLAG_ZERO);
 }

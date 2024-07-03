@@ -41,7 +41,11 @@
 #define INY 0xC8
 #define JMP 0x4C
 #define JSR 0x20
-#define LDA 0xA9
+
+
+#define LDA_IMM 0xA9
+#define LDA_ABS 0xAD
+
 #define LDX 0xA2
 #define LDY 0xA0
 #define LSR 0x4A
@@ -70,7 +74,7 @@
 #define TYA 0x98
 
 struct VirtualMachine{
-    unsigned short *ip; // Pointer pointing to the instructions (high byte)
+    unsigned short ip; // Pointer pointing to the instructions (high byte)
     
     // Registers
     unsigned char accumulator; // Accumulator register
@@ -90,7 +94,8 @@ struct Memory{
 extern struct VirtualMachine vm;
 extern struct Memory memory;
 
-unsigned char fetch(unsigned int *cycles, unsigned char *low_byte, unsigned char *high_byte);
+void fetch_word(unsigned int *cycles, unsigned char *low_byte, unsigned char *high_byte);
+unsigned char fetch_byte(unsigned int *cycles);
 void execute(unsigned int *cycles);
 
 #endif
