@@ -46,6 +46,7 @@
 #define LDA_IMM 0xA9
 #define LDA_ABS 0xAD
 #define LDA_ABS_X 0xBD
+#define LDA_ABS_Y 0xB9
 
 #define LDX 0xA2
 #define LDY 0xA0

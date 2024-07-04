@@ -55,6 +55,34 @@ unsigned char fetch_byte(unsigned int* cycles)
     return Byte;
 }
 
+void lda_abs_logic(unsigned int* cycles, unsigned char* low_byte, bool isX)
+{
+    unsigned char low_order_address = *low_byte;
+    unsigned char high_order_address = fetch_byte(cycles);
+    unsigned short address = (high_order_address <<8) | low_order_address;
+    unsigned short temp_address;
+    if(isX)
+    {
+        temp_address = address + vm.x;
+        vm.accumulator = memory.data[address+vm.x];
+        printf("LDA_ABS_X: %d\n", vm.accumulator);
+    }
+    else
+    {
+        temp_address = address + vm.y;
+        vm.accumulator = memory.data[address+vm.y];
+        printf("LDA_ABS_Y: %d\n", vm.accumulator);
+
+    }
+    if((address & 0xFF00) != (temp_address & 0xFF00))
+    {
+        *cycles -= 1; // If page boundary crossed then take 1 cycle
+    }
+    *cycles -= 1; // reading the byte from memory
+    LDA_flags();
+    //display_flags();
+}
+
 void execute(unsigned int *cycles)
 {
     unsigned char high_byte_data;
@@ -84,19 +112,11 @@ void execute(unsigned int *cycles)
                 break;
             }
             case LDA_ABS_X: {
-                unsigned char low_order_address = low_byte_data;
-                unsigned char high_order_address = fetch_byte(cycles);
-                unsigned short address = (high_order_address <<8) | low_order_address;
-                unsigned short temp_address = address + vm.x;
-                if((address & 0xFF00) != (temp_address & 0xFF00))
-                {
-                    *cycles -= 1;
-                }
-                vm.accumulator = memory.data[address+vm.x];
-                *cycles -= 1; // reading the byte from memory
-                LDA_flags();
-                printf("LDA_ABS_X: %d\n", vm.accumulator);
-                display_flags();
+                lda_abs_logic(cycles, &low_byte_data, true);
+                break;
+            }
+            case LDA_ABS_Y: {
+                lda_abs_logic(cycles, &low_byte_data, false);
                 break;
             }
             default: {
