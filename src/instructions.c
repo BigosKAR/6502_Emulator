@@ -65,13 +65,13 @@ void lda_abs_logic(unsigned int* cycles, unsigned char* low_byte, bool isX)
     {
         temp_address = address + vm.x;
         vm.accumulator = memory.data[address+vm.x];
-        printf("LDA_ABS_X: %d\n", vm.accumulator);
+        //printf("LDA_ABS_X: %d\n", vm.accumulator);
     }
     else
     {
         temp_address = address + vm.y;
         vm.accumulator = memory.data[address+vm.y];
-        printf("LDA_ABS_Y: %d\n", vm.accumulator);
+        //printf("LDA_ABS_Y: %d\n", vm.accumulator);
 
     }
     if((address & 0xFF00) != (temp_address & 0xFF00))
@@ -117,6 +117,16 @@ void execute(unsigned int *cycles)
             }
             case LDA_ABS_Y: {
                 lda_abs_logic(cycles, &low_byte_data, false);
+                break;
+            }
+            case LDA_ZP: {
+                // Useful for faster execution time because there is no need to fetch another byte
+                unsigned short address = (0x00<<8) | low_byte_data;
+                vm.accumulator = memory.data[address];
+                *cycles -= 1;
+                //printf("LDA_ZP: %d\n", vm.accumulator);
+                //display_flags();
+                LDA_flags();
                 break;
             }
             default: {

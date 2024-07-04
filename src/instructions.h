@@ -43,10 +43,11 @@
 #define JSR 0x20
 
 
-#define LDA_IMM 0xA9
-#define LDA_ABS 0xAD
-#define LDA_ABS_X 0xBD
-#define LDA_ABS_Y 0xB9
+#define LDA_IMM 0xA9 // 2 Cycles
+#define LDA_ABS 0xAD // 4 Cycles
+#define LDA_ABS_X 0xBD // 4 Cycles + 1 if page crossed
+#define LDA_ABS_Y 0xB9 // 4 Cycles + 1 if page crossed
+#define LDA_ZP 0xA5 // 3 Cycles
 
 #define LDX 0xA2
 #define LDY 0xA0
