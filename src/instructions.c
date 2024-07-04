@@ -68,7 +68,7 @@ void execute(unsigned int *cycles)
                 vm.accumulator = low_byte_data;
                 LDA_flags();
                 // For Debugging
-                printf("LDA: %d\n", vm.accumulator);
+                //printf("LDA: %d\n", vm.accumulator);
                 //display_flags();
                 break;
             }
@@ -78,8 +78,25 @@ void execute(unsigned int *cycles)
                 unsigned short address = (high_order_address <<8) | low_order_address;
                 vm.accumulator = memory.data[address];
                 *cycles -= 1; // reading the byte from memory
-                printf("LDA_ABS: %d\n", vm.accumulator);
                 LDA_flags();
+                //printf("LDA_ABS: %d\n", vm.accumulator);
+                //display_flags();
+                break;
+            }
+            case LDA_ABS_X: {
+                unsigned char low_order_address = low_byte_data;
+                unsigned char high_order_address = fetch_byte(cycles);
+                unsigned short address = (high_order_address <<8) | low_order_address;
+                unsigned short temp_address = address + vm.x;
+                if((address & 0xFF00) != (temp_address & 0xFF00))
+                {
+                    *cycles -= 1;
+                }
+                vm.accumulator = memory.data[address+vm.x];
+                *cycles -= 1; // reading the byte from memory
+                LDA_flags();
+                printf("LDA_ABS_X: %d\n", vm.accumulator);
+                display_flags();
                 break;
             }
             default: {

@@ -45,6 +45,7 @@
 
 #define LDA_IMM 0xA9
 #define LDA_ABS 0xAD
+#define LDA_ABS_X 0xBD
 
 #define LDX 0xA2
 #define LDY 0xA0
@@ -73,6 +74,17 @@
 #define TXS 0x9A
 #define TYA 0x98
 
+// MEMORY PAGES
+// 0x0000 - 0x00FF: Zero Page
+// 0x0100 - 0x01FF: Stack
+// 0x0200 - 0x07FF: RAM
+// 0x0800 - 0x1FFF: Mirrors of 0x0000 - 0x07FF
+// 0x2000 - 0x2007: PPU Registers
+// 0x2008 - 0x3FFF: Mirrors of 0x2000 - 0x2007
+// 0x4000 - 0x4017: APU and I/O Registers
+// 0x4018 - 0x401F: APU and I/O functionality that is normally disabled
+// 0x4020 - 0xFFFF: Cartridge space: PRG ROM, PRG RAM, and mapper registers
+
 struct VirtualMachine{
     unsigned short ip; // Pointer pointing to the instructions (high byte)
     
@@ -83,7 +95,7 @@ struct VirtualMachine{
     unsigned char processor_status; // Processor status register
     
     // Stack
-    unsigned char *sp; // Stack pointer
+    unsigned char sp; // Stack pointer
     
 };
 
