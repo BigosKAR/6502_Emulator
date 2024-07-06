@@ -48,6 +48,7 @@
 #define LDA_ABS_X 0xBD // 4 Cycles + 1 if page crossed
 #define LDA_ABS_Y 0xB9 // 4 Cycles + 1 if page crossed
 #define LDA_ZP 0xA5 // 3 Cycles
+#define LDA_ZP_X 0xB5 // 4 Cycles
 
 #define LDX 0xA2
 #define LDY 0xA0
@@ -110,6 +111,8 @@ extern struct Memory memory;
 
 void fetch_word(unsigned int *cycles, unsigned char *low_byte, unsigned char *high_byte);
 unsigned char fetch_byte(unsigned int *cycles);
+void lda_abs_logic(unsigned int *cycles, unsigned char *low_byte, bool isX);
 void execute(unsigned int *cycles);
+bool isOutOfBounds(unsigned short address);
 
 #endif

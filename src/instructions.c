@@ -124,9 +124,28 @@ void execute(unsigned int *cycles)
                 unsigned short address = (0x00<<8) | low_byte_data;
                 vm.accumulator = memory.data[address];
                 *cycles -= 1;
+                LDA_flags();
                 //printf("LDA_ZP: %d\n", vm.accumulator);
                 //display_flags();
+                break;
+            }
+            case LDA_ZP_X: {
+                unsigned short address = (0x00<<8) | low_byte_data;
+                if((address+vm.x)>0xFF)
+                {
+                    address = address + vm.x - 0xFF;
+                    *cycles -= 1;
+                }
+                else 
+                {
+                    address = address + vm.x;
+                    *cycles -= 1;
+                }
+                vm.accumulator = memory.data[address];
+                *cycles -= 1;
+                printf("LDA_ZP_X: %d\n", vm.accumulator);
                 LDA_flags();
+                display_flags();
                 break;
             }
             default: {
