@@ -50,6 +50,7 @@
 #define LDA_ZP 0xA5 // 3 Cycles
 #define LDA_ZP_X 0xB5 // 4 Cycles
 #define LDA_ZP_X_IND 0xA1 // 6 Cycles
+#define LDA_ZP_Y_IND 0xB1 // 5 Cycles + 1 if page crossed
 
 #define LDX 0xA2
 #define LDY 0xA0

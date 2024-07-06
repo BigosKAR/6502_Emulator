@@ -147,6 +147,25 @@ void execute(unsigned int *cycles)
                 lda_debug(LDA_ZP_X_IND);
                 break;
             }
+            case LDA_ZP_Y_IND: {
+                unsigned short address = (0x00<<8) | low_byte_data;
+                unsigned short indirect_address, temp_address;
+                unsigned char high_b_add, low_b_add;
+                fetch_word_zp(cycles, address, &low_b_add, &high_b_add); // -2 cycles
+                indirect_address = low_b_add << 8 | high_b_add;
+                temp_address = indirect_address;
+                indirect_address+=vm.y;
+                if((temp_address & 0xFF00) != (indirect_address & 0xFF00))
+                {
+                    *cycles -= 1; // If page boundary crossed then take 1 cycle
+                
+                }
+                vm.accumulator = memory.data[indirect_address];
+                *cycles -= 1;
+                LDA_flags();
+                lda_debug(LDA_ZP_Y_IND);
+                break;
+            }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 *cycles = 0;

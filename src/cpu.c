@@ -34,12 +34,12 @@ int main()
     int cycles = 6;
     int *ptr = &cycles;
     reset();
-    vm.x = 1;
-    memory.data[vm.ip] = 0xA1;
+    vm.y = 3;
+    memory.data[vm.ip] = 0xB1;
     memory.data[vm.ip+1] = 0x01; 
-    memory.data[0x0002] = 0x03;
-    memory.data[0x0003] = 0x07;
-    memory.data[0x0703] = 0x0A;
+    memory.data[0x0001] = 0xFF;
+    memory.data[0x0000] = 0x00;
+    memory.data[0x0102] = 0xFF;
     execute(ptr);
     return 0;
 }
