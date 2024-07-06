@@ -49,6 +49,7 @@
 #define LDA_ABS_Y 0xB9 // 4 Cycles + 1 if page crossed
 #define LDA_ZP 0xA5 // 3 Cycles
 #define LDA_ZP_X 0xB5 // 4 Cycles
+#define LDA_ZP_X_IND 0xA1 // 6 Cycles
 
 #define LDX 0xA2
 #define LDY 0xA0
@@ -113,6 +114,9 @@ void fetch_word(unsigned int *cycles, unsigned char *low_byte, unsigned char *hi
 unsigned char fetch_byte(unsigned int *cycles);
 void lda_abs_logic(unsigned int *cycles, unsigned char *low_byte, bool isX);
 void execute(unsigned int *cycles);
-bool isOutOfBounds(unsigned short address);
+bool out_of_bounds(unsigned short address);
+void zp_wrapping(int* cycles, unsigned short* address);
+void fetch_word_zp(unsigned int* cycles, unsigned short address, unsigned char* low_byte, unsigned char* high_byte);
+void lda_debug(unsigned char instruction);
 
 #endif

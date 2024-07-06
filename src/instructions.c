@@ -3,7 +3,7 @@
 #include "flags.h"
 #include <string.h>
 
-bool isOutOfBounds(unsigned short address)
+bool out_of_bounds(unsigned short address)
 {
     return address > MEM_MAX_SIZE;
 }
@@ -46,7 +46,7 @@ unsigned char fetch_byte(unsigned int* cycles)
 {
     unsigned char Byte = memory.data[vm.ip];
     vm.ip += 1;
-    if(isOutOfBounds(vm.ip))
+    if(out_of_bounds(vm.ip))
     {
         vm.ip = 0;
     }
@@ -65,14 +65,11 @@ void lda_abs_logic(unsigned int* cycles, unsigned char* low_byte, bool isX)
     {
         temp_address = address + vm.x;
         vm.accumulator = memory.data[address+vm.x];
-        //printf("LDA_ABS_X: %d\n", vm.accumulator);
     }
     else
     {
         temp_address = address + vm.y;
         vm.accumulator = memory.data[address+vm.y];
-        //printf("LDA_ABS_Y: %d\n", vm.accumulator);
-
     }
     if((address & 0xFF00) != (temp_address & 0xFF00))
     {
@@ -80,24 +77,23 @@ void lda_abs_logic(unsigned int* cycles, unsigned char* low_byte, bool isX)
     }
     *cycles -= 1; // reading the byte from memory
     LDA_flags();
-    //display_flags();
 }
 
+// execution of instructions *most important function*
 void execute(unsigned int *cycles)
 {
     unsigned char high_byte_data;
     unsigned char low_byte_data;
     while(*cycles > 0)
     {
-        fetch_word(cycles, &low_byte_data, &high_byte_data); // takes 1 cycle away
+        if(*cycles <= 0)break;
+        fetch_word(cycles, &low_byte_data, &high_byte_data); // takes 2 cycles away
         switch(high_byte_data)
         {
             case LDA_IMM: {
                 vm.accumulator = low_byte_data;
                 LDA_flags();
-                // For Debugging
-                //printf("LDA: %d\n", vm.accumulator);
-                //display_flags();
+                lda_debug(LDA_IMM);
                 break;
             }
             case LDA_ABS: {
@@ -107,16 +103,17 @@ void execute(unsigned int *cycles)
                 vm.accumulator = memory.data[address];
                 *cycles -= 1; // reading the byte from memory
                 LDA_flags();
-                //printf("LDA_ABS: %d\n", vm.accumulator);
-                //display_flags();
+                lda_debug(LDA_ABS);
                 break;
             }
             case LDA_ABS_X: {
                 lda_abs_logic(cycles, &low_byte_data, true);
+                lda_debug(LDA_ABS_X);
                 break;
             }
             case LDA_ABS_Y: {
                 lda_abs_logic(cycles, &low_byte_data, false);
+                lda_debug(LDA_ABS_Y);
                 break;
             }
             case LDA_ZP: {
@@ -125,27 +122,29 @@ void execute(unsigned int *cycles)
                 vm.accumulator = memory.data[address];
                 *cycles -= 1;
                 LDA_flags();
-                //printf("LDA_ZP: %d\n", vm.accumulator);
-                //display_flags();
+                lda_debug(LDA_ZP);
                 break;
             }
             case LDA_ZP_X: {
                 unsigned short address = (0x00<<8) | low_byte_data;
-                if((address+vm.x)>0xFF)
-                {
-                    address = address + vm.x - 0xFF;
-                    *cycles -= 1;
-                }
-                else 
-                {
-                    address = address + vm.x;
-                    *cycles -= 1;
-                }
+                zp_wrapping(cycles, &address);
                 vm.accumulator = memory.data[address];
                 *cycles -= 1;
-                printf("LDA_ZP_X: %d\n", vm.accumulator);
                 LDA_flags();
-                display_flags();
+                lda_debug(LDA_ZP_X);
+                break;
+            }
+            case LDA_ZP_X_IND: {
+                unsigned short address = (0x00<<8) | low_byte_data;
+                unsigned short new_address;
+                unsigned char high_b_add, low_b_add;
+                zp_wrapping(cycles, &address);
+                fetch_word_zp(cycles, address, &low_b_add, &high_b_add);
+                new_address = (low_b_add << 8) | high_b_add;
+                vm.accumulator = memory.data[new_address];
+                *cycles -= 1;
+                LDA_flags();
+                lda_debug(LDA_ZP_X_IND);
                 break;
             }
             default: {
@@ -155,4 +154,35 @@ void execute(unsigned int *cycles)
             }
         }
     }
+}
+
+// zero page functions
+
+void zp_wrapping(int* cycles, unsigned short* address)
+{
+    if((*address+vm.x)>0xFF) *address = *address + vm.x - 0xFF;
+    else *address = *address + vm.x;
+    *cycles -= 1;
+}
+void fetch_word_zp(unsigned int* cycles, unsigned short address, unsigned char* low_byte, unsigned char* high_byte)
+{
+    // fetching the word from an address given by 2 bytes in the zeropage
+    if(address == 0x00FF)
+    {
+        *high_byte = memory.data[0x00FF];
+        *low_byte = memory.data[0x0000];
+    }
+    else
+    {
+        *high_byte = memory.data[address];
+        *low_byte = memory.data[address+1];
+    }
+    *cycles -= 2;
+}
+
+// debugging functions
+void lda_debug(unsigned char instruction)
+{
+    printf("INSTRUCTION %x: %d\n", instruction, vm.accumulator);
+    display_flags();
 }

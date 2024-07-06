@@ -31,13 +31,15 @@ struct Memory memory;
 
 int main()
 {
-    int cycles = 4;
+    int cycles = 6;
     int *ptr = &cycles;
     reset();
     vm.x = 1;
-    memory.data[vm.ip] = 0xB5;
+    memory.data[vm.ip] = 0xA1;
     memory.data[vm.ip+1] = 0x01; 
-    memory.data[0x0002] = 0x00;
+    memory.data[0x0002] = 0x03;
+    memory.data[0x0003] = 0x07;
+    memory.data[0x0703] = 0x0A;
     execute(ptr);
     return 0;
 }
