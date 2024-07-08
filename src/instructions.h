@@ -70,14 +70,17 @@
 /// STA instructions
 #define STA_ABS 0x8D // 4 Cycles
 #define STA_ZP 0x85 // 3 Cycles
+#define STA_ZP_X 0x95 // 4 Cycles
 
 // STX instructions
 #define STX_ABS 0x8E // 4 Cycles
 #define STX_ZP 0x86 // 3 Cycles
+#define STX_ZP_Y 0x96 // 4 Cycles
 
 // STY instructions
 #define STY_ABS 0x8C // 4 Cycles
 #define STY_ZP 0x84 // 3 Cycles
+#define STY_ZP_X 0x94 // 4 Cycles
 
 #define LDY 0xA0
 #define LSR 0x4A
@@ -151,6 +154,7 @@ void lda_zp_y_ind(unsigned int* cycles, unsigned char* low_byte);
 
 void st_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char instruction);
 void st_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char instruction);
+void st_zp_reg_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char vm_reg_indexed, unsigned char instruction);
 
 
 // main execution function

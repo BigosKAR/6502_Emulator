@@ -148,6 +148,11 @@ void execute(unsigned int *cycles)
                 st_zp_logic(cycles, low_byte_data, vm.accumulator, STA_ZP);
                 break;
             }
+            case STA_ZP_X:
+            {
+                st_zp_reg_logic(cycles, low_byte_data, vm.accumulator, vm.x, STA_ZP_X);
+                break;
+            }
             case STX_ABS: {
                 st_abs_logic(cycles, low_byte_data, vm.x, STX_ABS);
                 break;
@@ -156,12 +161,20 @@ void execute(unsigned int *cycles)
                 st_zp_logic(cycles, low_byte_data, vm.x, STX_ZP);
                 break;
             }
+            case STX_ZP_Y: {
+                st_zp_reg_logic(cycles, low_byte_data, vm.x, vm.y, STX_ZP_Y);
+                break;
+            }
             case STY_ABS: {
                 st_abs_logic(cycles, low_byte_data, vm.y, STY_ABS);
                 break;
             }
             case STY_ZP: {
                 st_zp_logic(cycles, low_byte_data, vm.y, STX_ZP);
+                break;
+            }
+            case STY_ZP_X: {
+                st_zp_reg_logic(cycles, low_byte_data, vm.y, vm.x,STY_ZP_X);
                 break;
             }
             default: {
@@ -282,7 +295,16 @@ void st_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned
     // no flags affected
     debug(instruction, memory.data[address]);
 }
-
+void st_zp_reg_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char vm_reg_indexed, unsigned char instruction)
+{
+    cycle_check(4-2, cycles);
+    unsigned short zp_address = (0x00<<8) | low_order_address;
+    zp_wrapping(cycles, &zp_address, vm_reg_indexed);  // takes 1 cycle
+    memory.data[zp_address] = vm_register;
+    *cycles -= 1;
+    // no flags affected
+    debug(instruction, memory.data[zp_address]);
+}
 
 // zero page functions
 void zp_wrapping(int* cycles, unsigned short* address, unsigned char vm_register)
