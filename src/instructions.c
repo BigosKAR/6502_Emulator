@@ -140,6 +140,30 @@ void execute(unsigned int *cycles)
                 ld_zp_reg_logic(cycles, &low_byte_data, &vm.y, vm.x, LDY_ZP_X);
                 break;
             }
+            case STA_ABS: {
+                st_abs_logic(cycles, low_byte_data, vm.accumulator, STA_ABS);
+                break;
+            }
+            case STA_ZP: {
+                st_zp_logic(cycles, low_byte_data, vm.accumulator, STA_ZP);
+                break;
+            }
+            case STX_ABS: {
+                st_abs_logic(cycles, low_byte_data, vm.x, STX_ABS);
+                break;
+            }
+            case STX_ZP:{
+                st_zp_logic(cycles, low_byte_data, vm.x, STX_ZP);
+                break;
+            }
+            case STY_ABS: {
+                st_abs_logic(cycles, low_byte_data, vm.y, STY_ABS);
+                break;
+            }
+            case STY_ZP: {
+                st_zp_logic(cycles, low_byte_data, vm.y, STX_ZP);
+                break;
+            }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 *cycles = 0;
@@ -239,6 +263,27 @@ void lda_zp_y_ind(unsigned int* cycles, unsigned char* low_byte)
     debug(LDA_ZP_Y_IND, vm.accumulator);
 }
 
+void st_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char instruction)
+{
+    cycle_check(4-2, cycles);
+    unsigned char high_order_address = fetch_byte(cycles);
+    unsigned short address = (high_order_address <<8) | low_order_address;
+    memory.data[address] = vm_register;
+    *cycles -= 1; 
+    // no flags affected
+    debug(instruction, memory.data[address]);
+}
+void st_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char instruction)
+{
+    cycle_check(3-2, cycles);
+    unsigned short address = (0x00<<8) | low_order_address;
+    memory.data[address] = vm_register;
+    *cycles -= 1;
+    // no flags affected
+    debug(instruction, memory.data[address]);
+}
+
+
 // zero page functions
 void zp_wrapping(int* cycles, unsigned short* address, unsigned char vm_register)
 {
@@ -263,9 +308,9 @@ void fetch_word_zp(unsigned int* cycles, unsigned short address, unsigned char* 
 }
 
 // debugging functions
-void debug(unsigned char instruction, unsigned char vm_register)
+void debug(unsigned char instruction, unsigned char component)
 {
-    printf("INSTRUCTION %x: %d (%x in hexadecimal)\n", instruction, vm_register, vm_register);
+    printf("INSTRUCTION %x: %d (%x in hexadecimal)\n", instruction, component, component);
     display_flags();
 }
 

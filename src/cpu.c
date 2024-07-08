@@ -32,17 +32,14 @@ struct Memory memory;
 
 int main()
 {
-    int cycles = 8;
+    int cycles = 3;
     int *ptr = &cycles;
     reset();
-    vm.y = 1;
-    memory.data[vm.ip] = 0xB1;
-    memory.data[vm.ip+1] = 0xFF;
-    memory.data[vm.ip+2] = 0xA9;
-    memory.data[vm.ip+3] = 0xAD;
-    memory.data[0x00FF] =  0xFF;
-    memory.data[0x0000] = 0xAB;
-    memory.data[0xAC00] = 0x47;
+    vm.accumulator = 93;
+    vm.x = 194;
+    vm.y = 139;
+    memory.data[vm.ip] = STY_ZP;
+    memory.data[vm.ip + 1] = 0xFF;
     execute(ptr);
     return 0;
 }
