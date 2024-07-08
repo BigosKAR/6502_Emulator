@@ -32,12 +32,13 @@ struct Memory memory;
 
 int main()
 {
-    int cycles = 2;
+    int cycles = 4;
     int *ptr = &cycles;
     reset();
-    vm.y = 2;
-    memory.data[vm.ip] = 0xA2;
-    memory.data[vm.ip+1] = 0x5E;
+    vm.x = 10;
+    memory.data[vm.ip] = 0xB4;
+    memory.data[vm.ip+1] = 0xFF;
+    memory.data[0x0009] = 0x0A;
     execute(ptr);
     return 0;
 }

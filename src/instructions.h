@@ -126,20 +126,26 @@ struct Memory{
 extern struct VirtualMachine vm;
 extern struct Memory memory;
 
+// fetch functions
 void fetch_word(unsigned int *cycles, unsigned char *low_byte, unsigned char *high_byte);
 unsigned char fetch_byte(unsigned int *cycles);
 
-void lda_abs_logic(unsigned int *cycles, unsigned char *low_byte, unsigned char vm_register, unsigned char instruction);
+// instruction functions
+void ld_abs_reg_logic(unsigned int* cycles, unsigned char* low_order_address, unsigned char* vm_register, unsigned char vm_reg_indexed, unsigned char instruction);
 void ld_imm_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char *vm_register, unsigned char instruction);
+void ld_abs_logic(unsigned int* cycles, unsigned char* low_order_address, unsigned char* vm_register, unsigned char instruction);
+void ld_zp_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char* vm_register, unsigned char instruction);
+void ld_zp_reg_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char* vm_register, unsigned char vm_reg_indexed, unsigned char instruction);
 
+// main execution function
 void execute(unsigned int *cycles);
-bool out_of_bounds(unsigned short address);
 
+// zeropage-related functions
 void zp_wrapping(int* cycles, unsigned short* address, unsigned char vm_register);
 void fetch_word_zp(unsigned int* cycles, unsigned short address, unsigned char* low_byte, unsigned char* high_byte);
 
+// helper functions
 void debug(unsigned char instruction, unsigned char vm_register);
-
 void cycle_check(unsigned int cycle_amount, unsigned int* cycles);
-
+bool out_of_bounds(unsigned short address);
 #endif
