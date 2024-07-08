@@ -3,10 +3,11 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // Flag names
 
-const char flag_names[8][14] = {
+const char flag_names[8][15] = {
     "FLAG_CARRY",
     "FLAG_ZERO",
     "FLAG_INTERRUPT",
@@ -44,10 +45,18 @@ void clear_flag(unsigned char flag)
 
 // Instruction-specific flag functions
 
-void LDA_flags() // Low byte data needed to check the 7th bit of the accumulator
+void LDA_flags()
 {
     if(vm.accumulator >= 128)set_flag(FLAG_NEGATIVE);
     else clear_flag(FLAG_NEGATIVE); 
     if(vm.accumulator == 0)set_flag(FLAG_ZERO);
+    else clear_flag(FLAG_ZERO);
+}
+
+void LDX_flags()
+{
+    if(vm.x >= 128)set_flag(FLAG_NEGATIVE);
+    else clear_flag(FLAG_NEGATIVE); 
+    if(vm.x == 0)set_flag(FLAG_ZERO);
     else clear_flag(FLAG_ZERO);
 }

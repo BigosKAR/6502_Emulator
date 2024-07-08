@@ -2,6 +2,7 @@
 #include "instructions.h"
 #include "flags.h"
 #include <string.h>
+#include <stdlib.h>
 
 typedef enum result{
     SUCCESS, // will have value 0
@@ -31,15 +32,14 @@ struct Memory memory;
 
 int main()
 {
-    int cycles = 6;
+    int cycles = 4;
     int *ptr = &cycles;
     reset();
-    vm.y = 3;
-    memory.data[vm.ip] = 0xB1;
-    memory.data[vm.ip+1] = 0x01; 
-    memory.data[0x0001] = 0xFF;
-    memory.data[0x0000] = 0x00;
-    memory.data[0x0102] = 0xFF;
+    vm.y = 0;
+    memory.data[vm.ip] = 0xBE;
+    memory.data[vm.ip+1] = 0xFF;
+    memory.data[vm.ip+2] = 0x00;
+    memory.data[0x00FF] = 0xA3;
     execute(ptr);
     return 0;
 }

@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include "flags.h"
 #include <string.h>
+#include <stdlib.h>
 
 bool out_of_bounds(unsigned short address)
 {
@@ -74,6 +75,7 @@ void lda_abs_logic(unsigned int* cycles, unsigned char* low_byte, bool isX)
     if((address & 0xFF00) != (temp_address & 0xFF00))
     {
         *cycles -= 1; // If page boundary crossed then take 1 cycle
+        cycle_check(1, cycles);
     }
     *cycles -= 1; // reading the byte from memory
     LDA_flags();
@@ -91,12 +93,14 @@ void execute(unsigned int *cycles)
         switch(high_byte_data)
         {
             case LDA_IMM: {
+                cycle_check(2-2, cycles); // for cycle check subtract 2 because they were taken away in fetch_word
                 vm.accumulator = low_byte_data;
                 LDA_flags();
                 lda_debug(LDA_IMM);
                 break;
             }
             case LDA_ABS: {
+                cycle_check(4-2, cycles);
                 unsigned char low_order_address = low_byte_data;
                 unsigned char high_order_address = fetch_byte(cycles);
                 unsigned short address = (high_order_address <<8) | low_order_address;
@@ -107,17 +111,20 @@ void execute(unsigned int *cycles)
                 break;
             }
             case LDA_ABS_X: {
+                cycle_check(4-2, cycles); // check cycle check inside LDA abs
                 lda_abs_logic(cycles, &low_byte_data, true);
                 lda_debug(LDA_ABS_X);
                 break;
             }
             case LDA_ABS_Y: {
+                cycle_check(4-2, cycles); 
                 lda_abs_logic(cycles, &low_byte_data, false);
                 lda_debug(LDA_ABS_Y);
                 break;
             }
             case LDA_ZP: {
                 // Useful for faster execution time because there is no need to fetch another byte
+                cycle_check(3-2, cycles);
                 unsigned short address = (0x00<<8) | low_byte_data;
                 vm.accumulator = memory.data[address];
                 *cycles -= 1;
@@ -126,6 +133,7 @@ void execute(unsigned int *cycles)
                 break;
             }
             case LDA_ZP_X: {
+                cycle_check(4-2, cycles);
                 unsigned short address = (0x00<<8) | low_byte_data;
                 zp_wrapping(cycles, &address);
                 vm.accumulator = memory.data[address];
@@ -135,6 +143,7 @@ void execute(unsigned int *cycles)
                 break;
             }
             case LDA_ZP_X_IND: {
+                cycle_check(6-2, cycles);
                 unsigned short address = (0x00<<8) | low_byte_data;
                 unsigned short new_address;
                 unsigned char high_b_add, low_b_add;
@@ -148,6 +157,7 @@ void execute(unsigned int *cycles)
                 break;
             }
             case LDA_ZP_Y_IND: {
+                cycle_check(5-2, cycles); // does not check for extra cycle
                 unsigned short address = (0x00<<8) | low_byte_data;
                 unsigned short indirect_address, temp_address;
                 unsigned char high_b_add, low_b_add;
@@ -158,12 +168,46 @@ void execute(unsigned int *cycles)
                 if((temp_address & 0xFF00) != (indirect_address & 0xFF00))
                 {
                     *cycles -= 1; // If page boundary crossed then take 1 cycle
+                    cycle_check(1, cycles);
                 
                 }
                 vm.accumulator = memory.data[indirect_address];
                 *cycles -= 1;
                 LDA_flags();
                 lda_debug(LDA_ZP_Y_IND);
+                break;
+            }
+            case LDX_IMM: {
+                cycle_check(2-2, cycles);
+                vm.x = low_byte_data;
+                LDX_flags();
+                ldx_debug(LDX_IMM);
+                break;
+            }
+            case LDX_ABS: {
+                cycle_check(4-2, cycles);
+                unsigned short address = (fetch_byte(cycles) << 8) | low_byte_data;
+                vm.x = memory.data[address];
+                *cycles -= 1;
+                LDX_flags();
+                ldx_debug(LDX_ABS);
+                break;
+            }
+            case LDX_ABS_Y: {
+                cycle_check(4-2, cycles);
+                unsigned short address, temp_address;
+                address = (fetch_byte(cycles) << 8) | low_byte_data;
+                temp_address = address;
+                address += vm.y;
+                if((temp_address & 0xFF00) != (address & 0xFF00))
+                {
+                    *cycles -= 1;
+                    cycle_check(1, cycles);
+                }
+                vm.x = memory.data[address];
+                *cycles -= 1;
+                LDX_flags();
+                ldx_debug(LDX_ABS_Y);
                 break;
             }
             default: {
@@ -204,4 +248,20 @@ void lda_debug(unsigned char instruction)
 {
     printf("INSTRUCTION %x: %d\n", instruction, vm.accumulator);
     display_flags();
+}
+
+void ldx_debug(unsigned char instruction)
+{
+    printf("INSTRUCTION %x: %d\n", instruction, vm.x);
+    display_flags();
+}
+
+// other functions
+void cycle_check(unsigned int cycle_amount, unsigned int* cycles)
+{
+    if(!(*cycles >= cycle_amount)) // -2 cycles because the first operation is the same for every instruction (opcode and 1 operand)
+    {
+        printf("Insufficient cycle amount!\n");
+        exit(EXIT_FAILURE);
+    }
 }

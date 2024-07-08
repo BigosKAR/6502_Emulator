@@ -6,6 +6,7 @@
 #include "instructions.h"
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 
 // FLAGS
 
@@ -18,7 +19,7 @@
 #define FLAG_OVERFLOW 0x40
 #define FLAG_NEGATIVE 0x80
 
-extern const char flag_names[8][14];;
+extern const char flag_names[8][15];;
 
 // General flag functions
 
@@ -31,5 +32,6 @@ void display_flags();
 // Instruction-specific flag functions
 
 void LDA_flags();
+void LDX_flags();
 
 #endif
