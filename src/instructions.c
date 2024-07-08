@@ -135,7 +135,7 @@ void execute(unsigned int *cycles)
             case LDA_ZP_X: {
                 cycle_check(4-2, cycles);
                 unsigned short address = (0x00<<8) | low_byte_data;
-                zp_wrapping(cycles, &address);
+                zp_wrapping(cycles, &address, true);  //changing the address, checking for potential zeropage wrapping
                 vm.accumulator = memory.data[address];
                 *cycles -= 1;
                 LDA_flags();
@@ -147,7 +147,7 @@ void execute(unsigned int *cycles)
                 unsigned short address = (0x00<<8) | low_byte_data;
                 unsigned short new_address;
                 unsigned char high_b_add, low_b_add;
-                zp_wrapping(cycles, &address);
+                zp_wrapping(cycles, &address, true);  //changing the address, checking for potential zeropage wrapping
                 fetch_word_zp(cycles, address, &low_b_add, &high_b_add);
                 new_address = (low_b_add << 8) | high_b_add;
                 vm.accumulator = memory.data[new_address];
@@ -210,6 +210,25 @@ void execute(unsigned int *cycles)
                 ldx_debug(LDX_ABS_Y);
                 break;
             }
+            case LDX_ZP: {
+                cycle_check(3-2, cycles);
+                unsigned short zp_address = (0x00<<8) | low_byte_data;
+                vm.x = memory.data[zp_address];
+                *cycles -= 1;
+                LDX_flags();
+                ldx_debug(LDX_ZP);
+                break;
+            }
+            case LDX_ZP_Y: {
+                cycle_check(4-2, cycles);
+                unsigned short zp_address = (0x00<<8) | low_byte_data;
+                zp_wrapping(cycles, &zp_address, false); //changing the address, checking for potential zeropage wrapping
+                vm.x = memory.data[zp_address];
+                *cycles -= 1;
+                LDX_flags();
+                ldx_debug(LDX_ZP_Y);
+                break;
+            }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 *cycles = 0;
@@ -221,11 +240,20 @@ void execute(unsigned int *cycles)
 
 // zero page functions
 
-void zp_wrapping(int* cycles, unsigned short* address)
+void zp_wrapping(int* cycles, unsigned short* address, bool isX) //isX checks which register to use for addition
 {
-    if((*address+vm.x)>0xFF) *address = *address + vm.x - 0xFF;
+    if(isX)
+    {
+    if((*address+vm.x)>0xFF) *address = *address + vm.x - 0x100; // -0x100 to include the 0th position in memory
     else *address = *address + vm.x;
     *cycles -= 1;
+    }
+    else
+    {
+    if((*address+vm.y)>0xFF) *address = *address + vm.y - 0x100;
+    else *address = *address + vm.y;
+    *cycles -= 1; 
+    }
 }
 void fetch_word_zp(unsigned int* cycles, unsigned short address, unsigned char* low_byte, unsigned char* high_byte)
 {
