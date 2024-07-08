@@ -60,6 +60,13 @@
 #define LDX_ZP 0xA6 // 3 Cycles
 #define LDX_ZP_Y 0xB6 // 4 Cycles
 
+// LDY instructions
+#define LDY_IMM 0xA0 // 2 Cycles
+#define LDY_ABS 0xAC // 4 Cycles
+#define LDY_ABS_X 0xBC // 4 Cycles + 1 if page crossed
+#define LDY_ZP 0xA4 // 3 Cycles
+#define LDY_ZP_X 0xB4 // 4 Cycles
+
 
 #define LDY 0xA0
 #define LSR 0x4A
@@ -121,15 +128,17 @@ extern struct Memory memory;
 
 void fetch_word(unsigned int *cycles, unsigned char *low_byte, unsigned char *high_byte);
 unsigned char fetch_byte(unsigned int *cycles);
-void lda_abs_logic(unsigned int *cycles, unsigned char *low_byte, bool isX);
+
+void lda_abs_logic(unsigned int *cycles, unsigned char *low_byte, unsigned char vm_register, unsigned char instruction);
+void ld_imm_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char *vm_register, unsigned char instruction);
+
 void execute(unsigned int *cycles);
 bool out_of_bounds(unsigned short address);
 
-void zp_wrapping(int* cycles, unsigned short* address, bool isX);
+void zp_wrapping(int* cycles, unsigned short* address, unsigned char vm_register);
 void fetch_word_zp(unsigned int* cycles, unsigned short address, unsigned char* low_byte, unsigned char* high_byte);
 
-void lda_debug(unsigned char instruction);
-void ldx_debug(unsigned char instruction);
+void debug(unsigned char instruction, unsigned char vm_register);
 
 void cycle_check(unsigned int cycle_amount, unsigned int* cycles);
 

@@ -56,31 +56,6 @@ unsigned char fetch_byte(unsigned int* cycles)
     return Byte;
 }
 
-void lda_abs_logic(unsigned int* cycles, unsigned char* low_byte, bool isX)
-{
-    unsigned char low_order_address = *low_byte;
-    unsigned char high_order_address = fetch_byte(cycles);
-    unsigned short address = (high_order_address <<8) | low_order_address;
-    unsigned short temp_address;
-    if(isX)
-    {
-        temp_address = address + vm.x;
-        vm.accumulator = memory.data[address+vm.x];
-    }
-    else
-    {
-        temp_address = address + vm.y;
-        vm.accumulator = memory.data[address+vm.y];
-    }
-    if((address & 0xFF00) != (temp_address & 0xFF00))
-    {
-        *cycles -= 1; // If page boundary crossed then take 1 cycle
-        cycle_check(1, cycles);
-    }
-    *cycles -= 1; // reading the byte from memory
-    LDA_flags();
-}
-
 // execution of instructions *most important function*
 void execute(unsigned int *cycles)
 {
@@ -93,10 +68,7 @@ void execute(unsigned int *cycles)
         switch(high_byte_data)
         {
             case LDA_IMM: {
-                cycle_check(2-2, cycles); // for cycle check subtract 2 because they were taken away in fetch_word
-                vm.accumulator = low_byte_data;
-                LDA_flags();
-                lda_debug(LDA_IMM);
+                ld_imm_logic(cycles, &low_byte_data, &vm.accumulator, LDA_IMM);
                 break;
             }
             case LDA_ABS: {
@@ -106,20 +78,16 @@ void execute(unsigned int *cycles)
                 unsigned short address = (high_order_address <<8) | low_order_address;
                 vm.accumulator = memory.data[address];
                 *cycles -= 1; // reading the byte from memory
-                LDA_flags();
-                lda_debug(LDA_ABS);
+                LD_flags(vm.accumulator);
+                debug(LDA_ABS, vm.accumulator);
                 break;
             }
             case LDA_ABS_X: {
-                cycle_check(4-2, cycles); // check cycle check inside LDA abs
-                lda_abs_logic(cycles, &low_byte_data, true);
-                lda_debug(LDA_ABS_X);
+                lda_abs_logic(cycles, &low_byte_data, vm.x, LDA_ABS_X);
                 break;
             }
             case LDA_ABS_Y: {
-                cycle_check(4-2, cycles); 
-                lda_abs_logic(cycles, &low_byte_data, false);
-                lda_debug(LDA_ABS_Y);
+                lda_abs_logic(cycles, &low_byte_data, vm.y, LDA_ABS_Y);
                 break;
             }
             case LDA_ZP: {
@@ -128,18 +96,18 @@ void execute(unsigned int *cycles)
                 unsigned short address = (0x00<<8) | low_byte_data;
                 vm.accumulator = memory.data[address];
                 *cycles -= 1;
-                LDA_flags();
-                lda_debug(LDA_ZP);
+                LD_flags(vm.accumulator);
+                debug(LDA_ZP, vm.accumulator);
                 break;
             }
             case LDA_ZP_X: {
                 cycle_check(4-2, cycles);
                 unsigned short address = (0x00<<8) | low_byte_data;
-                zp_wrapping(cycles, &address, true);  //changing the address, checking for potential zeropage wrapping
+                zp_wrapping(cycles, &address, vm.x);  //changing the address, checking for potential zeropage wrapping
                 vm.accumulator = memory.data[address];
                 *cycles -= 1;
-                LDA_flags();
-                lda_debug(LDA_ZP_X);
+                LD_flags(vm.accumulator);
+                debug(LDA_ZP_X, vm.accumulator);
                 break;
             }
             case LDA_ZP_X_IND: {
@@ -147,13 +115,13 @@ void execute(unsigned int *cycles)
                 unsigned short address = (0x00<<8) | low_byte_data;
                 unsigned short new_address;
                 unsigned char high_b_add, low_b_add;
-                zp_wrapping(cycles, &address, true);  //changing the address, checking for potential zeropage wrapping
+                zp_wrapping(cycles, &address, vm.x);  //changing the address, checking for potential zeropage wrapping
                 fetch_word_zp(cycles, address, &low_b_add, &high_b_add);
                 new_address = (low_b_add << 8) | high_b_add;
                 vm.accumulator = memory.data[new_address];
                 *cycles -= 1;
-                LDA_flags();
-                lda_debug(LDA_ZP_X_IND);
+                LD_flags(vm.accumulator);
+                debug(LDA_ZP_X_IND, vm.accumulator);
                 break;
             }
             case LDA_ZP_Y_IND: {
@@ -173,15 +141,12 @@ void execute(unsigned int *cycles)
                 }
                 vm.accumulator = memory.data[indirect_address];
                 *cycles -= 1;
-                LDA_flags();
-                lda_debug(LDA_ZP_Y_IND);
+                LD_flags(vm.accumulator);
+                debug(LDA_ZP_Y_IND, vm.accumulator);
                 break;
             }
             case LDX_IMM: {
-                cycle_check(2-2, cycles);
-                vm.x = low_byte_data;
-                LDX_flags();
-                ldx_debug(LDX_IMM);
+                ld_imm_logic(cycles, &low_byte_data, &vm.x, LDX_IMM);
                 break;
             }
             case LDX_ABS: {
@@ -189,8 +154,8 @@ void execute(unsigned int *cycles)
                 unsigned short address = (fetch_byte(cycles) << 8) | low_byte_data;
                 vm.x = memory.data[address];
                 *cycles -= 1;
-                LDX_flags();
-                ldx_debug(LDX_ABS);
+                LD_flags(vm.x);
+                debug(LDX_ABS, vm.x);
                 break;
             }
             case LDX_ABS_Y: {
@@ -206,8 +171,8 @@ void execute(unsigned int *cycles)
                 }
                 vm.x = memory.data[address];
                 *cycles -= 1;
-                LDX_flags();
-                ldx_debug(LDX_ABS_Y);
+                LD_flags(vm.x);
+                debug(LDX_ABS_Y, vm.x);
                 break;
             }
             case LDX_ZP: {
@@ -215,18 +180,22 @@ void execute(unsigned int *cycles)
                 unsigned short zp_address = (0x00<<8) | low_byte_data;
                 vm.x = memory.data[zp_address];
                 *cycles -= 1;
-                LDX_flags();
-                ldx_debug(LDX_ZP);
+                LD_flags(vm.x);
+                debug(LDX_ZP, vm.x);
                 break;
             }
             case LDX_ZP_Y: {
                 cycle_check(4-2, cycles);
                 unsigned short zp_address = (0x00<<8) | low_byte_data;
-                zp_wrapping(cycles, &zp_address, false); //changing the address, checking for potential zeropage wrapping
+                zp_wrapping(cycles, &zp_address, vm.y); //changing the address, checking for potential zeropage wrapping
                 vm.x = memory.data[zp_address];
                 *cycles -= 1;
-                LDX_flags();
-                ldx_debug(LDX_ZP_Y);
+                LD_flags(vm.x);
+                debug(LDX_ZP_Y, vm.x);
+                break;
+            }
+            case LDY_IMM: {
+                ld_imm_logic(cycles, &low_byte_data, &vm.y, LDY_IMM);
                 break;
             }
             default: {
@@ -238,22 +207,40 @@ void execute(unsigned int *cycles)
     }
 }
 
-// zero page functions
-
-void zp_wrapping(int* cycles, unsigned short* address, bool isX) //isX checks which register to use for addition
+// instruction functions for repeating code
+void lda_abs_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char vm_register, unsigned char instruction)
 {
-    if(isX)
+    cycle_check(4-2, cycles); 
+    unsigned char low_order_address = *low_byte;
+    unsigned char high_order_address = fetch_byte(cycles);
+    unsigned short address = (high_order_address <<8) | low_order_address;
+    unsigned short temp_address;
+    temp_address = address + vm_register;
+    vm.accumulator = memory.data[address+vm_register];
+    if((address & 0xFF00) != (temp_address & 0xFF00))
     {
-    if((*address+vm.x)>0xFF) *address = *address + vm.x - 0x100; // -0x100 to include the 0th position in memory
-    else *address = *address + vm.x;
+        *cycles -= 1; // If page boundary crossed then take 1 cycle
+        cycle_check(1, cycles);
+    }
+    *cycles -= 1; // reading the byte from memory
+    LD_flags(vm.accumulator);
+    debug(instruction, vm.accumulator);
+}
+
+void ld_imm_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char *vm_register, unsigned char instruction)
+{
+    cycle_check(2-2, cycles);
+    *vm_register = *low_byte;
+    LD_flags(*vm_register);
+    debug(instruction, *vm_register);
+}
+
+// zero page functions
+void zp_wrapping(int* cycles, unsigned short* address, unsigned char vm_register)
+{
+    if((*address+vm_register)>0xFF) *address = *address + vm_register - 0x100; // -0x100 to include the 0th position in memory
+    else *address = *address + vm_register;
     *cycles -= 1;
-    }
-    else
-    {
-    if((*address+vm.y)>0xFF) *address = *address + vm.y - 0x100;
-    else *address = *address + vm.y;
-    *cycles -= 1; 
-    }
 }
 void fetch_word_zp(unsigned int* cycles, unsigned short address, unsigned char* low_byte, unsigned char* high_byte)
 {
@@ -272,15 +259,9 @@ void fetch_word_zp(unsigned int* cycles, unsigned short address, unsigned char* 
 }
 
 // debugging functions
-void lda_debug(unsigned char instruction)
+void debug(unsigned char instruction, unsigned char vm_register)
 {
-    printf("INSTRUCTION %x: %d\n", instruction, vm.accumulator);
-    display_flags();
-}
-
-void ldx_debug(unsigned char instruction)
-{
-    printf("INSTRUCTION %x: %d\n", instruction, vm.x);
+    printf("INSTRUCTION %x: %d\n", instruction, vm_register);
     display_flags();
 }
 

@@ -45,18 +45,10 @@ void clear_flag(unsigned char flag)
 
 // Instruction-specific flag functions
 
-void LDA_flags()
+void LD_flags(unsigned char value)
 {
-    if(vm.accumulator >= 128)set_flag(FLAG_NEGATIVE);
+    if(value >= 128)set_flag(FLAG_NEGATIVE);
     else clear_flag(FLAG_NEGATIVE); 
-    if(vm.accumulator == 0)set_flag(FLAG_ZERO);
-    else clear_flag(FLAG_ZERO);
-}
-
-void LDX_flags()
-{
-    if(vm.x >= 128)set_flag(FLAG_NEGATIVE);
-    else clear_flag(FLAG_NEGATIVE); 
-    if(vm.x == 0)set_flag(FLAG_ZERO);
+    if(value == 0)set_flag(FLAG_ZERO);
     else clear_flag(FLAG_ZERO);
 }

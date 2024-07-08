@@ -31,7 +31,7 @@ void display_flags();
 
 // Instruction-specific flag functions
 
-void LDA_flags();
-void LDX_flags();
+void LD_flags(unsigned char value);
+
 
 #endif
