@@ -32,14 +32,17 @@ struct Memory memory;
 
 int main()
 {
-    int cycles = 4;
+    int cycles = 6;
     int *ptr = &cycles;
     reset();
-    vm.accumulator = 137;
-    vm.x = 124;
-    vm.y = 112;
-    memory.data[vm.ip] = STY_ZP_X;
-    memory.data[vm.ip + 1] = 0x00;
+    vm.accumulator = 247;
+    vm.x = 94;
+    vm.y = 95;
+    memory.data[vm.ip] = STA_ZP_Y_IND;
+    memory.data[vm.ip + 1] = 0xFF;
+    memory.data[0x00FF] = 0xFF;
+    memory.data[0x0000] = 0xFF;
     execute(ptr);
+    printf("Memory at memory.data[0x005E]: %d (%x in hexa)\n", memory.data[0x005E], memory.data[0x005E]);
     return 0;
 }

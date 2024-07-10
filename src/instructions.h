@@ -71,6 +71,10 @@
 #define STA_ABS 0x8D // 4 Cycles
 #define STA_ZP 0x85 // 3 Cycles
 #define STA_ZP_X 0x95 // 4 Cycles
+#define STA_ABS_X 0x9D // 5 Cycles
+#define STA_ABS_Y 0x99 // 5 Cycles
+#define STA_ZP_X_IND 0x81 // 6 Cycles
+#define STA_ZP_Y_IND 0x91 // 6 Cycles
 
 // STX instructions
 #define STX_ABS 0x8E // 4 Cycles
@@ -155,6 +159,9 @@ void lda_zp_y_ind(unsigned int* cycles, unsigned char* low_byte);
 void st_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char instruction);
 void st_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char instruction);
 void st_zp_reg_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char vm_reg_indexed, unsigned char instruction);
+void sta_abs_reg_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_reg_indexed, unsigned char instruction);
+void sta_zp_x_ind(unsigned int* cycles, unsigned char low_byte);
+void sta_zp_y_ind(unsigned int* cycles, unsigned char low_byte);
 
 
 // main execution function
@@ -168,4 +175,5 @@ void fetch_word_zp(unsigned int* cycles, unsigned short address, unsigned char* 
 void debug(unsigned char instruction, unsigned char component);
 void cycle_check(unsigned int cycle_amount, unsigned int* cycles);
 bool out_of_bounds(unsigned short address);
+void wrap_address(unsigned short* address);
 #endif
