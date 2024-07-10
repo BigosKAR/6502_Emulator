@@ -94,14 +94,16 @@
 #define TXS 0x9A // 2 Cycles 
 #define TYA 0x98 // 2 Cycles
 
+// Stack instructions
+#define PHA 0x48 // 3 Cycles
+#define PHP 0x08 // 3 Cycles
+#define PLA 0x68 // 4 Cycles
+#define PLP 0x28 // 4 Cycles
+
 #define LDY 0xA0
 #define LSR 0x4A
 #define NOP 0xEA
 #define ORA 0x09
-#define PHA 0x48
-#define PHP 0x08
-#define PLA 0x68
-#define PLP 0x28
 #define ROL 0x2A
 #define ROR 0x6A
 #define RTI 0x40
@@ -167,6 +169,8 @@ void sta_zp_y_ind(unsigned int* cycles, unsigned char low_byte);
 
 void trans_logic(unsigned int* cycles, unsigned char* vmr_destination, unsigned char vmr_source, unsigned char instruction, bool isTXS);
 
+void push_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned char instruction);
+void pull_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned char instruction, bool isPLA);
 
 // main execution function
 void execute(unsigned int *cycles);
@@ -180,4 +184,6 @@ void debug(unsigned char instruction, unsigned char component);
 void cycle_check(unsigned int cycle_amount, unsigned int* cycles);
 bool out_of_bounds(unsigned short address);
 void wrap_address(unsigned short* address);
+void wrap_stack_pointer();
+void onebyte_ins_fix(unsigned int* cycles); // Function for fixing the cycle count and the instruction pointer for one byte instructions
 #endif

@@ -167,6 +167,22 @@ void execute(unsigned int *cycles)
                 trans_logic(cycles, &vm.accumulator, vm.y, TYA, false);
                 break;
             }
+            case PHA: {
+                push_stack_logic(cycles, &vm.accumulator, PHA);
+                break;
+            }
+            case PHP: {
+                push_stack_logic(cycles, &vm.processor_status, PHP);
+                break;
+            }
+            case PLA: {
+                pull_stack_logic(cycles, &vm.accumulator, PLA, true);
+                break;
+            }
+            case PLP: {
+                pull_stack_logic(cycles, &vm.processor_status, PLP, false);
+                break;
+            }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 *cycles = 0;
@@ -385,13 +401,39 @@ void sta_zp_y_ind(unsigned int* cycles, unsigned char low_byte)
 
 void trans_logic(unsigned int* cycles, unsigned char* vmr_destination, unsigned char vmr_source, unsigned char instruction, bool isTXS)
 {
-    vm.ip--; // move one byte back because this operation is 1 byte
-    cycle_check(2-2, cycles);
+    onebyte_ins_fix(cycles);
+    cycle_check(2-1, cycles);
     *vmr_destination = vmr_source;
+    *cycles -= 1;
     if(!isTXS)updateNZFlags(*vmr_destination);
     debug(instruction, *vmr_destination);
 }
 
+void push_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned char instruction)
+{
+    onebyte_ins_fix(cycles);
+    cycle_check(3-1, cycles);
+    unsigned short stack_add = 0x01 << 8 | vm.sp;
+    vm.sp--;
+    wrap_stack_pointer(); // Wraps the stack pointer if it goes out of bounds
+    *cycles -= 1; // Cycle for decremeting the stack pointer
+    memory.data[stack_add] = *vm_register;
+    *cycles -= 1; // Cycle for writing to the stack
+    debug(instruction, memory.data[stack_add]);
+}
+void pull_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned char instruction, bool isPLA)
+{
+    onebyte_ins_fix(cycles);
+    cycle_check(4-1, cycles);
+    vm.sp++;
+    *cycles -= 1; 
+    unsigned short stack_add = 0x01 << 8 | vm.sp;
+    *vm_register = memory.data[stack_add];
+    *cycles -= 2; // Read value from stack and write the value to the register (takes 2 cycles)
+    wrap_stack_pointer();
+    if(isPLA)updateNZFlags(*vm_register);
+    debug(instruction, *vm_register);
+}
 // zero page functions
 void zp_wrapping(int* cycles, unsigned short* address, unsigned char vm_register)
 {
@@ -438,4 +480,21 @@ void wrap_address(unsigned short* address) // Wraps the address if it goes out o
 bool out_of_bounds(unsigned short address)
 {
     return address > MEM_MAX_SIZE;
+}
+void wrap_stack_pointer()
+{
+    if(vm.sp < 0x00)
+    {
+        vm.sp = 0xFF;
+        printf("Wrapped around the stack pointer\n");
+    }
+    else if(vm.sp > 0xFF)
+    {
+        vm.sp = 0x00;
+    }
+}
+void onebyte_ins_fix(unsigned int* cycles) // Function for fixing the cycle count and the instruction pointer for one byte instructions
+{
+    vm.ip--; // move the pointer one byte back because of the fetch word function at the start of the while loop
+    *cycles+=1; // also need to restore 1 cycle back
 }

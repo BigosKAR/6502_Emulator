@@ -32,16 +32,16 @@ struct Memory memory;
 
 int main()
 {
-    int cycles = 2;
+    int cycles = 12;
     int *ptr = &cycles;
     reset();
     vm.accumulator = 247;
     vm.x = 255;
     vm.y = 255;
-    memory.data[0xFFFC] = TYA;
-    memory.data[0x01FF] = 0x23;
+    memory.data[0xFFFC] = PHP;
+    memory.data[0xFFFD] = LDA_IMM;
+    memory.data[0xFFFE] = 0x00;
+    memory.data[0xFFFF] = PLP;
     execute(ptr);
-    printf("A register: %d\n", vm.accumulator);
-    //printf("Memory at memory.data[0x01FF]: %d (%x in hexa)\n", memory.data[0x01FF], memory.data[0x01FF]);
     return 0;
 }
