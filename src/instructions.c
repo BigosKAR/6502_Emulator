@@ -4,58 +4,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-bool out_of_bounds(unsigned short address)
-{
-    return address > MEM_MAX_SIZE;
-}
-
-void fetch_word(unsigned int* cycles, unsigned char* low_byte, unsigned char* high_byte)
-{
-    if(vm.ip == MEM_MAX_SIZE)
-    {
-        vm.ip = 0;
-        *high_byte = memory.data[vm.ip];
-        vm.ip++;
-        *low_byte = memory.data[vm.ip];
-        vm.ip++;
-    }
-    
-    else if(vm.ip+2 == MEM_MAX_SIZE)
-    {
-        *high_byte = memory.data[vm.ip];
-        *low_byte = memory.data[vm.ip+1];
-        vm.ip = 0;
-    }
-    else if(vm.ip+1 == MEM_MAX_SIZE)
-    {
-        *high_byte = memory.data[vm.ip];
-        vm.ip = 0;
-        *low_byte = memory.data[vm.ip];
-        vm.ip++;
-    }
-    else
-    {
-        *high_byte = memory.data[vm.ip];
-        vm.ip++;
-        *low_byte = memory.data[vm.ip];
-        vm.ip++;
-    }
-    *cycles -= 2;
-}
-
-unsigned char fetch_byte(unsigned int* cycles)
-{
-    unsigned char Byte = memory.data[vm.ip];
-    vm.ip += 1;
-    if(out_of_bounds(vm.ip))
-    {
-        vm.ip = 0;
-    }
-    //printf("POINTER POINTS TO: %x\n", *vm.ip);
-    *cycles -= 1;
-    return Byte;
-}
-
 // execution of instructions *most important function*
 void execute(unsigned int *cycles)
 {
@@ -193,6 +141,32 @@ void execute(unsigned int *cycles)
                 st_zp_reg_logic(cycles, low_byte_data, vm.y, vm.x,STY_ZP_X);
                 break;
             }
+            case TAX: {
+                trans_logic(cycles, &vm.x, vm.accumulator, TAX, false);
+                break;
+            }
+            case TAY: {
+                trans_logic(cycles, &vm.y, vm.accumulator, TAY, false);
+                break;
+            }
+            case TSX: {
+                unsigned short temp_add = 0x01 << 8 | vm.sp;
+                trans_logic(cycles, &vm.x, memory.data[temp_add], TSX, false);
+                break;
+            }
+            case TXA: {
+                trans_logic(cycles, &vm.accumulator, vm.x, TXA, false);
+                break;
+            }
+            case TXS: {
+                unsigned short temp_add = 0x01 << 8 | vm.sp;
+                trans_logic(cycles, &memory.data[temp_add], vm.x, TXS, true);
+                break;
+            }
+            case TYA: {
+                trans_logic(cycles, &vm.accumulator, vm.y, TYA, false);
+                break;
+            }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 *cycles = 0;
@@ -200,6 +174,53 @@ void execute(unsigned int *cycles)
             }
         }
     }
+}
+
+// fetching functions
+void fetch_word(unsigned int* cycles, unsigned char* low_byte, unsigned char* high_byte)
+{
+    if(vm.ip == MEM_MAX_SIZE)
+    {
+        vm.ip = 0;
+        *high_byte = memory.data[vm.ip];
+        vm.ip++;
+        *low_byte = memory.data[vm.ip];
+        vm.ip++;
+    }
+    
+    else if(vm.ip+2 == MEM_MAX_SIZE)
+    {
+        *high_byte = memory.data[vm.ip];
+        *low_byte = memory.data[vm.ip+1];
+        vm.ip = 0;
+    }
+    else if(vm.ip+1 == MEM_MAX_SIZE)
+    {
+        *high_byte = memory.data[vm.ip];
+        vm.ip = 0;
+        *low_byte = memory.data[vm.ip];
+        vm.ip++;
+    }
+    else
+    {
+        *high_byte = memory.data[vm.ip];
+        vm.ip++;
+        *low_byte = memory.data[vm.ip];
+        vm.ip++;
+    }
+    *cycles -= 2;
+}
+unsigned char fetch_byte(unsigned int* cycles)
+{
+    unsigned char Byte = memory.data[vm.ip];
+    vm.ip += 1;
+    if(out_of_bounds(vm.ip))
+    {
+        vm.ip = 0;
+    }
+    //printf("POINTER POINTS TO: %x\n", *vm.ip);
+    *cycles -= 1;
+    return Byte;
 }
 
 // instruction functions for repeating code
@@ -218,14 +239,14 @@ void ld_abs_reg_logic(unsigned int* cycles, unsigned char* low_order_address, un
     wrap_address(&temp_address);
     *vm_register = memory.data[temp_address];
     *cycles -= 1; // reading the byte from memory
-    LD_flags(*vm_register);
+    updateNZFlags(*vm_register);
     debug(instruction, *vm_register);
 }
 void ld_imm_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char *vm_register, unsigned char instruction)
 {
     cycle_check(2-2, cycles);
     *vm_register = *low_byte;
-    LD_flags(*vm_register);
+    updateNZFlags(*vm_register);
     debug(instruction, *vm_register);
 }
 void ld_abs_logic(unsigned int* cycles, unsigned char* low_order_address, unsigned char* vm_register, unsigned char instruction)
@@ -235,7 +256,7 @@ void ld_abs_logic(unsigned int* cycles, unsigned char* low_order_address, unsign
     unsigned short address = (high_order_address <<8) | *low_order_address;
     *vm_register = memory.data[address];
     *cycles -= 1; // reading the byte from memory
-    LD_flags(*vm_register);
+    updateNZFlags(*vm_register);
     debug(instruction, *vm_register);
 }
 void ld_zp_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char* vm_register, unsigned char instruction)
@@ -244,7 +265,7 @@ void ld_zp_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char* v
     unsigned short address = (0x00<<8) | *low_byte;
     *vm_register = memory.data[address];
     *cycles -= 1;
-    LD_flags(*vm_register);
+    updateNZFlags(*vm_register);
     debug(instruction, *vm_register);
 }
 void ld_zp_reg_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char* vm_register, unsigned char vm_reg_indexed, unsigned char instruction)
@@ -254,7 +275,7 @@ void ld_zp_reg_logic(unsigned int* cycles, unsigned char* low_byte, unsigned cha
     zp_wrapping(cycles, &zp_address, vm_reg_indexed); //changing the address, checking for potential zeropage wrapping
     *vm_register = memory.data[zp_address];
     *cycles -= 1;
-    LD_flags(*vm_register);
+    updateNZFlags(*vm_register);
     debug(instruction, *vm_register);
 }
 void lda_zp_x_ind(unsigned int* cycles, unsigned char* low_byte)
@@ -268,7 +289,7 @@ void lda_zp_x_ind(unsigned int* cycles, unsigned char* low_byte)
     new_address = (low_b_add << 8) | high_b_add;
     vm.accumulator = memory.data[new_address];
     *cycles -= 1;
-    LD_flags(vm.accumulator);
+    updateNZFlags(vm.accumulator);
     debug(LDA_ZP_X_IND, vm.accumulator); 
 }
 void lda_zp_y_ind(unsigned int* cycles, unsigned char* low_byte)
@@ -290,7 +311,7 @@ void lda_zp_y_ind(unsigned int* cycles, unsigned char* low_byte)
     wrap_address(&indirect_address);
     vm.accumulator = memory.data[indirect_address];
     *cycles -= 1;
-    LD_flags(vm.accumulator);
+    updateNZFlags(vm.accumulator);
     debug(LDA_ZP_Y_IND, vm.accumulator);
 }
 
@@ -347,7 +368,6 @@ void sta_zp_x_ind(unsigned int* cycles, unsigned char low_byte)
     *cycles -= 1;
     debug(STA_ZP_X_IND, memory.data[new_address]);
 }
-
 void sta_zp_y_ind(unsigned int* cycles, unsigned char low_byte)
 {
     cycle_check(6-2, cycles);
@@ -361,6 +381,15 @@ void sta_zp_y_ind(unsigned int* cycles, unsigned char low_byte)
     memory.data[new_address] = vm.accumulator;
     *cycles -= 1;
     debug(STA_ZP_Y_IND, memory.data[new_address]);
+}
+
+void trans_logic(unsigned int* cycles, unsigned char* vmr_destination, unsigned char vmr_source, unsigned char instruction, bool isTXS)
+{
+    vm.ip--; // move one byte back because this operation is 1 byte
+    cycle_check(2-2, cycles);
+    *vmr_destination = vmr_source;
+    if(!isTXS)updateNZFlags(*vmr_destination);
+    debug(instruction, *vmr_destination);
 }
 
 // zero page functions
@@ -405,4 +434,8 @@ void cycle_check(unsigned int cycle_amount, unsigned int* cycles)
 void wrap_address(unsigned short* address) // Wraps the address if it goes out of bounds (for absolute addressing), use after incrementing the register
 {
     *address = *address % 0x10000;
+}
+bool out_of_bounds(unsigned short address)
+{
+    return address > MEM_MAX_SIZE;
 }

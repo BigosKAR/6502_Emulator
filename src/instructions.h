@@ -86,6 +86,14 @@
 #define STY_ZP 0x84 // 3 Cycles
 #define STY_ZP_X 0x94 // 4 Cycles
 
+// Transfer instructions
+#define TAX 0xAA // 2 Cycles
+#define TAY 0xA8 // 2 Cycles
+#define TSX 0xBA // 2 Cycles
+#define TXA 0x8A // 2 Cycles
+#define TXS 0x9A // 2 Cycles 
+#define TYA 0x98 // 2 Cycles
+
 #define LDY 0xA0
 #define LSR 0x4A
 #define NOP 0xEA
@@ -104,12 +112,6 @@
 #define SEI 0x78
 #define STX 0x86
 #define STY 0x84
-#define TAX 0xAA
-#define TAY 0xA8
-#define TSX 0xBA
-#define TXA 0x8A
-#define TXS 0x9A
-#define TYA 0x98
 
 // MEMORY PAGES
 // 0x0000 - 0x00FF: Zero Page
@@ -162,6 +164,8 @@ void st_zp_reg_logic(unsigned int* cycles, unsigned char low_order_address, unsi
 void sta_abs_reg_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_reg_indexed, unsigned char instruction);
 void sta_zp_x_ind(unsigned int* cycles, unsigned char low_byte);
 void sta_zp_y_ind(unsigned int* cycles, unsigned char low_byte);
+
+void trans_logic(unsigned int* cycles, unsigned char* vmr_destination, unsigned char vmr_source, unsigned char instruction, bool isTXS);
 
 
 // main execution function

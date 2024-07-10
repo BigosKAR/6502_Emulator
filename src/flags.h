@@ -31,7 +31,7 @@ void display_flags();
 
 // Instruction-specific flag functions
 
-void LD_flags(unsigned char value);
+void updateNZFlags(unsigned char value);
 
 
 #endif

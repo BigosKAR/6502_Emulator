@@ -21,7 +21,7 @@ void reset(void)
     initialize_memory();
 
     vm.ip = 0xFFFC;
-    //vm.sp = 0x01FF; Need to change it to fit the 8 bit pointer
+    vm.sp = 0xFF; // Stack is in addresses: 0x0100 to 0x01FF
 
     vm.processor_status = 0x20;
     vm.accumulator = vm.x = vm.y = 0;  
@@ -32,17 +32,16 @@ struct Memory memory;
 
 int main()
 {
-    int cycles = 6;
+    int cycles = 2;
     int *ptr = &cycles;
     reset();
     vm.accumulator = 247;
-    vm.x = 94;
-    vm.y = 95;
-    memory.data[vm.ip] = STA_ZP_Y_IND;
-    memory.data[vm.ip + 1] = 0xFF;
-    memory.data[0x00FF] = 0xFF;
-    memory.data[0x0000] = 0xFF;
+    vm.x = 255;
+    vm.y = 255;
+    memory.data[0xFFFC] = TYA;
+    memory.data[0x01FF] = 0x23;
     execute(ptr);
-    printf("Memory at memory.data[0x005E]: %d (%x in hexa)\n", memory.data[0x005E], memory.data[0x005E]);
+    printf("A register: %d\n", vm.accumulator);
+    //printf("Memory at memory.data[0x01FF]: %d (%x in hexa)\n", memory.data[0x01FF], memory.data[0x01FF]);
     return 0;
 }

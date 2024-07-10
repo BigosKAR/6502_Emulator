@@ -45,10 +45,11 @@ void clear_flag(unsigned char flag)
 
 // Instruction-specific flag functions
 
-void LD_flags(unsigned char value)
+void updateNZFlags(unsigned char value)
 {
     if(value >= 128)set_flag(FLAG_NEGATIVE);
     else clear_flag(FLAG_NEGATIVE); 
     if(value == 0)set_flag(FLAG_ZERO);
     else clear_flag(FLAG_ZERO);
 }
+
