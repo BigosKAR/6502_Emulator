@@ -32,6 +32,7 @@ void display_flags();
 // Instruction-specific flag functions
 
 void updateNZFlags(unsigned char value);
+void updateNZC_Flags(unsigned char new_value, unsigned char old_value);
 
 
 #endif

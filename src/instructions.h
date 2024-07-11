@@ -15,7 +15,6 @@
 // INSTRUCTIONS
 #define ADC 0x69
 #define AND 0x29
-#define ASL 0x0A
 #define BCC 0x90
 #define BCS 0xB0
 #define BEQ 0xF0
@@ -100,6 +99,13 @@
 #define PLA 0x68 // 4 Cycles
 #define PLP 0x28 // 4 Cycles
 
+// ASL instructions
+#define ASL_A 0x0A // 2 Cycles
+#define ASL_ABS 0x0E // 6 Cycles
+#define ASL_ABS_X 0x1E // 7 Cycles
+#define ASL_ZP 0x06 // 5 Cycles
+#define ASL_ZP_X 0x16 // 6 Cycles
+
 #define LDY 0xA0
 #define LSR 0x4A
 #define NOP 0xEA
@@ -171,6 +177,12 @@ void trans_logic(unsigned int* cycles, unsigned char* vmr_destination, unsigned 
 
 void push_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned char instruction);
 void pull_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned char instruction, bool isPLA);
+
+void asl_accumulator(unsigned int* cycles, unsigned char instruction);
+void asl_absolute(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
+void asl_abs_x(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
+void asl_zp(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
+void asl_zp_x(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
 
 // main execution function
 void execute(unsigned int *cycles);

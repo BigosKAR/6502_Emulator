@@ -53,3 +53,12 @@ void updateNZFlags(unsigned char value)
     else clear_flag(FLAG_ZERO);
 }
 
+void updateNZC_Flags(unsigned char new_value, unsigned char old_value)
+{
+    if(old_value >= 128)set_flag(FLAG_CARRY);
+    else clear_flag(FLAG_CARRY);
+    if(new_value >= 128)set_flag(FLAG_NEGATIVE);
+    else clear_flag(FLAG_NEGATIVE);
+    if(new_value == 0)set_flag(FLAG_ZERO);
+    else clear_flag(FLAG_ZERO);
+}

@@ -183,6 +183,26 @@ void execute(unsigned int *cycles)
                 pull_stack_logic(cycles, &vm.processor_status, PLP, false);
                 break;
             }
+            case ASL_A: {
+                asl_accumulator(cycles, ASL_A);
+                break;
+            }
+            case ASL_ABS: {
+                asl_absolute(cycles, low_byte_data, ASL_ABS);
+                break;
+            }
+            case ASL_ABS_X: {
+                asl_abs_x(cycles, low_byte_data, ASL_ABS_X);
+                break;
+            }
+            case ASL_ZP: {
+                asl_zp(cycles, low_byte_data, ASL_ZP);
+                break;
+            }
+            case ASL_ZP_X: {
+                asl_zp_x(cycles, low_byte_data, ASL_ZP_X);
+                break;
+            }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 *cycles = 0;
@@ -434,6 +454,63 @@ void pull_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned
     if(isPLA)updateNZFlags(*vm_register);
     debug(instruction, *vm_register);
 }
+
+void asl_accumulator(unsigned int* cycles, unsigned char instruction)
+{
+    onebyte_ins_fix(cycles);
+    cycle_check(2-1, cycles);
+    unsigned char temp_var = vm.accumulator;
+    vm.accumulator = vm.accumulator << 1;
+    *cycles -= 1;
+    updateNZC_Flags(vm.accumulator, temp_var);
+    debug(instruction, vm.accumulator);
+}
+void asl_absolute(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
+{
+    cycle_check(6-2, cycles);
+    unsigned char high_order_address = fetch_byte(cycles);
+    unsigned short address = (high_order_address << 8) | low_order_address;
+    unsigned char temp_var = memory.data[address];
+    memory.data[address] = memory.data[address] << 1;
+    *cycles -= 3; // reading memory from initial address, shifting the value, and writing it back to the same location
+    updateNZC_Flags(memory.data[address], temp_var);
+    debug(instruction, memory.data[address]);
+}
+void asl_abs_x(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
+{
+    cycle_check(7-2, cycles);
+    unsigned char high_order_address = fetch_byte(cycles); // -1 cycle
+    unsigned short new_address = high_order_address << 8 | low_order_address;
+    new_address += vm.x;
+    wrap_address(&new_address);
+    unsigned char temp_var = memory.data[new_address];
+    memory.data[new_address] = memory.data[new_address] << 1;
+    *cycles -= 4; // adding x reg content to an address, reading memory from that address, performing the shift, and writing the result back to the same location
+    updateNZC_Flags(memory.data[new_address], temp_var);
+    debug(instruction, memory.data[new_address]);
+}
+void asl_zp(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
+{
+    cycle_check(5-2, cycles);
+    unsigned short zp_address = (0x00 << 8) | low_order_address;
+    unsigned char temp_var = memory.data[zp_address];
+    memory.data[zp_address] = memory.data[zp_address] << 1;
+    *cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
+    updateNZC_Flags(memory.data[zp_address], temp_var);
+    debug(instruction, memory.data[zp_address]);
+}
+void asl_zp_x(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
+{
+    cycle_check(6-2, cycles);
+    unsigned short zp_address = (0x00 << 8) | low_order_address;
+    zp_wrapping(cycles, &zp_address, vm.x);
+    unsigned char temp_var = memory.data[zp_address];
+    memory.data[zp_address] = memory.data[zp_address] << 1;
+    *cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
+    updateNZC_Flags(memory.data[zp_address], temp_var);
+    debug(instruction, memory.data[zp_address]);
+}
+
 // zero page functions
 void zp_wrapping(int* cycles, unsigned short* address, unsigned char vm_register)
 {

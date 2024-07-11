@@ -32,16 +32,16 @@ struct Memory memory;
 
 int main()
 {
-    int cycles = 12;
+    int cycles = 6;
     int *ptr = &cycles;
     reset();
-    vm.accumulator = 247;
-    vm.x = 255;
-    vm.y = 255;
-    memory.data[0xFFFC] = PHP;
-    memory.data[0xFFFD] = LDA_IMM;
-    memory.data[0xFFFE] = 0x00;
-    memory.data[0xFFFF] = PLP;
+    vm.accumulator = 128;
+    vm.x = 0x37;
+    memory.data[0xFFFC] = ASL_ZP_X;
+    memory.data[0xFFFD] = 0xFF;
+    memory.data[0x0036] = 0x39;
+    printf("Memory at 0x0036: %d\n", memory.data[0x0036]);
     execute(ptr);
+    printf("Memory at 0x0036: %d\n", memory.data[0x0036]);
     return 0;
 }
