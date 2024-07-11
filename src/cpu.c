@@ -35,13 +35,12 @@ int main()
     int cycles = 6;
     int *ptr = &cycles;
     reset();
-    vm.accumulator = 128;
-    vm.x = 0x37;
+    vm.accumulator = 255;
+    vm.x = 0x49;
     memory.data[0xFFFC] = ASL_ZP_X;
     memory.data[0xFFFD] = 0xFF;
-    memory.data[0x0036] = 0x39;
-    printf("Memory at 0x0036: %d\n", memory.data[0x0036]);
+    memory.data[0x0048] = 255;
+    printf("Memory[0x0048]: %d (%x in hexa)\n", memory.data[0x0048], memory.data[0x0048]);
     execute(ptr);
-    printf("Memory at 0x0036: %d\n", memory.data[0x0036]);
     return 0;
 }

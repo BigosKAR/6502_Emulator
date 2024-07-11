@@ -62,3 +62,12 @@ void updateNZC_Flags(unsigned char new_value, unsigned char old_value)
     if(new_value == 0)set_flag(FLAG_ZERO);
     else clear_flag(FLAG_ZERO);
 }
+
+void LSR_update_NZC_Flags(unsigned char new_value, unsigned char old_value)
+{
+    if(old_value & 1)set_flag(FLAG_CARRY);
+    else clear_flag(FLAG_CARRY);
+    if(new_value == 0)set_flag(FLAG_ZERO);
+    else clear_flag(FLAG_ZERO);
+    clear_flag(FLAG_NEGATIVE);
+}

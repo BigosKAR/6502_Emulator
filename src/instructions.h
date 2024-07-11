@@ -106,8 +106,14 @@
 #define ASL_ZP 0x06 // 5 Cycles
 #define ASL_ZP_X 0x16 // 6 Cycles
 
+// LSR instructions
+#define LSR_A 0x4A // 2 Cycles
+#define LSR_ABS 0x4E // 6 Cycles
+#define LSR_ABS_X 0x5E // 7 Cycles
+#define LSR_ZP 0x46 // 5 Cycles
+#define LSR_ZP_X 0x56 // 6 Cycles
+
 #define LDY 0xA0
-#define LSR 0x4A
 #define NOP 0xEA
 #define ORA 0x09
 #define ROL 0x2A
@@ -178,11 +184,11 @@ void trans_logic(unsigned int* cycles, unsigned char* vmr_destination, unsigned 
 void push_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned char instruction);
 void pull_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned char instruction, bool isPLA);
 
-void asl_accumulator(unsigned int* cycles, unsigned char instruction);
-void asl_absolute(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
-void asl_abs_x(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
-void asl_zp(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
-void asl_zp_x(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
+void shift_acc_logic(unsigned int* cycles, unsigned char instruction);
+void shift_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
+void shift_abs_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
+void shift_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
+void shift_zp_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
 
 // main execution function
 void execute(unsigned int *cycles);
