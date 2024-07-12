@@ -223,6 +223,14 @@ void execute(unsigned int *cycles)
                 shift_zp_x_logic(cycles, low_byte_data, LSR_ZP_X);
                 break;
             }
+            case ROL_A: {
+                rotate_acc_logic(cycles, ROL_A);
+                break;
+            }
+            case ROR_A: {
+                rotate_acc_logic(cycles, ROR_A);
+                break;
+            }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 *cycles = 0;
@@ -569,6 +577,38 @@ void shift_zp_x_logic(unsigned int* cycles, unsigned char low_order_address, uns
     }
     *cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
     debug(instruction, memory.data[zp_address]);
+}
+
+void rotate_acc_logic(unsigned int* cycles, unsigned char instruction)
+{
+    onebyte_ins_fix(cycles);
+    cycle_check(2-1, cycles);
+    unsigned char temp_var = vm.accumulator;
+    if(instruction == ROL_A)
+    {
+        if(vm.accumulator & 0b10000000){
+            set_flag(FLAG_CARRY); // Set the carry flag to the value of the 7th bit of the A register
+        }
+        else{
+            clear_flag(FLAG_CARRY); // Clear it if the value is 0
+        }
+        vm.accumulator = vm.accumulator << 1;
+        vm.accumulator |= (vm.processor_status & 0b00000001) ? 1 : 0;
+    }
+    else
+    {
+        if(vm.accumulator & 1){
+            set_flag(FLAG_CARRY); // Set the carry flag to the value of the 7th bit of the A register
+        }
+        else{
+            clear_flag(FLAG_CARRY); // Clear it if the value is 0
+        }
+        vm.accumulator = vm.accumulator >> 1;
+        vm.accumulator |= (vm.processor_status & 0b00000001) ? 0b10000000 : 0b00000000;
+    }
+    *cycles -= 1; // performing the shift
+    updateNZFlags(vm.accumulator);
+    debug(instruction, vm.accumulator);
 }
 
 // zero page functions

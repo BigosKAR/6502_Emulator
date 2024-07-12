@@ -113,11 +113,23 @@
 #define LSR_ZP 0x46 // 5 Cycles
 #define LSR_ZP_X 0x56 // 6 Cycles
 
+// ROL instructions
+#define ROL_A 0x2A // 2 Cycles
+#define ROL_ABS 0x2E // 6 Cycles
+#define ROL_ABS_X 0x3E // 7 Cycles
+#define ROL_ZP 0x26 // 5 Cycles
+#define ROL_ZP_X 0x36 // 6 Cycles
+
+// ROR instructions
+#define ROR_A 0x6A // 2 Cycles
+#define ROR_ABS 0x6E // 6 Cycles
+#define ROR_ABS_X 0x7E // 7 Cycles
+#define ROR_ZP 0x66 // 5 Cycles
+#define ROR_ZP_X 0x76 // 6 Cycles
+
 #define LDY 0xA0
 #define NOP 0xEA
 #define ORA 0x09
-#define ROL 0x2A
-#define ROR 0x6A
 #define RTI 0x40
 #define RTS 0x60
 #define SBC 0xE9
@@ -189,6 +201,9 @@ void shift_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsi
 void shift_abs_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
 void shift_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
 void shift_zp_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
+
+void rotate_acc_logic(unsigned int* cycles, unsigned char instruction);
+
 
 // main execution function
 void execute(unsigned int *cycles);
