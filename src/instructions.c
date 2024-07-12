@@ -239,6 +239,10 @@ void execute(unsigned int *cycles)
                 rotate_zp_logic(cycles, low_byte_data, ROL_ZP);
                 break;
             }
+            case ROL_ZP_X: {
+                rotate_zp_x_logic(cycles, low_byte_data, ROL_ZP_X);
+                break;
+            }
             case ROR_A: {
                 rotate_acc_logic(cycles, ROR_A);
                 break;
@@ -254,6 +258,10 @@ void execute(unsigned int *cycles)
             }
             case ROR_ZP: {
                 rotate_zp_logic(cycles, low_byte_data, ROR_ZP);
+                break;
+            }
+            case ROR_ZP_X: {
+                rotate_zp_x_logic(cycles, low_byte_data, ROR_ZP_X);
                 break;
             }
             default: {
@@ -667,6 +675,22 @@ void rotate_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsi
         rotate_logic(&memory.data[zp_address], false);
     }
     *cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
+    debug(instruction, memory.data[zp_address]);
+}
+void rotate_zp_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
+{
+    cycle_check(6-2, cycles);
+    unsigned short zp_address = (0x00 << 8) | low_order_address;
+    zp_wrapping(cycles, &zp_address, vm.x);
+    if(instruction == ROL_ZP_X)
+    {
+        rotate_logic(&memory.data[zp_address], true);
+    }
+    else
+    {
+        rotate_logic(&memory.data[zp_address], false);
+    }
+    *cycles -= 3; // read, shift, write back
     debug(instruction, memory.data[zp_address]);
 }
 
