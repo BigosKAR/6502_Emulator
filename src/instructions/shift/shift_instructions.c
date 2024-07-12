@@ -4,6 +4,7 @@
 
 #include "../../instructions.h"
 #include "../../flags.h"
+#include "shift_instructions.h"
 
 // Main shift functions
 void shift_acc_logic(unsigned int* cycles, unsigned char instruction)
@@ -106,7 +107,6 @@ void rotate_acc_logic(unsigned int* cycles, unsigned char instruction)
 {
     onebyte_ins_fix(cycles);
     cycle_check(2-1, cycles);
-    unsigned char temp_var = vm.accumulator;
     if(instruction == ROL_A)
     {
        rotate_logic(&vm.accumulator, true);

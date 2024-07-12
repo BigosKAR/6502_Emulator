@@ -4,4 +4,6 @@
 void and_imm(unsigned int* cycles, unsigned char low_byte, unsigned char instruction);
 void and_abs(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
 
+void and_bitwise_logic(unsigned char value);
+
 #endif

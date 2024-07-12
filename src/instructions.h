@@ -188,7 +188,7 @@ unsigned char fetch_byte(unsigned int *cycles);
 void execute(unsigned int *cycles);
 
 // zeropage-related functions
-void zp_wrapping(int* cycles, unsigned short* address, unsigned char vm_register);
+void zp_wrapping(unsigned int* cycles, unsigned short* address, unsigned char vm_register);
 void fetch_word_zp(unsigned int* cycles, unsigned short address, unsigned char* low_byte, unsigned char* high_byte);
 
 // helper functions

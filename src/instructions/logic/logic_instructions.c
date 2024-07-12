@@ -4,6 +4,7 @@
 
 #include "../../instructions.h"
 #include "../../flags.h"
+#include "logic_instructions.h"
 
 // Main logic functions
 void and_imm(unsigned int* cycles, unsigned char low_byte, unsigned char instruction)

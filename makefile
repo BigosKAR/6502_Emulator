@@ -29,4 +29,5 @@ run: $(EXEC)
 
 # Cleaning up
 clean:
-	del /Q $(OBJS) $(EXEC).exe
+	@echo $(OBJS)
+	rm -f $(OBJS) $(EXEC) $(EXEC).exe

@@ -4,6 +4,7 @@
 
 #include "../../instructions.h"
 #include "../../flags.h"
+#include "stack_instructions.h"
 
 // Main stack instructions
 void push_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned char instruction)

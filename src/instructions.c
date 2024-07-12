@@ -335,7 +335,7 @@ unsigned char fetch_byte(unsigned int* cycles)
 }
 
 // zero page functions
-void zp_wrapping(int* cycles, unsigned short* address, unsigned char vm_register)
+void zp_wrapping(unsigned int* cycles, unsigned short* address, unsigned char vm_register)
 {
     if((*address+vm_register)>0xFF) *address = *address + vm_register - 0x100; // -0x100 to include the 0th position in memory
     else *address = *address + vm_register;
