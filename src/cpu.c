@@ -4,7 +4,7 @@
 
 #include "instructions.h"
 #include "flags.h"
-#include "./instructions/load/load_instructions.h"
+
 
 typedef enum result{
     SUCCESS, // will have value 0
@@ -34,18 +34,18 @@ struct Memory memory;
 
 int main()
 {
-    int cycles = 6;
-    int *ptr = &cycles;
+    unsigned int cycles = 2;
+    unsigned int *ptr = &cycles;
     reset();
     vm.accumulator = 185;
     vm.x = 0x69;
-    memory.data[0xFFFC] = LDA_IMM;
-    memory.data[0xFFFD] = 0x68;
+    memory.data[0xFFFC] = AND_IMM;
+    memory.data[0xFFFD] = 0x0;
     memory.data[0x0068] = 0x46;
-    printf("Memory[0x0068]: %d (%x in hexa)\n", memory.data[0x0068], memory.data[0x0068]);
-    //printf("Accumulator: %d\n", vm.accumulator);
+    //printf("Memory[0x0068]: %d (%x in hexa)\n", memory.data[0x0068], memory.data[0x0068]);
+    printf("Accumulator: %d\n", vm.accumulator);
     execute(ptr);
-    //printf("Accumulator: %d\n", vm.accumulator);
-    printf("Memory[0x0068]: %d (%x in hexa)\n", memory.data[0x0068], memory.data[0x0068]);
+    printf("Accumulator: %d\n", vm.accumulator);
+    //printf("Memory[0x0068]: %d (%x in hexa)\n", memory.data[0x0068], memory.data[0x0068]);
     return 0;
 }
