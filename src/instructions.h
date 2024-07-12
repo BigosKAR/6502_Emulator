@@ -205,6 +205,8 @@ void shift_zp_x_logic(unsigned int* cycles, unsigned char low_order_address, uns
 void rotate_acc_logic(unsigned int* cycles, unsigned char instruction);
 void rotate_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
 void rotate_abs_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
+void rotate_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
+
 
 // main execution function
 void execute(unsigned int *cycles);
