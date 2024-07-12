@@ -14,7 +14,6 @@
 
 // INSTRUCTIONS
 #define ADC 0x69
-#define AND 0x29
 #define BCC 0x90
 #define BCS 0xB0
 #define BEQ 0xF0
@@ -127,6 +126,16 @@
 #define ROR_ZP 0x66 // 5 Cycles
 #define ROR_ZP_X 0x76 // 6 Cycles
 
+// AND instructions
+#define AND_IMM 0x29 // 2 Cycles
+#define AND_ABS 0x2D // 4 Cycles
+#define AND_ABS_X 0x3D // 4 Cycles + 1 if page crossed
+#define AND_ABS_Y 0x39 // 4 Cycles + 1 if page crossed
+#define AND_ZP 0x25 // 3 Cycles
+#define AND_ZP_X 0x35 // 4 Cycles
+#define AND_ZP_X_IND 0x21 // 6 Cycles
+#define AND_ZP_Y_IND 0x31 // 5 Cycles + 1 if page crossed
+
 #define LDY 0xA0
 #define NOP 0xEA
 #define ORA 0x09
@@ -175,40 +184,6 @@ extern struct Memory memory;
 void fetch_word(unsigned int *cycles, unsigned char *low_byte, unsigned char *high_byte);
 unsigned char fetch_byte(unsigned int *cycles);
 
-// instruction functions
-void ld_abs_reg_logic(unsigned int* cycles, unsigned char* low_order_address, unsigned char* vm_register, unsigned char vm_reg_indexed, unsigned char instruction);
-void ld_imm_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char *vm_register, unsigned char instruction);
-void ld_abs_logic(unsigned int* cycles, unsigned char* low_order_address, unsigned char* vm_register, unsigned char instruction);
-void ld_zp_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char* vm_register, unsigned char instruction);
-void ld_zp_reg_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char* vm_register, unsigned char vm_reg_indexed, unsigned char instruction);
-void lda_zp_x_ind(unsigned int* cycles, unsigned char* low_byte);
-void lda_zp_y_ind(unsigned int* cycles, unsigned char* low_byte);
-
-void st_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char instruction);
-void st_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char instruction);
-void st_zp_reg_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char vm_reg_indexed, unsigned char instruction);
-void sta_abs_reg_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_reg_indexed, unsigned char instruction);
-void sta_zp_x_ind(unsigned int* cycles, unsigned char low_byte);
-void sta_zp_y_ind(unsigned int* cycles, unsigned char low_byte);
-
-void trans_logic(unsigned int* cycles, unsigned char* vmr_destination, unsigned char vmr_source, unsigned char instruction, bool isTXS);
-
-void push_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned char instruction);
-void pull_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned char instruction, bool isPLA);
-
-void shift_acc_logic(unsigned int* cycles, unsigned char instruction);
-void shift_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
-void shift_abs_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
-void shift_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
-void shift_zp_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
-
-void rotate_acc_logic(unsigned int* cycles, unsigned char instruction);
-void rotate_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
-void rotate_abs_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
-void rotate_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
-void rotate_zp_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
-
-
 // main execution function
 void execute(unsigned int *cycles);
 
@@ -221,7 +196,5 @@ void debug(unsigned char instruction, unsigned char component);
 void cycle_check(unsigned int cycle_amount, unsigned int* cycles);
 bool out_of_bounds(unsigned short address);
 void wrap_address(unsigned short* address);
-void wrap_stack_pointer();
 void onebyte_ins_fix(unsigned int* cycles); // Function for fixing the cycle count and the instruction pointer for one byte instructions
-void rotate_logic(unsigned char* value, bool isLeft); // Function used for the main functionality of the rotate operations
 #endif

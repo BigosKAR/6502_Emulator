@@ -1,7 +1,3 @@
 .vscode/
 build/
-unity/
-testing_*
-*_header*
 *.exe
-*_machine*

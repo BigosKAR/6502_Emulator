@@ -1,8 +1,14 @@
-#include "instructions.h"
 #include <stdbool.h>
-#include "flags.h"
 #include <string.h>
 #include <stdlib.h>
+
+#include "flags.h"
+#include "instructions.h"
+#include "./instructions/load/load_instructions.h"
+#include "./instructions/transfer/trans_instructions.h"
+#include "./instructions/stack/stack_instructions.h"
+#include "./instructions/shift/shift_instructions.h"
+#include "./instructions/logic/logic_instructions.h"
 
 // execution of instructions *most important function*
 void execute(unsigned int *cycles)
@@ -264,6 +270,14 @@ void execute(unsigned int *cycles)
                 rotate_zp_x_logic(cycles, low_byte_data, ROR_ZP_X);
                 break;
             }
+            case AND_IMM: {
+                and_imm(cycles, low_byte_data, AND_IMM);
+                break;
+            }
+            case AND_ABS: {
+                and_abs(cycles, low_byte_data, AND_ABS);
+                break;
+            }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 *cycles = 0;
@@ -320,380 +334,6 @@ unsigned char fetch_byte(unsigned int* cycles)
     return Byte;
 }
 
-// instruction functions for repeating code
-void ld_abs_reg_logic(unsigned int* cycles, unsigned char* low_order_address, unsigned char* vm_register, unsigned char vm_reg_indexed, unsigned char instruction)
-{
-    cycle_check(4-2, cycles); 
-    unsigned char high_order_address = fetch_byte(cycles); // -1 cycle
-    unsigned short address = (high_order_address <<8) | *low_order_address;
-    unsigned short temp_address;
-    temp_address = address + vm_reg_indexed;
-    if((address & 0xFF00) != (temp_address & 0xFF00))
-    {
-        *cycles -= 1; // If page boundary crossed then take 1 cycle
-        cycle_check(1, cycles);
-    }
-    wrap_address(&temp_address);
-    *vm_register = memory.data[temp_address];
-    *cycles -= 1; // reading the byte from memory
-    updateNZFlags(*vm_register);
-    debug(instruction, *vm_register);
-}
-void ld_imm_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char *vm_register, unsigned char instruction)
-{
-    cycle_check(2-2, cycles);
-    *vm_register = *low_byte;
-    updateNZFlags(*vm_register);
-    debug(instruction, *vm_register);
-}
-void ld_abs_logic(unsigned int* cycles, unsigned char* low_order_address, unsigned char* vm_register, unsigned char instruction)
-{
-    cycle_check(4-2, cycles);
-    unsigned char high_order_address = fetch_byte(cycles);
-    unsigned short address = (high_order_address <<8) | *low_order_address;
-    *vm_register = memory.data[address];
-    *cycles -= 1; // reading the byte from memory
-    updateNZFlags(*vm_register);
-    debug(instruction, *vm_register);
-}
-void ld_zp_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char* vm_register, unsigned char instruction)
-{
-    cycle_check(3-2, cycles);
-    unsigned short address = (0x00<<8) | *low_byte;
-    *vm_register = memory.data[address];
-    *cycles -= 1;
-    updateNZFlags(*vm_register);
-    debug(instruction, *vm_register);
-}
-void ld_zp_reg_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char* vm_register, unsigned char vm_reg_indexed, unsigned char instruction)
-{
-    cycle_check(4-2, cycles);
-    unsigned short zp_address = (0x00<<8) | *low_byte;
-    zp_wrapping(cycles, &zp_address, vm_reg_indexed); //changing the address, checking for potential zeropage wrapping
-    *vm_register = memory.data[zp_address];
-    *cycles -= 1;
-    updateNZFlags(*vm_register);
-    debug(instruction, *vm_register);
-}
-void lda_zp_x_ind(unsigned int* cycles, unsigned char* low_byte)
-{
-    cycle_check(6-2, cycles);
-    unsigned short address = (0x00<<8) | *low_byte;
-    unsigned short new_address;
-    unsigned char high_b_add, low_b_add;
-    zp_wrapping(cycles, &address, vm.x);  //changing the address, checking for potential zeropage wrapping
-    fetch_word_zp(cycles, address, &low_b_add, &high_b_add);
-    new_address = (low_b_add << 8) | high_b_add;
-    vm.accumulator = memory.data[new_address];
-    *cycles -= 1;
-    updateNZFlags(vm.accumulator);
-    debug(LDA_ZP_X_IND, vm.accumulator); 
-}
-void lda_zp_y_ind(unsigned int* cycles, unsigned char* low_byte)
-{
-    cycle_check(5-2, cycles); // does not check for extra cycle
-    unsigned short address = (0x00<<8) | *low_byte;
-    unsigned short indirect_address, temp_address;
-    unsigned char high_b_add, low_b_add;
-    fetch_word_zp(cycles, address, &low_b_add, &high_b_add); // -2 cycles
-    indirect_address = low_b_add << 8 | high_b_add;
-    temp_address = indirect_address;
-    indirect_address+=vm.y;
-    if((temp_address & 0xFF00) != (indirect_address & 0xFF00))
-    {
-        *cycles -= 1; // If page boundary crossed then take 1 cycle
-        cycle_check(1, cycles);
-    
-    }
-    wrap_address(&indirect_address);
-    vm.accumulator = memory.data[indirect_address];
-    *cycles -= 1;
-    updateNZFlags(vm.accumulator);
-    debug(LDA_ZP_Y_IND, vm.accumulator);
-}
-
-void st_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char instruction)
-{
-    cycle_check(4-2, cycles);
-    unsigned char high_order_address = fetch_byte(cycles);
-    unsigned short address = (high_order_address <<8) | low_order_address;
-    memory.data[address] = vm_register;
-    *cycles -= 1; 
-    // no flags affected
-    debug(instruction, memory.data[address]);
-}
-void st_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char instruction)
-{
-    cycle_check(3-2, cycles);
-    unsigned short address = (0x00<<8) | low_order_address;
-    memory.data[address] = vm_register;
-    *cycles -= 1;
-    // no flags affected
-    debug(instruction, memory.data[address]);
-}
-void st_zp_reg_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register, unsigned char vm_reg_indexed, unsigned char instruction)
-{
-    cycle_check(4-2, cycles);
-    unsigned short zp_address = (0x00<<8) | low_order_address;
-    zp_wrapping(cycles, &zp_address, vm_reg_indexed);  // takes 1 cycle
-    memory.data[zp_address] = vm_register;
-    *cycles -= 1;
-    // no flags affected
-    debug(instruction, memory.data[zp_address]);
-}
-void sta_abs_reg_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_reg_indexed, unsigned char instruction)
-{
-    cycle_check(5-2, cycles);
-    unsigned short address = (fetch_byte(cycles) << 8) | low_order_address;
-    address += vm_reg_indexed; // adding contents of the register to the address
-    wrap_address(&address); 
-    *cycles -= 1;
-    memory.data[address] = vm.accumulator;
-    *cycles -= 1;
-    debug(instruction, memory.data[address]);
-}
-void sta_zp_x_ind(unsigned int* cycles, unsigned char low_byte)
-{
-    cycle_check(6-2, cycles);
-    unsigned short zp_address = (0x00<<8) | low_byte;
-    zp_wrapping(cycles, &zp_address, vm.x);
-    unsigned short new_address;
-    unsigned char high_b_add, low_b_add;
-    fetch_word_zp(cycles, zp_address, &low_b_add, &high_b_add);
-    new_address = (low_b_add << 8) | high_b_add;
-    memory.data[new_address] = vm.accumulator;
-    *cycles -= 1;
-    debug(STA_ZP_X_IND, memory.data[new_address]);
-}
-void sta_zp_y_ind(unsigned int* cycles, unsigned char low_byte)
-{
-    cycle_check(6-2, cycles);
-    unsigned short zp_address = (0x00 << 8) | low_byte;
-    unsigned char high_b_add, low_b_add;
-    fetch_word_zp(cycles, zp_address, &low_b_add, &high_b_add);
-    unsigned short new_address = low_b_add << 8 | high_b_add;
-    new_address += vm.y;
-    *cycles -= 1;
-    wrap_address(&new_address);
-    memory.data[new_address] = vm.accumulator;
-    *cycles -= 1;
-    debug(STA_ZP_Y_IND, memory.data[new_address]);
-}
-
-void trans_logic(unsigned int* cycles, unsigned char* vmr_destination, unsigned char vmr_source, unsigned char instruction, bool isTXS)
-{
-    onebyte_ins_fix(cycles);
-    cycle_check(2-1, cycles);
-    *vmr_destination = vmr_source;
-    *cycles -= 1;
-    if(!isTXS)updateNZFlags(*vmr_destination);
-    debug(instruction, *vmr_destination);
-}
-
-void push_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned char instruction)
-{
-    onebyte_ins_fix(cycles);
-    cycle_check(3-1, cycles);
-    unsigned short stack_add = 0x01 << 8 | vm.sp;
-    vm.sp--;
-    wrap_stack_pointer(); // Wraps the stack pointer if it goes out of bounds
-    *cycles -= 1; // Cycle for decremeting the stack pointer
-    memory.data[stack_add] = *vm_register;
-    *cycles -= 1; // Cycle for writing to the stack
-    debug(instruction, memory.data[stack_add]);
-}
-void pull_stack_logic(unsigned int* cycles, unsigned char* vm_register, unsigned char instruction, bool isPLA)
-{
-    onebyte_ins_fix(cycles);
-    cycle_check(4-1, cycles);
-    vm.sp++;
-    *cycles -= 1; 
-    unsigned short stack_add = 0x01 << 8 | vm.sp;
-    *vm_register = memory.data[stack_add];
-    *cycles -= 2; // Read value from stack and write the value to the register (takes 2 cycles)
-    wrap_stack_pointer();
-    if(isPLA)updateNZFlags(*vm_register);
-    debug(instruction, *vm_register);
-}
-
-void shift_acc_logic(unsigned int* cycles, unsigned char instruction)
-{
-    onebyte_ins_fix(cycles);
-    cycle_check(2-1, cycles);
-    unsigned char temp_var = vm.accumulator;
-    if(instruction == ASL_A)
-    {
-        vm.accumulator = vm.accumulator << 1;
-        updateNZC_Flags(vm.accumulator, temp_var);
-    }
-    else 
-    {
-        vm.accumulator = vm.accumulator >> 1;
-        LSR_update_NZC_Flags(vm.accumulator, temp_var);
-    }
-    *cycles -= 1;
-    debug(instruction, vm.accumulator);
-}
-void shift_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(6-2, cycles);
-    unsigned char high_order_address = fetch_byte(cycles);
-    unsigned short address = (high_order_address << 8) | low_order_address;
-    unsigned char temp_var = memory.data[address];
-    if(instruction == ASL_ABS)
-    {
-        memory.data[address] = memory.data[address] << 1;
-        updateNZC_Flags(memory.data[address], temp_var);
-    }
-    else
-    {
-        memory.data[address] = memory.data[address] >> 1;
-        LSR_update_NZC_Flags(memory.data[address], temp_var);
-    }
-    *cycles -= 3; // reading memory from initial address, shifting the value, and writing it back to the same location
-    debug(instruction, memory.data[address]);
-}
-void shift_abs_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(7-2, cycles);
-    unsigned char high_order_address = fetch_byte(cycles); // -1 cycle
-    unsigned short new_address = high_order_address << 8 | low_order_address;
-    new_address += vm.x;
-    wrap_address(&new_address);
-    unsigned char temp_var = memory.data[new_address];
-    if(instruction == ASL_ABS_X)
-    {
-        memory.data[new_address] = memory.data[new_address] << 1;
-        updateNZC_Flags(memory.data[new_address], temp_var);
-    }
-    else
-    {
-        memory.data[new_address] = memory.data[new_address] >> 1;
-        LSR_update_NZC_Flags(memory.data[new_address], temp_var);
-    }
-    *cycles -= 4; // adding x reg content to an address, reading memory from that address, performing the shift, and writing the result back to the same location
-    debug(instruction, memory.data[new_address]);
-}
-void shift_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(5-2, cycles);
-    unsigned short zp_address = (0x00 << 8) | low_order_address;
-    unsigned char temp_var = memory.data[zp_address];
-    if(instruction == ASL_ZP)
-    {
-        memory.data[zp_address] = memory.data[zp_address] << 1;
-        updateNZC_Flags(memory.data[zp_address], temp_var);
-    }
-    else
-    {
-        memory.data[zp_address] = memory.data[zp_address] >> 1;
-        LSR_update_NZC_Flags(memory.data[zp_address], temp_var);
-    }
-    *cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
-    debug(instruction, memory.data[zp_address]);
-}
-void shift_zp_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(6-2, cycles);
-    unsigned short zp_address = (0x00 << 8) | low_order_address;
-    zp_wrapping(cycles, &zp_address, vm.x);
-    unsigned char temp_var = memory.data[zp_address];
-    if(instruction == ASL_ABS_X)
-    {
-        memory.data[zp_address] = memory.data[zp_address] << 1;
-        updateNZC_Flags(memory.data[zp_address], temp_var);
-    }
-    else
-    {
-        memory.data[zp_address] = memory.data[zp_address] >> 1;
-        LSR_update_NZC_Flags(memory.data[zp_address], temp_var);
-    }
-    *cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
-    debug(instruction, memory.data[zp_address]);
-}
-
-void rotate_acc_logic(unsigned int* cycles, unsigned char instruction)
-{
-    onebyte_ins_fix(cycles);
-    cycle_check(2-1, cycles);
-    unsigned char temp_var = vm.accumulator;
-    if(instruction == ROL_A)
-    {
-       rotate_logic(&vm.accumulator, true);
-    }
-    else
-    {
-        rotate_logic(&vm.accumulator, false);
-    }
-    *cycles -= 1; // performing the shift
-    debug(instruction, vm.accumulator);
-}
-void rotate_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(6-2, cycles);
-    unsigned char high_order_address = fetch_byte(cycles);
-    unsigned short address = (high_order_address << 8) | low_order_address;
-    if(instruction == ROL_ABS)
-    {
-        rotate_logic(&memory.data[address], true);
-    }
-    else
-    {
-        rotate_logic(&memory.data[address], false);
-    }
-    *cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
-    debug(instruction, memory.data[address]);
-}
-void rotate_abs_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(7-2, cycles);
-    unsigned char high_order_address = fetch_byte(cycles);
-    unsigned short address = high_order_address << 8 | low_order_address;
-    address += vm.x;
-    wrap_address(&address);
-    if(instruction == ROL_ABS_X)
-    {
-        rotate_logic(&memory.data[address], true);
-    }
-    else
-    {
-        rotate_logic(&memory.data[address], false);
-    }
-    *cycles -= 4; // adding x reg content to an address, reading memory from that address, performing the shift, and writing the result back to the same location
-    debug(instruction, memory.data[address]);
-}
-void rotate_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(5-2, cycles);
-    unsigned short zp_address = (0x00 << 8) | low_order_address;
-    if(instruction == ROL_ZP)
-    {
-        rotate_logic(&memory.data[zp_address], true);
-    }
-    else
-    {
-        rotate_logic(&memory.data[zp_address], false);
-    }
-    *cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
-    debug(instruction, memory.data[zp_address]);
-}
-void rotate_zp_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(6-2, cycles);
-    unsigned short zp_address = (0x00 << 8) | low_order_address;
-    zp_wrapping(cycles, &zp_address, vm.x);
-    if(instruction == ROL_ZP_X)
-    {
-        rotate_logic(&memory.data[zp_address], true);
-    }
-    else
-    {
-        rotate_logic(&memory.data[zp_address], false);
-    }
-    *cycles -= 3; // read, shift, write back
-    debug(instruction, memory.data[zp_address]);
-}
-
 // zero page functions
 void zp_wrapping(int* cycles, unsigned short* address, unsigned char vm_register)
 {
@@ -741,46 +381,8 @@ bool out_of_bounds(unsigned short address)
 {
     return address > MEM_MAX_SIZE;
 }
-void wrap_stack_pointer()
-{
-    if(vm.sp < 0x00)
-    {
-        vm.sp = 0xFF;
-        printf("Wrapped around the stack pointer\n");
-    }
-    else if(vm.sp > 0xFF)
-    {
-        vm.sp = 0x00;
-    }
-}
 void onebyte_ins_fix(unsigned int* cycles) // Function for fixing the cycle count and the instruction pointer for one byte instructions
 {
     vm.ip--; // move the pointer one byte back because of the fetch word function at the start of the while loop
     *cycles+=1; // also need to restore 1 cycle back
-}
-void rotate_logic(unsigned char* value, bool isLeft)
-{
-    if(isLeft)
-    {
-        if(*value & 0b10000000){
-            set_flag(FLAG_CARRY); // Set the carry flag to the value of the 7th bit of the A register
-        }
-        else{
-            clear_flag(FLAG_CARRY); // Clear it if the value is 0
-        }
-        *value = *value << 1;
-        *value |= (vm.processor_status & 0b00000001) ? 1 : 0;
-    }
-    else
-    {
-        if(*value & 1){
-            set_flag(FLAG_CARRY); // Set the carry flag to the value of the 7th bit of the A register
-        }
-        else{
-            clear_flag(FLAG_CARRY); // Clear it if the value is 0
-        }
-        *value = *value >> 1;
-        *value |= (vm.processor_status & 0b00000001) ? 0b10000000 : 0b00000000;
-    }
-    updateNZFlags(*value);
 }

@@ -1,8 +1,10 @@
 #include <stdio.h>
-#include "instructions.h"
-#include "flags.h"
 #include <string.h>
 #include <stdlib.h>
+
+#include "instructions.h"
+#include "flags.h"
+#include "./instructions/load/load_instructions.h"
 
 typedef enum result{
     SUCCESS, // will have value 0
@@ -37,8 +39,8 @@ int main()
     reset();
     vm.accumulator = 185;
     vm.x = 0x69;
-    memory.data[0xFFFC] = ROR_ZP_X;
-    memory.data[0xFFFD] = 0xFF;
+    memory.data[0xFFFC] = LDA_IMM;
+    memory.data[0xFFFD] = 0x68;
     memory.data[0x0068] = 0x46;
     printf("Memory[0x0068]: %d (%x in hexa)\n", memory.data[0x0068], memory.data[0x0068]);
     //printf("Accumulator: %d\n", vm.accumulator);
