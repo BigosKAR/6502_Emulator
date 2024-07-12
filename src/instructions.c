@@ -227,8 +227,33 @@ void execute(unsigned int *cycles)
                 rotate_acc_logic(cycles, ROL_A);
                 break;
             }
+            case ROL_ABS: {
+                rotate_abs_logic(cycles, low_byte_data, ROL_ABS);
+                break;
+            }
+            case ROL_ABS_X: {
+                rotate_abs_x_logic(cycles, low_byte_data, ROL_ABS_X);
+                break;
+            }
+            case ROL_ZP:{
+                rotate_zp_logic(cycles, low_byte_data, ROL_ZP);
+                break;
+            }
             case ROR_A: {
                 rotate_acc_logic(cycles, ROR_A);
+                break;
+            }
+            case ROR_ABS:
+            {
+                rotate_abs_logic(cycles, low_byte_data, ROR_ABS);
+                break;
+            }
+            case ROR_ABS_X: {
+                rotate_abs_x_logic(cycles, low_byte_data, ROR_ABS_X);
+                break;
+            }
+            case ROR_ZP: {
+                rotate_zp_logic(cycles, low_byte_data, ROR_ZP);
                 break;
             }
             default: {
@@ -586,29 +611,63 @@ void rotate_acc_logic(unsigned int* cycles, unsigned char instruction)
     unsigned char temp_var = vm.accumulator;
     if(instruction == ROL_A)
     {
-        if(vm.accumulator & 0b10000000){
-            set_flag(FLAG_CARRY); // Set the carry flag to the value of the 7th bit of the A register
-        }
-        else{
-            clear_flag(FLAG_CARRY); // Clear it if the value is 0
-        }
-        vm.accumulator = vm.accumulator << 1;
-        vm.accumulator |= (vm.processor_status & 0b00000001) ? 1 : 0;
+       rotate_logic(&vm.accumulator, true);
     }
     else
     {
-        if(vm.accumulator & 1){
-            set_flag(FLAG_CARRY); // Set the carry flag to the value of the 7th bit of the A register
-        }
-        else{
-            clear_flag(FLAG_CARRY); // Clear it if the value is 0
-        }
-        vm.accumulator = vm.accumulator >> 1;
-        vm.accumulator |= (vm.processor_status & 0b00000001) ? 0b10000000 : 0b00000000;
+        rotate_logic(&vm.accumulator, false);
     }
     *cycles -= 1; // performing the shift
-    updateNZFlags(vm.accumulator);
     debug(instruction, vm.accumulator);
+}
+void rotate_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
+{
+    cycle_check(6-2, cycles);
+    unsigned char high_order_address = fetch_byte(cycles);
+    unsigned short address = (high_order_address << 8) | low_order_address;
+    if(instruction == ROL_ABS)
+    {
+        rotate_logic(&memory.data[address], true);
+    }
+    else
+    {
+        rotate_logic(&memory.data[address], false);
+    }
+    *cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
+    debug(instruction, memory.data[address]);
+}
+void rotate_abs_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
+{
+    cycle_check(7-2, cycles);
+    unsigned char high_order_address = fetch_byte(cycles);
+    unsigned short address = high_order_address << 8 | low_order_address;
+    address += vm.x;
+    wrap_address(&address);
+    if(instruction == ROL_ABS_X)
+    {
+        rotate_logic(&memory.data[address], true);
+    }
+    else
+    {
+        rotate_logic(&memory.data[address], false);
+    }
+    *cycles -= 4; // adding x reg content to an address, reading memory from that address, performing the shift, and writing the result back to the same location
+    debug(instruction, memory.data[address]);
+}
+void rotate_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
+{
+    cycle_check(5-2, cycles);
+    unsigned short zp_address = (0x00 << 8) | low_order_address;
+    if(instruction == ROL_ZP)
+    {
+        rotate_logic(&memory.data[zp_address], true);
+    }
+    else
+    {
+        rotate_logic(&memory.data[zp_address], false);
+    }
+    *cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
+    debug(instruction, memory.data[zp_address]);
 }
 
 // zero page functions
@@ -674,4 +733,30 @@ void onebyte_ins_fix(unsigned int* cycles) // Function for fixing the cycle coun
 {
     vm.ip--; // move the pointer one byte back because of the fetch word function at the start of the while loop
     *cycles+=1; // also need to restore 1 cycle back
+}
+void rotate_logic(unsigned char* value, bool isLeft)
+{
+    if(isLeft)
+    {
+        if(*value & 0b10000000){
+            set_flag(FLAG_CARRY); // Set the carry flag to the value of the 7th bit of the A register
+        }
+        else{
+            clear_flag(FLAG_CARRY); // Clear it if the value is 0
+        }
+        *value = *value << 1;
+        *value |= (vm.processor_status & 0b00000001) ? 1 : 0;
+    }
+    else
+    {
+        if(*value & 1){
+            set_flag(FLAG_CARRY); // Set the carry flag to the value of the 7th bit of the A register
+        }
+        else{
+            clear_flag(FLAG_CARRY); // Clear it if the value is 0
+        }
+        *value = *value >> 1;
+        *value |= (vm.processor_status & 0b00000001) ? 0b10000000 : 0b00000000;
+    }
+    updateNZFlags(*value);
 }

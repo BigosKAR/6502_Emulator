@@ -32,17 +32,19 @@ struct Memory memory;
 
 int main()
 {
-    int cycles = 2;
+    int cycles = 7;
     int *ptr = &cycles;
     reset();
-    vm.accumulator = 0;
-    vm.x = 0x49;
-    memory.data[0xFFFC] = ROR_A;
+    vm.accumulator = 185;
+    vm.x = 0x69;
+    memory.data[0xFFFC] = ROL_ABS_X;
     memory.data[0xFFFD] = 0xFF;
-    memory.data[0x0048] = 255;
-    //printf("Memory[0x0048]: %d (%x in hexa)\n", memory.data[0x0048], memory.data[0x0048]);
-    printf("Accumulator: %d\n", vm.accumulator);
+    memory.data[0xFFFE] = 0xFF;
+    memory.data[0x0068] = 0xBE;
+    printf("Memory[0x0068]: %d (%x in hexa)\n", memory.data[0x0068], memory.data[0x0068]);
+    //printf("Accumulator: %d\n", vm.accumulator);
     execute(ptr);
-    printf("Accumulator: %d\n", vm.accumulator);
+    //printf("Accumulator: %d\n", vm.accumulator);
+    printf("Memory[0x0068]: %d (%x in hexa)\n", memory.data[0x0068], memory.data[0x0068]);
     return 0;
 }

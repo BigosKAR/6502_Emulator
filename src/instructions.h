@@ -203,7 +203,8 @@ void shift_zp_logic(unsigned int* cycles, unsigned char low_order_address, unsig
 void shift_zp_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
 
 void rotate_acc_logic(unsigned int* cycles, unsigned char instruction);
-
+void rotate_abs_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
+void rotate_abs_x_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction);
 
 // main execution function
 void execute(unsigned int *cycles);
@@ -219,4 +220,5 @@ bool out_of_bounds(unsigned short address);
 void wrap_address(unsigned short* address);
 void wrap_stack_pointer();
 void onebyte_ins_fix(unsigned int* cycles); // Function for fixing the cycle count and the instruction pointer for one byte instructions
+void rotate_logic(unsigned char* value, bool isLeft); // Function used for the main functionality of the rotate operations
 #endif
