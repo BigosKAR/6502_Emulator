@@ -278,6 +278,30 @@ void execute(unsigned int *cycles)
                 and_abs(cycles, low_byte_data, AND_ABS);
                 break;
             }
+            case AND_ABS_X: {
+                and_abs_reg_logic(cycles, low_byte_data, vm.x, AND_ABS_X);
+                break;
+            }
+            case AND_ABS_Y: {
+                and_abs_reg_logic(cycles, low_byte_data, vm.y, AND_ABS_Y);
+                break;
+            }
+            case AND_ZP: {
+                and_zp(cycles, low_byte_data, AND_ZP);
+                break;
+            }
+            case AND_ZP_X: {
+                and_zp_x(cycles, low_byte_data, AND_ZP_X);
+                break;
+            }
+            case AND_ZP_X_IND: {
+                and_zp_x_ind(cycles, low_byte_data, AND_ZP_X_IND);
+                break;
+            }
+            case AND_ZP_Y_IND: {
+                and_zp_y_ind(cycles, low_byte_data, AND_ZP_Y_IND);
+                break;
+            }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 *cycles = 0;
