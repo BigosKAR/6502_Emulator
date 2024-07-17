@@ -91,6 +91,23 @@ void and_zp_y_ind(unsigned int* cycles, unsigned char low_byte, unsigned char in
     debug(instruction, vm.accumulator);
 }
 
+void bit_abs(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
+{
+    cycle_check(4-2, cycles);
+    unsigned short address = get_abs_address(cycles, low_order_address);
+    unsigned char and_value = vm.accumulator & memory.data[address];
+    *cycles -= 1;
+    BIT_update_NVZ(memory.data[address], and_value);
+    debug(instruction, and_value);
+}
+void bit_zp(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
+{
+    cycle_check(3-2, cycles);
+    unsigned short zp_address = get_zp_address(low_order_address);
+    unsigned char and_value = vm.accumulator & memory.data[zp_address];
+    BIT_update_NVZ(memory.data[zp_address], and_value);
+    debug(instruction, and_value);
+}
 // Helper logic functions
 void and_bitwise_logic(unsigned char value)
 {

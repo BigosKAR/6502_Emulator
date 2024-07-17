@@ -34,6 +34,6 @@ void display_flags();
 void updateNZFlags(unsigned char value);
 void updateNZC_Flags(unsigned char new_value, unsigned char old_value);
 void LSR_update_NZC_Flags(unsigned char new_value, unsigned char old_value);
-
+void BIT_update_NVZ(unsigned char memory_data, unsigned char AND_value);
 
 #endif

@@ -302,6 +302,14 @@ void execute(unsigned int *cycles)
                 and_zp_y_ind(cycles, low_byte_data, AND_ZP_Y_IND);
                 break;
             }
+            case BIT_ABS:{
+                bit_abs(cycles, low_byte_data, BIT_ABS);
+                break;
+            }
+            case BIT_ZP:{
+                bit_zp(cycles, low_byte_data, BIT_ZP);
+                break;
+            }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 *cycles = 0;
@@ -409,4 +417,14 @@ void onebyte_ins_fix(unsigned int* cycles) // Function for fixing the cycle coun
 {
     vm.ip--; // move the pointer one byte back because of the fetch word function at the start of the while loop
     *cycles+=1; // also need to restore 1 cycle back
+}
+
+unsigned short get_abs_address(unsigned int* cycles, unsigned char low_order_address)
+{
+    unsigned char high_order_address = fetch_byte(&cycles);
+    return high_order_address << 8 | low_order_address;
+}
+unsigned short get_zp_address(unsigned char low_order_address)
+{
+    return (0x00 << 8) | low_order_address;
 }

@@ -17,7 +17,6 @@
 #define BCC 0x90
 #define BCS 0xB0
 #define BEQ 0xF0
-#define BIT 0x24
 #define BMI 0x30
 #define BNE 0xD0
 #define BPL 0x10
@@ -136,6 +135,10 @@
 #define AND_ZP_X_IND 0x21 // 6 Cycles
 #define AND_ZP_Y_IND 0x31 // 5 Cycles + 1 if page crossed
 
+// BIT instructions
+#define BIT_ABS 0x2C // 4 Cycles
+#define BIT_ZP 0x24 // 3 Cycles
+
 #define LDY 0xA0
 #define NOP 0xEA
 #define ORA 0x09
@@ -197,4 +200,8 @@ void cycle_check(unsigned int cycle_amount, unsigned int* cycles);
 bool out_of_bounds(unsigned short address);
 void wrap_address(unsigned short* address);
 void onebyte_ins_fix(unsigned int* cycles); // Function for fixing the cycle count and the instruction pointer for one byte instructions
+
+unsigned short get_abs_address(unsigned int* cycles, unsigned char low_order_address);
+unsigned short get_zp_address(unsigned char low_order_address);
+
 #endif

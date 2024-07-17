@@ -71,3 +71,13 @@ void LSR_update_NZC_Flags(unsigned char new_value, unsigned char old_value)
     else clear_flag(FLAG_ZERO);
     clear_flag(FLAG_NEGATIVE);
 }
+
+void BIT_update_NVZ(unsigned char memory_data, unsigned char AND_value)
+{
+    if((memory_data >> 7) & 1)set_flag(FLAG_NEGATIVE);
+    else clear_flag(FLAG_NEGATIVE);
+    if((memory_data >> 6) & 1)set_flag(FLAG_OVERFLOW);
+    else clear_flag(FLAG_OVERFLOW);
+    if(AND_value == 0)set_flag(FLAG_ZERO);
+    else clear_flag(FLAG_ZERO);
+}
