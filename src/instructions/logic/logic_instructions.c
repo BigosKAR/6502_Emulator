@@ -71,7 +71,7 @@ void logical_zp_x_ind(unsigned int* cycles, unsigned char low_byte, unsigned cha
 void logical_zp_y_ind(unsigned int* cycles, unsigned char low_byte, unsigned char instruction)
 {
     cycle_check(5-2, cycles);
-    unsigned short indirect_address = get_zp_y_ind_address(cycles, low_byte);
+    unsigned short indirect_address = get_zp_y_ind_address_pc(cycles, low_byte);
     if(instruction == AND_ZP_Y_IND)and_bitwise_logic(memory.data[indirect_address]);
     else if(instruction == EOR_ZP_Y_IND)eor_bitwise_logic(memory.data[indirect_address]);
     else ora_bitwise_logic(memory.data[indirect_address]);

@@ -4,6 +4,7 @@
 
 #include "flags.h"
 #include "instructions.h"
+#include "addressing_modes.h"
 
 unsigned short get_abs_address(unsigned int* cycles, unsigned char low_order_address)
 {
@@ -27,6 +28,12 @@ unsigned short get_abs_indexed_address_pc(unsigned int* cycles, unsigned char lo
     }
     return address + vm_register;
 }
+unsigned short get_abs_indexed_address(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register)
+{
+    unsigned char high_order_address = fetch_byte(cycles);
+    unsigned short address = (high_order_address << 8) | low_order_address;
+    return address + vm_register;
+}
 unsigned short get_zp_address(unsigned char low_order_address)
 {
     return (0x00 << 8) | low_order_address;
@@ -46,7 +53,7 @@ unsigned short get_zp_x_ind_address(unsigned int* cycles, unsigned char low_orde
     unsigned short indirect_address = (low_b_data << 8) | high_b_data;
     return indirect_address;
 }
-unsigned short get_zp_y_ind_address(unsigned int* cycles, unsigned char low_order_address)
+unsigned short get_zp_y_ind_address_pc(unsigned int* cycles, unsigned char low_order_address)
 {
     unsigned short zp_address = get_zp_address(low_order_address);
     unsigned short temp_address = zp_address;
@@ -60,6 +67,15 @@ unsigned short get_zp_y_ind_address(unsigned int* cycles, unsigned char low_orde
         cycle_check(1, cycles);
         }
     }
+    unsigned char low_b_data, high_b_data;
+    fetch_word_zp(cycles, zp_address, &low_b_data, &high_b_data);
+    unsigned short indirect_address = (low_b_data << 8) | high_b_data;
+    return indirect_address;
+}
+unsigned short get_zp_y_ind_address(unsigned int* cycles, unsigned char low_order_address)
+{
+    unsigned short zp_address = get_zp_address(low_order_address);
+    zp_address += vm.y;
     unsigned char low_b_data, high_b_data;
     fetch_word_zp(cycles, zp_address, &low_b_data, &high_b_data);
     unsigned short indirect_address = (low_b_data << 8) | high_b_data;
