@@ -33,7 +33,6 @@
 #define DEC 0xC6
 #define DEX 0xCA
 #define DEY 0x88
-#define EOR 0x49
 #define INC 0xE6
 #define INX 0xE8
 #define INY 0xC8
@@ -139,6 +138,26 @@
 #define BIT_ABS 0x2C // 4 Cycles
 #define BIT_ZP 0x24 // 3 Cycles
 
+// EOR instructions
+#define EOR_IMM 0x49 // 2 Cycles
+#define EOR_ABS 0x4D // 4 Cycles
+#define EOR_ABS_X 0x5D // 4 Cycles + 1 if page crossed
+#define EOR_ABS_Y 0x59 // 4 Cycles + 1 if page crossed
+#define EOR_ZP 0x45 // 3 Cycles
+#define EOR_ZP_X 0x55 // 4 Cycles
+#define EOR_ZP_X_IND 0x41 // 6 Cycles
+#define EOR_ZP_Y_IND 0x51 // 5 + 1 if page crossed
+
+// ORA instructions
+#define ORA_IMM 0x09 // 2 Cycles
+#define ORA_ABS 0x0D // 4 Cycles
+#define ORA_ABS_X 0x1D // 4 Cycles + 1 if page crossed
+#define ORA_ABS_Y 0x19 // 4 Cycles + 1 if page crossed
+#define ORA_ZP 0x05 // 3 Cycles
+#define ORA_ZP_X 0x15 // 4 Cycles
+#define ORA_ZP_X_IND 0x01 // 6 Cycles
+#define ORA_ZP_Y_IND 0x11 // 5 Cycles + 1 if page crossed
+
 #define LDY 0xA0
 #define NOP 0xEA
 #define ORA 0x09
@@ -203,5 +222,5 @@ void onebyte_ins_fix(unsigned int* cycles); // Function for fixing the cycle cou
 
 unsigned short get_abs_address(unsigned int* cycles, unsigned char low_order_address);
 unsigned short get_zp_address(unsigned char low_order_address);
-
+unsigned short get_abs_indexed_address_pc(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register);
 #endif

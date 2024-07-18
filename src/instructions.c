@@ -271,35 +271,35 @@ void execute(unsigned int *cycles)
                 break;
             }
             case AND_IMM: {
-                and_imm(cycles, low_byte_data, AND_IMM);
+                logical_imm(cycles, low_byte_data, AND_IMM);
                 break;
             }
             case AND_ABS: {
-                and_abs(cycles, low_byte_data, AND_ABS);
+                logical_abs(cycles, low_byte_data, AND_ABS);
                 break;
             }
             case AND_ABS_X: {
-                and_abs_reg_logic(cycles, low_byte_data, vm.x, AND_ABS_X);
+                logical_abs_reg_logic(cycles, low_byte_data, vm.x, AND_ABS_X);
                 break;
             }
             case AND_ABS_Y: {
-                and_abs_reg_logic(cycles, low_byte_data, vm.y, AND_ABS_Y);
+                logical_abs_reg_logic(cycles, low_byte_data, vm.y, AND_ABS_Y);
                 break;
             }
             case AND_ZP: {
-                and_zp(cycles, low_byte_data, AND_ZP);
+                logical_zp(cycles, low_byte_data, AND_ZP);
                 break;
             }
             case AND_ZP_X: {
-                and_zp_x(cycles, low_byte_data, AND_ZP_X);
+                logical_zp_x(cycles, low_byte_data, AND_ZP_X);
                 break;
             }
             case AND_ZP_X_IND: {
-                and_zp_x_ind(cycles, low_byte_data, AND_ZP_X_IND);
+                logical_zp_x_ind(cycles, low_byte_data, AND_ZP_X_IND);
                 break;
             }
             case AND_ZP_Y_IND: {
-                and_zp_y_ind(cycles, low_byte_data, AND_ZP_Y_IND);
+                logical_zp_y_ind(cycles, low_byte_data, AND_ZP_Y_IND);
                 break;
             }
             case BIT_ABS:{
@@ -308,6 +308,70 @@ void execute(unsigned int *cycles)
             }
             case BIT_ZP:{
                 bit_zp(cycles, low_byte_data, BIT_ZP);
+                break;
+            }
+            case EOR_IMM: {
+                logical_imm(cycles, low_byte_data, EOR_IMM);
+                break;
+            }
+            case EOR_ABS: {
+                logical_abs(cycles, low_byte_data, EOR_ABS);
+                break;
+            }
+            case EOR_ABS_X: {
+                logical_abs_reg_logic(cycles, low_byte_data, vm.x, EOR_ABS_X);
+                break;
+            }
+            case EOR_ABS_Y: {
+                logical_abs_reg_logic(cycles, low_byte_data, vm.y, EOR_ABS_Y);
+                break;
+            }
+            case EOR_ZP: {
+                logical_zp(cycles, low_byte_data, EOR_ZP);
+                break;
+            }
+            case EOR_ZP_X: {
+                logical_zp_x(cycles, low_byte_data, EOR_ZP_X);
+                break;
+            }
+            case EOR_ZP_X_IND: {
+                logical_zp_x_ind(cycles, low_byte_data, EOR_ZP_X_IND);
+                break;
+            }
+            case EOR_ZP_Y_IND: {
+                logical_zp_y_ind(cycles, low_byte_data, EOR_ZP_Y_IND);
+                break;
+            }
+            case ORA_IMM: {
+                logical_imm(cycles, low_byte_data, ORA_IMM);
+                break;
+            }
+            case ORA_ABS: {
+                logical_abs(cycles, low_byte_data, ORA_ABS);
+                break;
+            }
+            case ORA_ABS_X: {
+                logical_abs_reg_logic(cycles, low_byte_data, vm.x, ORA_ABS_X);
+                break;
+            }
+            case ORA_ABS_Y: {
+                logical_abs_reg_logic(cycles, low_byte_data, vm.y, ORA_ABS_Y);
+                break;
+            }
+            case ORA_ZP: {
+                logical_zp(cycles, low_byte_data, ORA_ZP);
+                break;
+            }
+            case ORA_ZP_X: {
+                logical_zp_x(cycles, low_byte_data, ORA_ZP_X);
+                break;
+            }
+            case ORA_ZP_X_IND: {
+                logical_zp_x_ind(cycles, low_byte_data, ORA_ZP_X_IND);
+                break;
+            }
+            case ORA_ZP_Y_IND: {
+                logical_zp_y_ind(cycles, low_byte_data, ORA_ZP_Y_IND);
                 break;
             }
             default: {
@@ -419,12 +483,4 @@ void onebyte_ins_fix(unsigned int* cycles) // Function for fixing the cycle coun
     *cycles+=1; // also need to restore 1 cycle back
 }
 
-unsigned short get_abs_address(unsigned int* cycles, unsigned char low_order_address)
-{
-    unsigned char high_order_address = fetch_byte(&cycles);
-    return high_order_address << 8 | low_order_address;
-}
-unsigned short get_zp_address(unsigned char low_order_address)
-{
-    return (0x00 << 8) | low_order_address;
-}
+// address fetching functions

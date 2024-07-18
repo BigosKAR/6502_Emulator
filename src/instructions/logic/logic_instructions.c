@@ -5,88 +5,76 @@
 #include "../../instructions.h"
 #include "../../flags.h"
 #include "logic_instructions.h"
+#include "../../addressing_modes.h"
 
 // Main logic functions
-void and_imm(unsigned int* cycles, unsigned char low_byte, unsigned char instruction)
+
+// Functions for AND, EOR, and OR (logical)
+void logical_imm(unsigned int* cycles, unsigned char low_byte, unsigned char instruction)
 {
     cycle_check(2-2, cycles);
-    and_bitwise_logic(low_byte);
+    if(instruction == AND_IMM)and_bitwise_logic(low_byte);
+    else if(instruction == EOR_IMM)eor_bitwise_logic(low_byte);
+    else ora_bitwise_logic(low_byte); // OR is the remaining case
     debug(instruction, vm.accumulator);
 }
-void and_abs(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
+void logical_abs(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
 {
     cycle_check(4-2, cycles);
-    unsigned char high_order_address = fetch_byte(cycles);
-    unsigned short address = (high_order_address << 8) | low_order_address;
-    and_bitwise_logic(memory.data[address]);
+    unsigned short address = get_abs_address(cycles, low_order_address);
+    if(instruction == AND_ABS)and_bitwise_logic(memory.data[address]);
+    else if(instruction == EOR_ABS)eor_bitwise_logic(memory.data[address]);
+    else ora_bitwise_logic(memory.data[address]); // OR is the remaining case
     *cycles -= 1;
     debug(instruction, vm.accumulator);
 }
-
-void and_abs_reg_logic(unsigned int* cycles, unsigned low_order_address, unsigned char vm_register, unsigned char instruction)
+void logical_abs_reg_logic(unsigned int* cycles, unsigned low_order_address, unsigned char vm_register, unsigned char instruction)
 {
     cycle_check(4-2, cycles);
-    unsigned char high_order_address = fetch_byte(cycles);
-    unsigned short address = (high_order_address << 8) | low_order_address;
-    unsigned short temp_address = address + vm_register;
-    if((address & 0xFF00) != (temp_address & 0xFF00))
-    {
-        if((temp_address >> 8) == 0);
-        else
-        {
-        *cycles -= 1; // If page boundary crossed then take 1 cycle
-        cycle_check(1, cycles);
-        }
-    }
-    wrap_address(&temp_address); // may be unnecessary because C wraps around for unsigned short
+    unsigned short address = get_abs_indexed_address_pc(cycles, low_order_address, vm_register);
+    if(instruction == AND_ABS_X || instruction == AND_ABS_Y)and_bitwise_logic(memory.data[address]);
+    else if(instruction == EOR_ABS_X || instruction == EOR_ABS_Y)eor_bitwise_logic(memory.data[address]);
+    else ora_bitwise_logic(memory.data[address]);
     *cycles -= 1;
-    and_bitwise_logic(memory.data[temp_address]);
     debug(instruction, vm.accumulator);
 }
-void and_zp(unsigned int* cycles, unsigned char low_byte, unsigned char instruction)
+void logical_zp(unsigned int* cycles, unsigned char low_byte, unsigned char instruction)
 {
     cycle_check(3-2, cycles);
-    unsigned short address = (0x00 << 8) | low_byte;
-    and_bitwise_logic(memory.data[address]);
+    unsigned short address = get_zp_address(low_byte);
+    if(instruction == AND_ZP)and_bitwise_logic(memory.data[address]);
+    else if(instruction == EOR_ZP)eor_bitwise_logic(memory.data[address]);
+    else ora_bitwise_logic(memory.data[address]);
     *cycles -= 1;
     debug(instruction, vm.accumulator);
 }
-void and_zp_x(unsigned int* cycles, unsigned char low_byte, unsigned char instruction)
+void logical_zp_x(unsigned int* cycles, unsigned char low_byte, unsigned char instruction)
 {
     cycle_check(4-2, cycles);
-    unsigned short zp_address = (0x00 << 8) | low_byte;
-    zp_wrapping(cycles, &zp_address, vm.x);
-    and_bitwise_logic(memory.data[zp_address]);
+    unsigned short zp_address = get_zp_indexed_address(cycles, low_byte, vm.x);
+    if(instruction == AND_ZP_X)and_bitwise_logic(memory.data[zp_address]);
+    else if(instruction == EOR_ZP_X)eor_bitwise_logic(memory.data[zp_address]);
+    else ora_bitwise_logic(memory.data[zp_address]);
     *cycles -= 1;
     debug(instruction, vm.accumulator);
 }
-void and_zp_x_ind(unsigned int* cycles, unsigned char low_byte, unsigned char instruction)
+void logical_zp_x_ind(unsigned int* cycles, unsigned char low_byte, unsigned char instruction)
 {
     cycle_check(6-2, cycles);
-    unsigned short zp_address = (0x00 << 8) | low_byte;
-    zp_wrapping(cycles, &zp_address, vm.x);
-    unsigned char low_b_data, high_b_data;
-    fetch_word_zp(cycles, zp_address, &low_b_data, &high_b_data);
-    unsigned short indirect_address = (low_b_data << 8) | high_b_data;
-    and_bitwise_logic(memory.data[indirect_address]);
+    unsigned short indirect_address = get_zp_x_ind_address(cycles, low_byte);
+    if(instruction == AND_ZP_X_IND)and_bitwise_logic(memory.data[indirect_address]);
+    else if(instruction == EOR_ZP_X_IND)eor_bitwise_logic(memory.data[indirect_address]);
+    else ora_bitwise_logic(memory.data[indirect_address]);
     *cycles -= 1;
     debug(instruction, vm.accumulator);
 }
-void and_zp_y_ind(unsigned int* cycles, unsigned char low_byte, unsigned char instruction)
+void logical_zp_y_ind(unsigned int* cycles, unsigned char low_byte, unsigned char instruction)
 {
     cycle_check(5-2, cycles);
-    unsigned short address = (0x00 << 8) | low_byte;
-    unsigned short temp_address = address;
-    address += vm.y;
-    if((temp_address & 0xFF00) != (address & 0xFF00))
-    {
-        *cycles -= 1; // If page boundary crossed then take 1 cycle
-        cycle_check(1, cycles);
-    }
-    unsigned char low_b_data, high_b_data;
-    fetch_word_zp(cycles, address, &low_b_data, &high_b_data);
-    unsigned short indirect_address = (low_b_data << 8) | high_b_data;
-    and_bitwise_logic(memory.data[indirect_address]);
+    unsigned short indirect_address = get_zp_y_ind_address(cycles, low_byte);
+    if(instruction == AND_ZP_Y_IND)and_bitwise_logic(memory.data[indirect_address]);
+    else if(instruction == EOR_ZP_Y_IND)eor_bitwise_logic(memory.data[indirect_address]);
+    else ora_bitwise_logic(memory.data[indirect_address]);
     *cycles -= 1;
     debug(instruction, vm.accumulator);
 }
@@ -105,12 +93,24 @@ void bit_zp(unsigned int* cycles, unsigned char low_order_address, unsigned char
     cycle_check(3-2, cycles);
     unsigned short zp_address = get_zp_address(low_order_address);
     unsigned char and_value = vm.accumulator & memory.data[zp_address];
+    *cycles -= 1;
     BIT_update_NVZ(memory.data[zp_address], and_value);
     debug(instruction, and_value);
 }
+
 // Helper logic functions
 void and_bitwise_logic(unsigned char value)
 {
     vm.accumulator &= value;
+    updateNZFlags(vm.accumulator);
+}
+void eor_bitwise_logic(unsigned char value)
+{
+    vm.accumulator ^= value;
+    updateNZFlags(vm.accumulator);
+}
+void ora_bitwise_logic(unsigned char value)
+{
+    vm.accumulator |= value;
     updateNZFlags(vm.accumulator);
 }
