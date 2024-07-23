@@ -7,19 +7,19 @@
 #include "load_instructions.h"
 #include "../../addressing_modes.h"
 
-void ld_abs_reg_logic(unsigned int* cycles, unsigned char* low_order_address, unsigned char* vm_register, unsigned char vm_reg_indexed, unsigned char instruction)
+void ld_abs_reg_logic(unsigned int* cycles, unsigned char low_order_address, unsigned char* vm_register, unsigned char vm_reg_indexed, unsigned char instruction)
 {
     cycle_check(4-2, cycles); 
-    unsigned short address = get_abs_indexed_address_pc(cycles, *low_order_address, vm_reg_indexed);
+    unsigned short address = get_abs_indexed_address_pc(cycles, low_order_address, vm_reg_indexed);
     *vm_register = memory.data[address];
     *cycles -= 1; // reading the byte from memory
     updateNZFlags(*vm_register);
     debug(instruction, *vm_register);
 }
-void ld_imm_logic(unsigned int* cycles, unsigned char* low_byte, unsigned char *vm_register, unsigned char instruction)
+void ld_imm_logic(unsigned int* cycles, unsigned char low_byte, unsigned char *vm_register, unsigned char instruction)
 {
     cycle_check(2-2, cycles);
-    *vm_register = *low_byte;
+    *vm_register = low_byte;
     updateNZFlags(*vm_register);
     debug(instruction, *vm_register);
 }
@@ -116,7 +116,7 @@ void sta_zp_x_ind(unsigned int* cycles, unsigned char low_order_address)
 void sta_zp_y_ind(unsigned int* cycles, unsigned char low_order_address)
 {
     cycle_check(6-2, cycles);
-    unsigned short indirect_address = get_zp_y_ind_address(cycles, low_byte);
+    unsigned short indirect_address = get_zp_y_ind_address(cycles, low_order_address);
     *cycles -= 1;
     memory.data[indirect_address] = vm.accumulator;
     *cycles -= 1;

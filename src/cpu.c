@@ -37,18 +37,19 @@ int main()
     unsigned int cycles = 6;
     unsigned int *ptr = &cycles;
     reset();
-    vm.accumulator = 185;
+    vm.accumulator = 0b10000111; // 87
     vm.x = 0x68;
-    vm.y = 0x45;
-    memory.data[0xFFFC] = EOR_ZP_Y_IND;
-    memory.data[0xFFFD] = 0xFF;
-    memory.data[0x0144] = 0x12;
-    memory.data[0x0145] = 0x54;
-    memory.data[0x5412] = 134;
+    vm.y = 0xFF;
+    memory.data[0xFFFC] = ADC_ZP_Y_IND;
+    memory.data[0xFFFD] = 0xF0; 
+    memory.data[0x00F0] = 0x12;
+    memory.data[0x00F1] = 0x54;
+    memory.data[0x5511] = 0b01100101; //65
+    set_flag(FLAG_DECIMAL);
     //printf("Memory[0x0033]: %d (%x in hexa)\n", memory.data[0x0033], memory.data[0x0033]);
     printf("Accumulator: %d\n", vm.accumulator);
     execute(ptr);
     printf("Accumulator: %d\n", vm.accumulator);
-    printf("Memory[0x0033]: %d (%x in hexa)\n", memory.data[0x0033], memory.data[0x0033]);
+    //printf("Memory[0x0033]: %d (%x in hexa)\n", memory.data[0x0033], memory.data[0x0033]);
     return 0;
 }

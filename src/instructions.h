@@ -13,7 +13,6 @@
 #define HIGH_STACK_ADDRESS 0x001
 
 // INSTRUCTIONS
-#define ADC 0x69
 #define BCC 0x90
 #define BCS 0xB0
 #define BEQ 0xF0
@@ -158,17 +157,23 @@
 #define ORA_ZP_X_IND 0x01 // 6 Cycles
 #define ORA_ZP_Y_IND 0x11 // 5 Cycles + 1 if page crossed
 
-#define LDY 0xA0
+// ADC instructions
+#define ADC_IMM 0x69 // 2 Cycles
+#define ADC_ABS 0x6D // 4 Cycles
+#define ADC_ABS_X 0x7D // 4 Cycles + 1 if page crossed
+#define ADC_ABS_Y 0x79 // 4 Cycles + 1 if page crossed
+#define ADC_ZP 0x65 // 3 Cycles
+#define ADC_ZP_X 0x75 // 4 Cycles
+#define ADC_ZP_X_IND 0x61 // 6 Cycles
+#define ADC_ZP_Y_IND 0x71 // 5 Cycles + 1 if page crossed
+
 #define NOP 0xEA
-#define ORA 0x09
 #define RTI 0x40
 #define RTS 0x60
 #define SBC 0xE9
 #define SEC 0x38
 #define SED 0xF8
 #define SEI 0x78
-#define STX 0x86
-#define STY 0x84
 
 // MEMORY PAGES
 // 0x0000 - 0x00FF: Zero Page
@@ -220,7 +225,4 @@ bool out_of_bounds(unsigned short address);
 void wrap_address(unsigned short* address);
 void onebyte_ins_fix(unsigned int* cycles); // Function for fixing the cycle count and the instruction pointer for one byte instructions
 
-unsigned short get_abs_address(unsigned int* cycles, unsigned char low_order_address);
-unsigned short get_zp_address(unsigned char low_order_address);
-unsigned short get_abs_indexed_address_pc(unsigned int* cycles, unsigned char low_order_address, unsigned char vm_register);
 #endif

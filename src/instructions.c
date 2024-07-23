@@ -9,6 +9,7 @@
 #include "./instructions/stack/stack_instructions.h"
 #include "./instructions/shift/shift_instructions.h"
 #include "./instructions/logic/logic_instructions.h"
+#include "./instructions/arithmetic/arith_instructions.h"
 
 // execution of instructions *most important function*
 void execute(unsigned int *cycles)
@@ -22,76 +23,76 @@ void execute(unsigned int *cycles)
         switch(high_byte_data)
         {
             case LDA_IMM: {
-                ld_imm_logic(cycles, &low_byte_data, &vm.accumulator, LDA_IMM);
+                ld_imm_logic(cycles, low_byte_data, &vm.accumulator, LDA_IMM);
                 break;
             }
             case LDA_ABS: {
-                ld_abs_logic(cycles, &low_byte_data, &vm.accumulator, LDA_ABS);
+                ld_abs_logic(cycles, low_byte_data, &vm.accumulator, LDA_ABS);
                 break;
             }
             case LDA_ABS_X: {
-                ld_abs_reg_logic(cycles, &low_byte_data, &vm.accumulator, vm.x, LDA_ABS_X);
+                ld_abs_reg_logic(cycles, low_byte_data, &vm.accumulator, vm.x, LDA_ABS_X);
                 break;
             }
             case LDA_ABS_Y: {
-                ld_abs_reg_logic(cycles, &low_byte_data, &vm.accumulator, vm.y, LDA_ABS_Y);
+                ld_abs_reg_logic(cycles, low_byte_data, &vm.accumulator, vm.y, LDA_ABS_Y);
                 break;
             }
             case LDA_ZP: {
                 // Useful for faster execution time because there is no need to fetch another byte
-                ld_zp_logic(cycles, &low_byte_data, &vm.accumulator, LDA_ZP);
+                ld_zp_logic(cycles, low_byte_data, &vm.accumulator, LDA_ZP);
                 break;
             }
             case LDA_ZP_X: {
-                ld_zp_reg_logic(cycles, &low_byte_data, &vm.accumulator, vm.x, LDA_ZP_X);
+                ld_zp_reg_logic(cycles, low_byte_data, &vm.accumulator, vm.x, LDA_ZP_X);
                 break;
             }
             case LDA_ZP_X_IND: {
-                lda_zp_x_ind(cycles, &low_byte_data);
+                lda_zp_x_ind(cycles, low_byte_data);
                 break;
             }
             case LDA_ZP_Y_IND: {
-                lda_zp_y_ind(cycles, &low_byte_data);
+                lda_zp_y_ind(cycles, low_byte_data);
                 break;
             }
             case LDX_IMM: {
-                ld_imm_logic(cycles, &low_byte_data, &vm.x, LDX_IMM);
+                ld_imm_logic(cycles, low_byte_data, &vm.x, LDX_IMM);
                 break;
             }
             case LDX_ABS: {
-                ld_abs_logic(cycles, &low_byte_data, &vm.x, LDX_ABS);
+                ld_abs_logic(cycles, low_byte_data, &vm.x, LDX_ABS);
                 break;
             }
             case LDX_ABS_Y: {
-                ld_abs_reg_logic(cycles, &low_byte_data, &vm.x, vm.y, LDX_ABS_Y);
+                ld_abs_reg_logic(cycles, low_byte_data, &vm.x, vm.y, LDX_ABS_Y);
                 break;
             }
             case LDX_ZP: {
-                ld_zp_logic(cycles, &low_byte_data, &vm.x, LDX_ZP);
+                ld_zp_logic(cycles, low_byte_data, &vm.x, LDX_ZP);
                 break;
             }
             case LDX_ZP_Y: {
-                ld_zp_reg_logic(cycles, &low_byte_data, &vm.x, vm.y, LDX_ZP_Y);
+                ld_zp_reg_logic(cycles, low_byte_data, &vm.x, vm.y, LDX_ZP_Y);
                 break;
             }
             case LDY_IMM: {
-                ld_imm_logic(cycles, &low_byte_data, &vm.y, LDY_IMM);
+                ld_imm_logic(cycles, low_byte_data, &vm.y, LDY_IMM);
                 break;
             }
             case LDY_ABS: {
-                ld_abs_logic(cycles, &low_byte_data, &vm.y, LDY_ABS);
+                ld_abs_logic(cycles, low_byte_data, &vm.y, LDY_ABS);
                 break;
             }
             case LDY_ZP: {
-                ld_zp_logic(cycles, &low_byte_data, &vm.y, LDY_ZP);
+                ld_zp_logic(cycles, low_byte_data, &vm.y, LDY_ZP);
                 break;
             }
             case LDY_ABS_X: {
-                ld_abs_reg_logic(cycles, &low_byte_data, &vm.y, vm.x, LDY_ABS_X);
+                ld_abs_reg_logic(cycles, low_byte_data, &vm.y, vm.x, LDY_ABS_X);
                 break;
             }
             case LDY_ZP_X: {
-                ld_zp_reg_logic(cycles, &low_byte_data, &vm.y, vm.x, LDY_ZP_X);
+                ld_zp_reg_logic(cycles, low_byte_data, &vm.y, vm.x, LDY_ZP_X);
                 break;
             }
             case STA_ABS: {
@@ -372,6 +373,38 @@ void execute(unsigned int *cycles)
             }
             case ORA_ZP_Y_IND: {
                 logical_zp_y_ind(cycles, low_byte_data, ORA_ZP_Y_IND);
+                break;
+            }
+            case ADC_IMM: {
+                adc_imm(cycles, low_byte_data, ADC_IMM);
+                break;
+            }
+            case ADC_ABS: {
+                adc_abs(cycles, low_byte_data, ADC_ABS);
+                break;
+            }
+            case ADC_ABS_X: {
+                adc_abs_reg_logic(cycles, low_byte_data, vm.x, ADC_ABS_X);
+                break;
+            }
+            case ADC_ABS_Y: {
+                adc_abs_reg_logic(cycles, low_byte_data, vm.y, ADC_ABS_Y);
+                break;
+            }
+            case ADC_ZP: {
+                adc_zp(cycles, low_byte_data, ADC_ZP);
+                break;
+            }
+            case ADC_ZP_X: {
+                adc_zp_x(cycles, low_byte_data, ADC_ZP_X);
+                break;
+            }
+            case ADC_ZP_X_IND: {
+                adc_zp_x_ind(cycles, low_byte_data, ADC_ZP_X_IND);
+                break;
+            }
+            case ADC_ZP_Y_IND: {
+                adc_zp_y_ind(cycles, low_byte_data, ADC_ZP_Y_IND);
                 break;
             }
             default: {

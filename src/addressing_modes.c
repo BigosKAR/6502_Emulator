@@ -56,28 +56,28 @@ unsigned short get_zp_x_ind_address(unsigned int* cycles, unsigned char low_orde
 unsigned short get_zp_y_ind_address_pc(unsigned int* cycles, unsigned char low_order_address)
 {
     unsigned short zp_address = get_zp_address(low_order_address);
-    unsigned short temp_address = zp_address;
-    zp_address += vm.y;
-    if((temp_address & 0xFF00) != (zp_address & 0xFF00))
+    unsigned char low_b_data, high_b_data;
+    fetch_word_zp(cycles, zp_address, &low_b_data, &high_b_data);
+    unsigned short indirect_address = (low_b_data << 8) | high_b_data;
+    unsigned short temp_address = indirect_address;
+    indirect_address += vm.y;
+    if((temp_address & 0xFF00) != (indirect_address & 0xFF00))
     {
-        if((zp_address >> 8) == 0);
+        if((indirect_address >> 8) == 0);
         else
         {
         *cycles -= 1; // If page boundary crossed then take 1 cycle
         cycle_check(1, cycles);
         }
     }
-    unsigned char low_b_data, high_b_data;
-    fetch_word_zp(cycles, zp_address, &low_b_data, &high_b_data);
-    unsigned short indirect_address = (low_b_data << 8) | high_b_data;
     return indirect_address;
 }
 unsigned short get_zp_y_ind_address(unsigned int* cycles, unsigned char low_order_address)
 {
     unsigned short zp_address = get_zp_address(low_order_address);
-    zp_address += vm.y;
     unsigned char low_b_data, high_b_data;
     fetch_word_zp(cycles, zp_address, &low_b_data, &high_b_data);
     unsigned short indirect_address = (low_b_data << 8) | high_b_data;
+    indirect_address += vm.y;
     return indirect_address;
 }
