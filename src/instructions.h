@@ -227,6 +227,12 @@ struct Memory{
     unsigned char data[MEM_MAX_SIZE];
 };
 
+typedef struct InstructionParams{
+    unsigned int required_cycles;
+    unsigned char instruction;
+    AddressingModes addressing_mode;
+}InstructionParams;
+
 extern struct VirtualMachine vm;
 extern struct Memory memory;
 
