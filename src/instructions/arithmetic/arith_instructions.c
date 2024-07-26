@@ -7,63 +7,88 @@
 #include "arith_instructions.h"
 #include "../../addressing_modes.h"
 
-void adc_imm(unsigned int* cycles, unsigned char low_byte, unsigned char instruction)
+void adc_imm(unsigned char low_byte, unsigned char instruction)
 {
-    cycle_check(2-2, cycles);
+    cycle_check(2-2);
     adc_logic(low_byte);
     debug(instruction, vm.accumulator);
 }
-void adc_abs(unsigned int* cycles, unsigned low_order_address, unsigned char instruction)
+void adc_abs(unsigned low_order_address, unsigned char instruction)
 {
-    cycle_check(4-2, cycles);
-    unsigned short address = get_abs_address(cycles, low_order_address);
+    cycle_check(4-2);
+    unsigned short address = get_abs_address(low_order_address);
     adc_logic(memory.data[address]);
-    *cycles -= 1;
+    vm.cycles -= 1;
     debug(instruction, vm.accumulator);
 }
-void adc_abs_reg_logic(unsigned int* cycles, unsigned low_order_address, unsigned char vm_register, unsigned char instruction)
+void adc_abs_reg_logic(unsigned low_order_address, unsigned char vm_register, unsigned char instruction)
 {
-    cycle_check(4-2, cycles);
-    unsigned short address = get_abs_indexed_address_pc(cycles, low_order_address, vm_register);
+    cycle_check(4-2);
+    unsigned short address = get_abs_indexed_address_pc(low_order_address, vm_register);
     adc_logic(memory.data[address]);
-    *cycles -= 1;
+    vm.cycles -= 1;
     debug(instruction, vm.accumulator);
 }
-void adc_zp(unsigned int* cycles, unsigned low_order_address, unsigned char instruction)
+void adc_zp(unsigned low_order_address, unsigned char instruction)
 {
-    cycle_check(3-2, cycles);
+    cycle_check(3-2);
     unsigned short zp_address = get_zp_address(low_order_address);
     adc_logic(memory.data[zp_address]);
-    *cycles -= 1;
+    vm.cycles -= 1;
     debug(instruction, vm.accumulator);
 }
-void adc_zp_x(unsigned int* cycles, unsigned low_order_address, unsigned char instruction)
+void adc_zp_x(unsigned low_order_address, unsigned char instruction)
 {
-    cycle_check(4-2, cycles);
-    unsigned short zp_address = get_zp_indexed_address(cycles, low_order_address, vm.x);
+    cycle_check(4-2);
+    unsigned short zp_address = get_zp_indexed_address(low_order_address, vm.x);
     adc_logic(memory.data[zp_address]);
-    *cycles -= 1;
+    vm.cycles -= 1;
     debug(instruction, vm.accumulator);
 }
-void adc_zp_x_ind(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
+void adc_zp_x_ind(unsigned char low_order_address, unsigned char instruction)
 {
-    cycle_check(6-2, cycles);
-    unsigned short indirect_address = get_zp_x_ind_address(cycles, low_order_address);
+    cycle_check(6-2);
+    unsigned short indirect_address = get_zp_x_ind_address(low_order_address);
     adc_logic(memory.data[indirect_address]);
-    *cycles -= 1;
+    vm.cycles -= 1;
     debug(instruction, vm.accumulator);
 }
-void adc_zp_y_ind(unsigned int* cycles, unsigned char low_order_address, unsigned char instruction)
+void adc_zp_y_ind(unsigned char low_order_address, unsigned char instruction)
 {
-    cycle_check(5-2, cycles);
-    unsigned short indirect_address = get_zp_y_ind_address_pc(cycles, low_order_address);
+    cycle_check(5-2);
+    unsigned short indirect_address = get_zp_y_ind_address_pc(low_order_address);
     printf("Indirect address: %x\n", indirect_address);
     printf("Content at indirect address: %d\n", memory.data[indirect_address]);
     adc_logic(memory.data[indirect_address]);
-    *cycles -= 1;
+    vm.cycles -= 1;
     debug(instruction, vm.accumulator);
 }
 
+// Seperate function for the immediate addressing mode because of the lack of an address
+void cm_imm_logic(unsigned char low_byte, unsigned char vm_register, unsigned char instruction)
+{
+    cycle_check(2-2);
+    compare_logic(vm_register, low_byte);
+    debug(instruction, vm_register);
+}
+void cm_instruction(unsigned int cycles_required, AddressingModes mode, unsigned char low_order_address, unsigned char vm_register, unsigned char index_register, unsigned char instruction)
+{
+    unsigned short address = fetch_address(cycles_required, mode, low_order_address, index_register);
+    compare_logic(vm_register, memory.data[address]);
+    vm.cycles -= 1;
+    debug(instruction, vm_register);
+}
+
+void compare_logic(unsigned char vm_register, unsigned char memory_value)
+{
+    unsigned char result = vm_register - memory_value;
+    if((result >> 7) & 1)set_flag(FLAG_NEGATIVE);
+    else clear_flag(FLAG_NEGATIVE);
+    if(result == 0)set_flag(FLAG_ZERO);
+    else clear_flag(FLAG_ZERO);
+    if(vm_register >= memory_value)set_flag(FLAG_CARRY);
+    else clear_flag(FLAG_CARRY);
+}
 void adc_logic(unsigned char char_value)
 {
     // Larger data types to use for comparison

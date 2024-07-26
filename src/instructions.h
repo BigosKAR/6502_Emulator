@@ -167,6 +167,26 @@
 #define ADC_ZP_X_IND 0x61 // 6 Cycles
 #define ADC_ZP_Y_IND 0x71 // 5 Cycles + 1 if page crossed
 
+// CMP instructions
+#define CMP_IMM 0xC9 // 2 Cycles
+#define CMP_ABS 0xCD // 4 Cycles
+#define CMP_ABS_X 0xDD // 4 Cycles + 1 if page crossed
+#define CMP_ABS_Y 0xD9 // 4 Cycles + 1 if page crossed
+#define CMP_ZP 0xC5 // 3 Cycles
+#define CMP_ZP_X 0xD5 // 4 Cycles
+#define CMP_ZP_X_IND 0xC1 // 6 Cycles
+#define CMP_ZP_Y_IND 0xD1 // 5 Cycles + 1 if page crossed
+
+// CPX instructions
+#define CPX_IMM 0xE0 // 2 Cycles
+#define CPX_ABS 0xEC // 4 Cycles
+#define CPX_ZP 0xE4 // 3 Cycles
+
+// CPY instructions
+#define CPY_IMM 0xC0 // 2 Cycles
+#define CPY_ABS 0xCC // 4 Cycles
+#define CPY_ZP 0xC4 // 3 Cycles
+
 #define NOP 0xEA
 #define RTI 0x40
 #define RTS 0x60
@@ -197,6 +217,9 @@ struct VirtualMachine{
     
     // Stack
     unsigned char sp; // Stack pointer
+
+    // Cycle Counter
+    unsigned int cycles;
     
 };
 
@@ -208,21 +231,21 @@ extern struct VirtualMachine vm;
 extern struct Memory memory;
 
 // fetch functions
-void fetch_word(unsigned int *cycles, unsigned char *low_byte, unsigned char *high_byte);
-unsigned char fetch_byte(unsigned int *cycles);
+void fetch_word(unsigned char *low_byte, unsigned char *high_byte);
+unsigned char fetch_byte();
 
 // main execution function
-void execute(unsigned int *cycles);
+void execute();
 
 // zeropage-related functions
-void zp_wrapping(unsigned int* cycles, unsigned short* address, unsigned char vm_register);
-void fetch_word_zp(unsigned int* cycles, unsigned short address, unsigned char* low_byte, unsigned char* high_byte);
+void zp_wrapping(unsigned short* address, unsigned char vm_register);
+void fetch_word_zp(unsigned short address, unsigned char* low_byte, unsigned char* high_byte);
 
 // helper functions
 void debug(unsigned char instruction, unsigned char component);
-void cycle_check(unsigned int cycle_amount, unsigned int* cycles);
+void cycle_check(unsigned int cycle_amount);
 bool out_of_bounds(unsigned short address);
 void wrap_address(unsigned short* address);
-void onebyte_ins_fix(unsigned int* cycles); // Function for fixing the cycle count and the instruction pointer for one byte instructions
+void onebyte_ins_fix(); // Function for fixing the cycle count and the instruction pointer for one byte instructions
 
 #endif

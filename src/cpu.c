@@ -26,7 +26,8 @@ void reset(void)
     vm.sp = 0xFF; // Stack is in addresses: 0x0100 to 0x01FF
 
     vm.processor_status = 0x20;
-    vm.accumulator = vm.x = vm.y = 0;  
+    vm.accumulator = vm.x = vm.y = 0;
+    vm.cycles = 0;
 }
 
 struct VirtualMachine vm;
@@ -34,9 +35,8 @@ struct Memory memory;
 
 int main()
 {
-    unsigned int cycles = 6;
-    unsigned int *ptr = &cycles;
     reset();
+    vm.cycles = 0;
     vm.accumulator = 0b10000111; // 87
     vm.x = 0x68;
     vm.y = 0xFF;
@@ -48,7 +48,7 @@ int main()
     set_flag(FLAG_DECIMAL);
     //printf("Memory[0x0033]: %d (%x in hexa)\n", memory.data[0x0033], memory.data[0x0033]);
     printf("Accumulator: %d\n", vm.accumulator);
-    execute(ptr);
+    execute();
     printf("Accumulator: %d\n", vm.accumulator);
     //printf("Memory[0x0033]: %d (%x in hexa)\n", memory.data[0x0033], memory.data[0x0033]);
     return 0;
