@@ -18,7 +18,10 @@ void execute()
     unsigned char low_byte_data;
     while(vm.cycles > 0)
     {
-        if(vm.cycles <= 0)break;
+        if(vm.cycles <= 0) {
+            printf("Breaking loop, CYCLES: %d\n", vm.cycles);
+            break;
+        }
         fetch_word(&low_byte_data, &high_byte_data); // takes 2 cycles away
         switch(high_byte_data)
         {
@@ -453,6 +456,36 @@ void execute()
             case CMP_ZP_Y_IND: {
                 InstructionParams params = {5, low_byte_data, CMP_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT_PC};
                 cm_instruction(params, vm.accumulator, &vm.y);
+                break;
+            }
+            case CPX_IMM: {
+                InstructionParams params = {2, low_byte_data, CPX_IMM, IMMEDIATE};
+                cm_imm(params, vm.x);
+                break;
+            }
+            case CPX_ABS: {
+                InstructionParams params = {4, low_byte_data, CPX_ABS, ABSOLUTE};
+                cm_instruction(params, vm.x, NULL);
+                break;
+            }
+            case CPX_ZP: {
+                InstructionParams params = {3, low_byte_data, CPX_ZP, ZERO_PAGE};
+                cm_instruction(params, vm.x, NULL);
+                break;
+            }
+            case CPY_IMM: {
+                InstructionParams params = {2, low_byte_data, CPY_IMM, IMMEDIATE};
+                cm_imm(params, vm.y);
+                break;
+            }
+            case CPY_ABS: {
+                InstructionParams params = {4, low_byte_data, CPY_ABS, ABSOLUTE};
+                cm_instruction(params, vm.y, NULL);
+                break;
+            }
+            case CPY_ZP: {
+                InstructionParams params = {3, low_byte_data, CPY_ZP, ZERO_PAGE};
+                cm_instruction(params, vm.y, NULL);
                 break;
             }
             default: {

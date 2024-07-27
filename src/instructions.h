@@ -26,9 +26,6 @@
 #define CLD 0xD8
 #define CLI 0x58
 #define CLV 0xB8
-#define CMP 0xC9
-#define CPX 0xE0
-#define CPY 0xC0
 #define DEC 0xC6
 #define DEX 0xCA
 #define DEY 0x88

@@ -24,7 +24,7 @@ unsigned short get_abs_indexed_address_pc(unsigned char low_order_address, unsig
         else
         {
         vm.cycles -= 1; // If page boundary crossed then take 1 cycle
-        cycle_check(1+1); // Adjustment
+        cycle_check(3); // Check if there is 1 cycle saved (2 cycles are subtracted)
         }
     }
     return address + vm_register;
@@ -68,7 +68,7 @@ unsigned short get_zp_y_ind_address_pc(unsigned char low_order_address)
         else
         {
         vm.cycles -= 1; // If page boundary crossed then take 1 cycle
-        cycle_check(1+1); // cycle check adjustment
+        cycle_check(3); // It is 3 because the cycle check takes 2 cycles away and we are checking if there is 1 cycle saved
         }
     }
     return indirect_address;
@@ -90,21 +90,21 @@ unsigned short fetch_address(InstructionParams params, unsigned char* vm_registe
         case IMMEDIATE:
             return 0; //  No address (should not be used)
         case ABSOLUTE: {
-            if(*vm_register == NULL){
+            if(vm_register == NULL){
                 printf("Invalid register. Tried to dereference a NULL pointer!\n");
                 exit(1);
             }
             return get_abs_indexed_address(params.low_byte, *vm_register);
         }
         case ABSOLUTE_INDEXED: {
-            if(*vm_register == NULL){
+            if(vm_register == NULL){
                 printf("Invalid register. Tried to dereference a NULL pointer!\n");
                 exit(1);
             }
             return get_abs_indexed_address(params.low_byte, *vm_register);
         }
         case ABSOLUTE_INDEXED_PC: {
-            if(*vm_register == NULL){
+            if(vm_register == NULL){
                 printf("Invalid register. Tried to dereference a NULL pointer!\n");
                 exit(1);
             }
@@ -113,7 +113,7 @@ unsigned short fetch_address(InstructionParams params, unsigned char* vm_registe
         case ZERO_PAGE:
             return get_zp_address(params.low_byte);
         case ZERO_PAGE_INDEXED: {
-            if(*vm_register == NULL){
+            if(vm_register == NULL){
                 printf("Invalid register. Tried to dereference a NULL pointer!\n");
                 exit(1);
             }

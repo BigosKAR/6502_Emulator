@@ -31,6 +31,7 @@ void cm_imm(InstructionParams params,unsigned char vm_register)
 void cm_instruction(InstructionParams params, unsigned char vm_register, unsigned char *index_register)
 {
     unsigned short address = fetch_address(params, index_register);
+    printf("Address: %x\n", address);
     compare_logic(vm_register, memory.data[address]);
     vm.cycles -= 1;
     debug(params.instruction, vm_register);
