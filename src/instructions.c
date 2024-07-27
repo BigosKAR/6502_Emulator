@@ -26,129 +26,158 @@ void execute()
         switch(high_byte_data)
         {
             case LDA_IMM: {
-                ld_imm_logic(low_byte_data, &vm.accumulator, LDA_IMM);
+                InstructionParams params = {2, low_byte_data, LDA_IMM, IMMEDIATE};
+                ld_imm(params, &vm.accumulator);
                 break;
             }
             case LDA_ABS: {
-                ld_abs_logic(low_byte_data, &vm.accumulator, LDA_ABS);
+                InstructionParams params = {4, low_byte_data, LDA_ABS, ABSOLUTE};
+                ld_instruction(params, &vm.accumulator, NULL);
                 break;
             }
             case LDA_ABS_X: {
-                ld_abs_reg_logic(low_byte_data, &vm.accumulator, vm.x, LDA_ABS_X);
+                InstructionParams params = {4, low_byte_data, LDA_ABS_X, ABSOLUTE_INDEXED_PC};
+                ld_instruction(params, &vm.accumulator, &vm.x);
                 break;
             }
             case LDA_ABS_Y: {
-                ld_abs_reg_logic(low_byte_data, &vm.accumulator, vm.y, LDA_ABS_Y);
+                InstructionParams params = {4, low_byte_data, LDA_ABS_Y, ABSOLUTE_INDEXED_PC};
+                ld_instruction(params, &vm.accumulator, &vm.y);
                 break;
             }
             case LDA_ZP: {
-                // Useful for faster execution time because there is no need to fetch another byte
-                ld_zp_logic(low_byte_data, &vm.accumulator, LDA_ZP);
+                InstructionParams params = {3, low_byte_data, LDA_ZP, ZERO_PAGE};
+                ld_instruction(params, &vm.accumulator, NULL);
                 break;
             }
             case LDA_ZP_X: {
-                ld_zp_reg_logic(low_byte_data, &vm.accumulator, vm.x, LDA_ZP_X);
+                InstructionParams params = {4, low_byte_data, LDA_ZP_X, ZERO_PAGE_INDEXED};
+                ld_instruction(params, &vm.accumulator, &vm.x);
                 break;
             }
-            case LDA_ZP_X_IND: {
-                lda_zp_x_ind(low_byte_data);
+            case LDA_ZP_X_IND: {   
+                InstructionParams params = {6, low_byte_data, LDA_ZP_X_IND, ZERO_PAGE_X_INDIRECT};
+                ld_instruction(params, &vm.accumulator, &vm.x);
                 break;
             }
             case LDA_ZP_Y_IND: {
-                lda_zp_y_ind(low_byte_data);
+                InstructionParams params = {5, low_byte_data, LDA_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT_PC};
+                ld_instruction(params, &vm.accumulator, &vm.y);
                 break;
             }
             case LDX_IMM: {
-                ld_imm_logic(low_byte_data, &vm.x, LDX_IMM);
+                InstructionParams params = {2, low_byte_data, LDX_IMM, IMMEDIATE};
+                ld_imm(params, &vm.x);
                 break;
             }
             case LDX_ABS: {
-                ld_abs_logic(low_byte_data, &vm.x, LDX_ABS);
+                InstructionParams params = {4, low_byte_data, LDX_ABS, ABSOLUTE};
+                ld_instruction(params, &vm.x, NULL);
                 break;
             }
             case LDX_ABS_Y: {
-                ld_abs_reg_logic(low_byte_data, &vm.x, vm.y, LDX_ABS_Y);
+                InstructionParams params = {4, low_byte_data, LDX_ABS_Y, ABSOLUTE_INDEXED_PC};
+                ld_instruction(params, &vm.x, &vm.y);
                 break;
             }
             case LDX_ZP: {
-                ld_zp_logic(low_byte_data, &vm.x, LDX_ZP);
+                InstructionParams params = {3, low_byte_data, LDX_ZP, ZERO_PAGE};
+                ld_instruction(params, &vm.x, NULL);
                 break;
             }
             case LDX_ZP_Y: {
-                ld_zp_reg_logic(low_byte_data, &vm.x, vm.y, LDX_ZP_Y);
+                InstructionParams params = {4, low_byte_data, LDX_ZP_Y, ZERO_PAGE_INDEXED};
+                ld_instruction(params, &vm.x, &vm.y);
                 break;
             }
             case LDY_IMM: {
-                ld_imm_logic(low_byte_data, &vm.y, LDY_IMM);
+                InstructionParams params = {2, low_byte_data, LDY_IMM, IMMEDIATE};
+                ld_imm(params, &vm.y);
                 break;
             }
             case LDY_ABS: {
-                ld_abs_logic(low_byte_data, &vm.y, LDY_ABS);
+                InstructionParams params = {4, low_byte_data, LDY_ABS, ABSOLUTE};
+                ld_instruction(params, &vm.y, NULL);
                 break;
             }
             case LDY_ZP: {
-                ld_zp_logic(low_byte_data, &vm.y, LDY_ZP);
+                InstructionParams params = {3, low_byte_data, LDY_ZP, ZERO_PAGE};
+                ld_instruction(params, &vm.y, NULL);
                 break;
             }
             case LDY_ABS_X: {
-                ld_abs_reg_logic(low_byte_data, &vm.y, vm.x, LDY_ABS_X);
+                InstructionParams params = {4, low_byte_data, LDY_ABS_X, ABSOLUTE_INDEXED_PC};
+                ld_instruction(params, &vm.y, &vm.x);
                 break;
             }
             case LDY_ZP_X: {
-                ld_zp_reg_logic(low_byte_data, &vm.y, vm.x, LDY_ZP_X);
+                InstructionParams params = {4, low_byte_data, LDY_ZP_X, ZERO_PAGE_INDEXED};
+                ld_instruction(params, &vm.y, &vm.x);
                 break;
             }
             case STA_ABS: {
-                st_abs_logic(low_byte_data, vm.accumulator, STA_ABS);
+                InstructionParams params = {4, low_byte_data, STA_ABS, ABSOLUTE};
+                st_instruction(params, vm.accumulator, NULL);
                 break;
             }
             case STA_ZP: {
-                st_zp_logic(low_byte_data, vm.accumulator, STA_ZP);
+                InstructionParams params = {3, low_byte_data, STA_ZP, ZERO_PAGE};
+                st_instruction(params, vm.accumulator, NULL);
                 break;
             }
-            case STA_ZP_X:
-            {
-                st_zp_reg_logic(low_byte_data, vm.accumulator, vm.x, STA_ZP_X);
+            case STA_ZP_X:{
+                InstructionParams params = {4, low_byte_data, STA_ZP_X, ZERO_PAGE_INDEXED};
+                st_instruction(params, vm.accumulator, &vm.x); 
                 break;
             }
             case STA_ABS_X: {
-                sta_abs_reg_logic(low_byte_data, vm.x, STA_ABS_X);
+                InstructionParams params = {5, low_byte_data, STA_ABS_X, ABSOLUTE_INDEXED};
+                st_instruction(params, vm.accumulator, &vm.x);
                 break;
             }
             case STA_ABS_Y: {
-                sta_abs_reg_logic(low_byte_data, vm.y, STA_ABS_Y);
+                InstructionParams params = {5, low_byte_data, STA_ABS_Y, ABSOLUTE_INDEXED};
+                st_instruction(params, vm.accumulator, &vm.y);
                 break;
             }
             case STA_ZP_X_IND: {
-                sta_zp_x_ind(low_byte_data);
+                InstructionParams params = {6, low_byte_data, STA_ZP_X_IND, ZERO_PAGE_X_INDIRECT};
+                st_instruction(params, vm.accumulator, &vm.x);
                 break;
             }
             case STA_ZP_Y_IND: {
-                sta_zp_y_ind(low_byte_data);
+                InstructionParams params = {6, low_byte_data, STA_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT};
+                st_instruction(params, vm.accumulator, &vm.y);
                 break;
             }
             case STX_ABS: {
-                st_abs_logic(low_byte_data, vm.x, STX_ABS);
+                InstructionParams params = {4, low_byte_data, STX_ABS, ABSOLUTE};
+                st_instruction(params, vm.x, NULL);
                 break;
             }
             case STX_ZP:{
-                st_zp_logic(low_byte_data, vm.x, STX_ZP);
+                InstructionParams params = {3, low_byte_data, STX_ZP, ZERO_PAGE};
+                st_instruction(params, vm.x, NULL);
                 break;
             }
             case STX_ZP_Y: {
-                st_zp_reg_logic(low_byte_data, vm.x, vm.y, STX_ZP_Y);
+                InstructionParams params = {4, low_byte_data, STX_ZP_Y, ZERO_PAGE_INDEXED};
+                st_instruction(params, vm.x, &vm.y);
                 break;
             }
             case STY_ABS: {
-                st_abs_logic(low_byte_data, vm.y, STY_ABS);
+                InstructionParams params = {4, low_byte_data, STY_ABS, ABSOLUTE};
+                st_instruction(params, vm.y, NULL);
                 break;
             }
             case STY_ZP: {
-                st_zp_logic(low_byte_data, vm.y, STX_ZP);
+                InstructionParams params = {3, low_byte_data, STY_ZP, ZERO_PAGE};
+                st_instruction(params, vm.y, NULL);
                 break;
             }
             case STY_ZP_X: {
-                st_zp_reg_logic(low_byte_data, vm.y, vm.x,STY_ZP_X);
+                InstructionParams params = {4, low_byte_data, STY_ZP_X, ZERO_PAGE_INDEXED};
+                st_instruction(params, vm.y, &vm.x);
                 break;
             }
             case TAX: {
@@ -575,12 +604,12 @@ void debug(unsigned char instruction, unsigned char component)
 }
 
 // other functions
-void cycle_check(unsigned int cycle_amount)
+void cycle_check(int cycle_amount)
 {
     if(!(vm.cycles >= (cycle_amount-2))) // -2 cycles because the first operation is the same for every instruction (opcode and 1 operand)
     {
         printf("Insufficient cycle amount!\n");
-        exit(EXIT_FAILURE);
+        abort();
     }
 }
 void wrap_address(unsigned short* address) // Wraps the address if it goes out of bounds (for absolute addressing), use after incrementing the register

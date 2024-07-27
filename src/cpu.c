@@ -38,17 +38,18 @@ int main()
     reset();
     vm.cycles = 6;
     vm.accumulator = 0b10000111; // 87
-    vm.x = 196;
-    vm.y = 0xFF;
-    memory.data[0xFFFC] = CPX_IMM;
+    vm.x = 2;
+    vm.y = 2;
+    memory.data[0xFFFC] = LDA_ZP_Y_IND;
     memory.data[0xFFFD] = 0xFE; 
-    memory.data[0x00FF] = 0x12;
-    memory.data[0x0000] = 0x45;
-    memory.data[0x4512] = 135;
+    memory.data[0x00FE] = 0xFF;
+    memory.data[0x00FF] = 0x34;
+    memory.data[0x3501] = 139;
     //printf("Memory[0x0033]: %d (%x in hexa)\n", memory.data[0x0033], memory.data[0x0033]);
     printf("Accumulator: %d\n", vm.accumulator);
     execute();
     printf("Accumulator: %d\n", vm.accumulator);
+    printf("VM.Y: %d\n", vm.y);
     //printf("Memory[0x0033]: %d (%x in hexa)\n", memory.data[0x0033], memory.data[0x0033]);
     return 0;
 }

@@ -216,7 +216,7 @@ struct VirtualMachine{
     unsigned char sp; // Stack pointer
 
     // Cycle Counter
-    unsigned int cycles;
+    int cycles;
     
 };
 
@@ -259,7 +259,7 @@ void fetch_word_zp(unsigned short address, unsigned char* low_byte, unsigned cha
 
 // helper functions
 void debug(unsigned char instruction, unsigned char component);
-void cycle_check(unsigned int cycle_amount);
+void cycle_check(int cycle_amount);
 bool out_of_bounds(unsigned short address);
 void wrap_address(unsigned short* address);
 void onebyte_ins_fix(); // Function for fixing the cycle count and the instruction pointer for one byte instructions
