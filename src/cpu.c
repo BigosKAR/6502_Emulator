@@ -36,7 +36,7 @@ struct Memory memory;
 int main()
 {
     reset();
-    vm.cycles = 0;
+    vm.cycles = 6;
     vm.accumulator = 0b10000111; // 87
     vm.x = 0x68;
     vm.y = 0xFF;

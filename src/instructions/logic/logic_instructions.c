@@ -12,7 +12,7 @@
 // Functions for AND, EOR, and OR (logical)
 void logical_imm(unsigned char low_byte, unsigned char instruction)
 {
-    cycle_check(2-2);
+    cycle_check(2);
     if(instruction == AND_IMM)and_bitwise_logic(low_byte);
     else if(instruction == EOR_IMM)eor_bitwise_logic(low_byte);
     else ora_bitwise_logic(low_byte); // OR is the remaining case
@@ -20,7 +20,7 @@ void logical_imm(unsigned char low_byte, unsigned char instruction)
 }
 void logical_abs(unsigned char low_order_address, unsigned char instruction)
 {
-    cycle_check(4-2);
+    cycle_check(4);
     unsigned short address = get_abs_address(low_order_address);
     if(instruction == AND_ABS)and_bitwise_logic(memory.data[address]);
     else if(instruction == EOR_ABS)eor_bitwise_logic(memory.data[address]);
@@ -30,7 +30,7 @@ void logical_abs(unsigned char low_order_address, unsigned char instruction)
 }
 void logical_abs_reg_logic(unsigned low_order_address, unsigned char vm_register, unsigned char instruction)
 {
-    cycle_check(4-2);
+    cycle_check(4);
     unsigned short address = get_abs_indexed_address_pc(low_order_address, vm_register);
     if(instruction == AND_ABS_X || instruction == AND_ABS_Y)and_bitwise_logic(memory.data[address]);
     else if(instruction == EOR_ABS_X || instruction == EOR_ABS_Y)eor_bitwise_logic(memory.data[address]);
@@ -40,7 +40,7 @@ void logical_abs_reg_logic(unsigned low_order_address, unsigned char vm_register
 }
 void logical_zp(unsigned char low_byte, unsigned char instruction)
 {
-    cycle_check(3-2);
+    cycle_check(3);
     unsigned short address = get_zp_address(low_byte);
     if(instruction == AND_ZP)and_bitwise_logic(memory.data[address]);
     else if(instruction == EOR_ZP)eor_bitwise_logic(memory.data[address]);
@@ -50,7 +50,7 @@ void logical_zp(unsigned char low_byte, unsigned char instruction)
 }
 void logical_zp_x(unsigned char low_byte, unsigned char instruction)
 {
-    cycle_check(4-2);
+    cycle_check(4);
     unsigned short zp_address = get_zp_indexed_address(low_byte, vm.x);
     if(instruction == AND_ZP_X)and_bitwise_logic(memory.data[zp_address]);
     else if(instruction == EOR_ZP_X)eor_bitwise_logic(memory.data[zp_address]);
@@ -60,7 +60,7 @@ void logical_zp_x(unsigned char low_byte, unsigned char instruction)
 }
 void logical_zp_x_ind(unsigned char low_byte, unsigned char instruction)
 {
-    cycle_check(6-2);
+    cycle_check(6);
     unsigned short indirect_address = get_zp_x_ind_address(low_byte);
     if(instruction == AND_ZP_X_IND)and_bitwise_logic(memory.data[indirect_address]);
     else if(instruction == EOR_ZP_X_IND)eor_bitwise_logic(memory.data[indirect_address]);
@@ -70,7 +70,7 @@ void logical_zp_x_ind(unsigned char low_byte, unsigned char instruction)
 }
 void logical_zp_y_ind(unsigned char low_byte, unsigned char instruction)
 {
-    cycle_check(5-2);
+    cycle_check(5);
     unsigned short indirect_address = get_zp_y_ind_address_pc(low_byte);
     if(instruction == AND_ZP_Y_IND)and_bitwise_logic(memory.data[indirect_address]);
     else if(instruction == EOR_ZP_Y_IND)eor_bitwise_logic(memory.data[indirect_address]);
@@ -81,7 +81,7 @@ void logical_zp_y_ind(unsigned char low_byte, unsigned char instruction)
 
 void bit_abs(unsigned char low_order_address, unsigned char instruction)
 {
-    cycle_check(4-2);
+    cycle_check(4);
     unsigned short address = get_abs_address(low_order_address);
     unsigned char and_value = vm.accumulator & memory.data[address];
     vm.cycles -= 1;
@@ -90,7 +90,7 @@ void bit_abs(unsigned char low_order_address, unsigned char instruction)
 }
 void bit_zp(unsigned char low_order_address, unsigned char instruction)
 {
-    cycle_check(3-2);
+    cycle_check(3);
     unsigned short zp_address = get_zp_address(low_order_address);
     unsigned char and_value = vm.accumulator & memory.data[zp_address];
     vm.cycles -= 1;

@@ -10,7 +10,7 @@
 void push_stack_logic(unsigned char* vm_register, unsigned char instruction)
 {
     onebyte_ins_fix();
-    cycle_check(3-1);
+    cycle_check(3+1); // +1 cycle adjustment for onebyte instructions
     unsigned short stack_add = 0x01 << 8 | vm.sp;
     vm.sp--;
     wrap_stack_pointer(); // Wraps the stack pointer if it goes out of bounds
@@ -22,7 +22,7 @@ void push_stack_logic(unsigned char* vm_register, unsigned char instruction)
 void pull_stack_logic(unsigned char* vm_register, unsigned char instruction, bool isPLA)
 {
     onebyte_ins_fix();
-    cycle_check(4-1);
+    cycle_check(4+1);
     vm.sp++;
     vm.cycles -= 1; 
     unsigned short stack_add = 0x01 << 8 | vm.sp;

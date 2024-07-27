@@ -11,7 +11,7 @@
 void shift_acc_logic(unsigned char instruction)
 {
     onebyte_ins_fix();
-    cycle_check(2-1);
+    cycle_check(2+1); // + 1 because its a onebyte instruction
     unsigned char temp_var = vm.accumulator;
     if(instruction == ASL_A)
     {
@@ -28,7 +28,7 @@ void shift_acc_logic(unsigned char instruction)
 }
 void shift_abs_logic(unsigned char low_order_address, unsigned char instruction)
 {
-    cycle_check(6-2);
+    cycle_check(6);
     unsigned short address = get_abs_address(low_order_address);
     unsigned char temp_var = memory.data[address];
     if(instruction == ASL_ABS)
@@ -46,7 +46,7 @@ void shift_abs_logic(unsigned char low_order_address, unsigned char instruction)
 }
 void shift_abs_x_logic(unsigned char low_order_address, unsigned char instruction)
 {
-    cycle_check(7-2);
+    cycle_check(7);
     unsigned short address = get_abs_indexed_address(low_order_address, vm.x);
     unsigned char temp_var = memory.data[address];
     if(instruction == ASL_ABS_X)
@@ -64,7 +64,7 @@ void shift_abs_x_logic(unsigned char low_order_address, unsigned char instructio
 }
 void shift_zp_logic(unsigned char low_order_address, unsigned char instruction)
 {
-    cycle_check(5-2);
+    cycle_check(5);
     unsigned short zp_address = get_zp_address(low_order_address);
     unsigned char temp_var = memory.data[zp_address];
     if(instruction == ASL_ZP)
@@ -82,7 +82,7 @@ void shift_zp_logic(unsigned char low_order_address, unsigned char instruction)
 }
 void shift_zp_x_logic(unsigned char low_order_address, unsigned char instruction)
 {
-    cycle_check(6-2);
+    cycle_check(6);
     unsigned short zp_address = get_zp_indexed_address(low_order_address, vm.x);
     unsigned char temp_var = memory.data[zp_address];
     if(instruction == ASL_ABS_X)
@@ -102,7 +102,7 @@ void shift_zp_x_logic(unsigned char low_order_address, unsigned char instruction
 void rotate_acc_logic(unsigned char instruction)
 {
     onebyte_ins_fix();
-    cycle_check(2-1);
+    cycle_check(2+1);
     if(instruction == ROL_A)
     {
        rotate_logic(&vm.accumulator, true);
@@ -116,7 +116,7 @@ void rotate_acc_logic(unsigned char instruction)
 }
 void rotate_abs_logic(unsigned char low_order_address, unsigned char instruction)
 {
-    cycle_check(6-2);
+    cycle_check(6);
     unsigned short address = get_abs_address(low_order_address);
     if(instruction == ROL_ABS)
     {
@@ -131,7 +131,7 @@ void rotate_abs_logic(unsigned char low_order_address, unsigned char instruction
 }
 void rotate_abs_x_logic(unsigned char low_order_address, unsigned char instruction)
 {
-    cycle_check(7-2);
+    cycle_check(7);
     unsigned short address = get_abs_indexed_address(low_order_address, vm.x);
     if(instruction == ROL_ABS_X)
     {
@@ -146,7 +146,7 @@ void rotate_abs_x_logic(unsigned char low_order_address, unsigned char instructi
 }
 void rotate_zp_logic(unsigned char low_order_address, unsigned char instruction)
 {
-    cycle_check(5-2);
+    cycle_check(5);
     unsigned short zp_address = get_zp_address(low_order_address);
     if(instruction == ROL_ZP)
     {
@@ -161,7 +161,7 @@ void rotate_zp_logic(unsigned char low_order_address, unsigned char instruction)
 }
 void rotate_zp_x_logic(unsigned char low_order_address, unsigned char instruction)
 {
-    cycle_check(6-2);
+    cycle_check(6);
     unsigned short zp_address = get_zp_indexed_address(low_order_address, vm.x);
     if(instruction == ROL_ZP_X)
     {

@@ -227,8 +227,21 @@ struct Memory{
     unsigned char data[MEM_MAX_SIZE];
 };
 
+typedef enum{
+    IMMEDIATE,
+    ABSOLUTE,
+    ABSOLUTE_INDEXED,
+    ABSOLUTE_INDEXED_PC,
+    ZERO_PAGE,
+    ZERO_PAGE_INDEXED,
+    ZERO_PAGE_X_INDIRECT,
+    ZERO_PAGE_Y_INDIRECT,
+    ZERO_PAGE_Y_INDIRECT_PC
+}AddressingModes;
+
 typedef struct InstructionParams{
     unsigned int required_cycles;
+    unsigned char low_byte;
     unsigned char instruction;
     AddressingModes addressing_mode;
 }InstructionParams;
@@ -253,5 +266,6 @@ void cycle_check(unsigned int cycle_amount);
 bool out_of_bounds(unsigned short address);
 void wrap_address(unsigned short* address);
 void onebyte_ins_fix(); // Function for fixing the cycle count and the instruction pointer for one byte instructions
+InstructionParams load_ins_params(unsigned int required_cycles, unsigned char low_byte, unsigned char instruction, AddressingModes addressing_mode);
 
 #endif

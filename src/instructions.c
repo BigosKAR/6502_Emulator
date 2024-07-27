@@ -376,35 +376,83 @@ void execute()
                 break;
             }
             case ADC_IMM: {
-                adc_imm(low_byte_data, ADC_IMM);
+                InstructionParams params = {2, low_byte_data, ADC_IMM, IMMEDIATE};
+                adc_imm(params);
                 break;
             }
             case ADC_ABS: {
-                adc_abs(low_byte_data, ADC_ABS);
+                InstructionParams params = {4, low_byte_data, ADC_ABS, ABSOLUTE};
+                adc_instruction(params, NULL);
                 break;
             }
             case ADC_ABS_X: {
-                adc_abs_reg_logic(low_byte_data, vm.x, ADC_ABS_X);
+                InstructionParams params = {4, low_byte_data, ADC_ABS_X, ABSOLUTE_INDEXED_PC};
+                adc_instruction(params, &vm.x);
                 break;
             }
             case ADC_ABS_Y: {
-                adc_abs_reg_logic(low_byte_data, vm.y, ADC_ABS_Y);
+                InstructionParams params = {4, low_byte_data, ADC_ABS_Y, ABSOLUTE_INDEXED_PC};
+                adc_instruction(params, &vm.y);
                 break;
             }
             case ADC_ZP: {
-                adc_zp(low_byte_data, ADC_ZP);
+                InstructionParams params = {3, low_byte_data, ADC_ZP, ZERO_PAGE};
+                adc_instruction(params, NULL);
                 break;
             }
             case ADC_ZP_X: {
-                adc_zp_x(low_byte_data, ADC_ZP_X);
+                InstructionParams params = {4, low_byte_data, ADC_ZP_X, ZERO_PAGE_INDEXED};
+                adc_instruction(params, &vm.x);
                 break;
             }
             case ADC_ZP_X_IND: {
-                adc_zp_x_ind(low_byte_data, ADC_ZP_X_IND);
+                InstructionParams params = {6, low_byte_data, ADC_ZP_X_IND, ZERO_PAGE_X_INDIRECT};
+                adc_instruction(params, &vm.x);
                 break;
             }
             case ADC_ZP_Y_IND: {
-                adc_zp_y_ind(low_byte_data, ADC_ZP_Y_IND);
+                InstructionParams params = {5, low_byte_data, ADC_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT_PC};
+                adc_instruction(params, &vm.y);
+                break;
+            }
+            case CMP_IMM: {
+                InstructionParams params = {2, low_byte_data, CMP_IMM, IMMEDIATE};
+                cm_imm(params, vm.accumulator);
+                break;
+            }
+            case CMP_ABS: {
+                InstructionParams params = {4, low_byte_data, CMP_ABS, ABSOLUTE};
+                cm_instruction(params, vm.accumulator, NULL);
+                break;
+            }
+            case CMP_ABS_X: {
+                InstructionParams params = {4, low_byte_data, CMP_ABS_X, ABSOLUTE_INDEXED_PC};
+                cm_instruction(params, vm.accumulator, &vm.x);
+                break;
+            }
+            case CMP_ABS_Y: {
+                InstructionParams params = {4, low_byte_data, CMP_ABS_Y, ABSOLUTE_INDEXED_PC};
+                cm_instruction(params, vm.accumulator, &vm.y);
+                break;
+            }
+            case CMP_ZP: {
+                InstructionParams params = {3, low_byte_data, CMP_ZP, ZERO_PAGE};
+                cm_instruction(params, vm.accumulator, NULL);
+                break;
+            }
+            case CMP_ZP_X: {
+                InstructionParams params = {4, low_byte_data, CMP_ZP_X, ZERO_PAGE_INDEXED};
+                cm_instruction(params, vm.accumulator, &vm.x);
+                break;
+            }
+            case CMP_ZP_X_IND: {
+                InstructionParams params = {6, low_byte_data, CMP_ZP_X_IND, ZERO_PAGE_X_INDIRECT};
+                cm_instruction(params, vm.accumulator, &vm.x);
+                break;
+            }
+            case CMP_ZP_Y_IND: {
+                InstructionParams params = {5, low_byte_data, CMP_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT_PC};
+                cm_instruction(params, vm.accumulator, &vm.y);
                 break;
             }
             default: {
@@ -496,7 +544,7 @@ void debug(unsigned char instruction, unsigned char component)
 // other functions
 void cycle_check(unsigned int cycle_amount)
 {
-    if(!(vm.cycles >= cycle_amount)) // -2 cycles because the first operation is the same for every instruction (opcode and 1 operand)
+    if(!(vm.cycles >= (cycle_amount-2))) // -2 cycles because the first operation is the same for every instruction (opcode and 1 operand)
     {
         printf("Insufficient cycle amount!\n");
         exit(EXIT_FAILURE);
@@ -516,4 +564,12 @@ void onebyte_ins_fix() // Function for fixing the cycle count and the instructio
     vm.cycles+=1; // also need to restore 1 cycle back
 }
 
-// address fetching functions
+InstructionParams load_ins_params(unsigned int required_cycles, unsigned char low_byte, unsigned char instruction, AddressingModes addressing_mode)
+{
+    InstructionParams params;
+    params.required_cycles = required_cycles;
+    params.low_byte = low_byte;
+    params.instruction = instruction;
+    params.addressing_mode = addressing_mode;
+    return params;
+}

@@ -9,7 +9,7 @@
 
 void ld_abs_reg_logic(unsigned char low_order_address, unsigned char* vm_register, unsigned char vm_reg_indexed, unsigned char instruction)
 {
-    cycle_check(4-2); 
+    cycle_check(4); 
     unsigned short address = get_abs_indexed_address_pc(low_order_address, vm_reg_indexed);
     *vm_register = memory.data[address];
     vm.cycles -= 1; // reading the byte from memory
@@ -18,14 +18,14 @@ void ld_abs_reg_logic(unsigned char low_order_address, unsigned char* vm_registe
 }
 void ld_imm_logic(unsigned char low_byte, unsigned char *vm_register, unsigned char instruction)
 {
-    cycle_check(2-2);
+    cycle_check(2);
     *vm_register = low_byte;
     updateNZFlags(*vm_register);
     debug(instruction, *vm_register);
 }
 void ld_abs_logic(unsigned char low_order_address, unsigned char* vm_register, unsigned char instruction)
 {
-    cycle_check(4-2);
+    cycle_check(4);
     unsigned short address = get_abs_address(low_order_address);
     *vm_register = memory.data[address];
     vm.cycles -= 1; // reading the byte from memory
@@ -34,7 +34,7 @@ void ld_abs_logic(unsigned char low_order_address, unsigned char* vm_register, u
 }
 void ld_zp_logic(unsigned char low_order_address, unsigned char* vm_register, unsigned char instruction)
 {
-    cycle_check(3-2);
+    cycle_check(3);
     unsigned short zp_address = get_zp_address(low_order_address);
     *vm_register = memory.data[zp_address];
     vm.cycles -= 1;
@@ -43,7 +43,7 @@ void ld_zp_logic(unsigned char low_order_address, unsigned char* vm_register, un
 }
 void ld_zp_reg_logic(unsigned char low_byte, unsigned char* vm_register, unsigned char vm_reg_indexed, unsigned char instruction)
 {
-    cycle_check(4-2);
+    cycle_check(4);
     unsigned short zp_address = get_zp_indexed_address(low_byte, vm_reg_indexed);
     *vm_register = memory.data[zp_address];
     vm.cycles -= 1;
@@ -52,7 +52,7 @@ void ld_zp_reg_logic(unsigned char low_byte, unsigned char* vm_register, unsigne
 }
 void lda_zp_x_ind(unsigned char low_order_address)
 {
-    cycle_check(6-2);
+    cycle_check(6);
     unsigned short indirect_address = get_zp_x_ind_address(low_order_address);
     vm.accumulator = memory.data[indirect_address];
     vm.cycles -= 1;
@@ -61,7 +61,7 @@ void lda_zp_x_ind(unsigned char low_order_address)
 }
 void lda_zp_y_ind(unsigned char low_order_address)
 {
-    cycle_check(5-2); // does not check for extra cycle
+    cycle_check(5); // does not check for extra cycle
     unsigned short indirect_address = get_zp_y_ind_address_pc(low_order_address);
     vm.accumulator = memory.data[indirect_address];
     vm.cycles -= 1;
@@ -71,7 +71,7 @@ void lda_zp_y_ind(unsigned char low_order_address)
 
 void st_abs_logic(unsigned char low_order_address, unsigned char vm_register, unsigned char instruction)
 {
-    cycle_check(4-2);
+    cycle_check(4);
     unsigned short address = get_abs_address(low_order_address);
     memory.data[address] = vm_register;
     vm.cycles -= 1; 
@@ -80,7 +80,7 @@ void st_abs_logic(unsigned char low_order_address, unsigned char vm_register, un
 }
 void st_zp_logic(unsigned char low_order_address, unsigned char vm_register, unsigned char instruction)
 {
-    cycle_check(3-2);
+    cycle_check(3);
     unsigned short zp_address = get_zp_address(low_order_address);
     memory.data[zp_address] = vm_register;
     vm.cycles -= 1;
@@ -89,7 +89,7 @@ void st_zp_logic(unsigned char low_order_address, unsigned char vm_register, uns
 }
 void st_zp_reg_logic(unsigned char low_order_address, unsigned char vm_register, unsigned char vm_reg_indexed, unsigned char instruction)
 {
-    cycle_check(4-2);
+    cycle_check(4);
     unsigned short zp_address = get_zp_indexed_address(low_order_address, vm_reg_indexed);
     memory.data[zp_address] = vm_register;
     vm.cycles -= 1;
@@ -98,7 +98,7 @@ void st_zp_reg_logic(unsigned char low_order_address, unsigned char vm_register,
 }
 void sta_abs_reg_logic(unsigned char low_order_address, unsigned char vm_reg_indexed, unsigned char instruction)
 {
-    cycle_check(5-2);
+    cycle_check(5);
     unsigned short address = get_abs_indexed_address(low_order_address, vm_reg_indexed);
     vm.cycles -= 1;
     memory.data[address] = vm.accumulator;
@@ -107,7 +107,7 @@ void sta_abs_reg_logic(unsigned char low_order_address, unsigned char vm_reg_ind
 }
 void sta_zp_x_ind(unsigned char low_order_address)
 {
-    cycle_check(6-2);
+    cycle_check(6);
     unsigned short indirect_address = get_zp_x_ind_address(low_order_address);
     memory.data[indirect_address] = vm.accumulator;
     vm.cycles -= 1;
@@ -115,7 +115,7 @@ void sta_zp_x_ind(unsigned char low_order_address)
 }
 void sta_zp_y_ind(unsigned char low_order_address)
 {
-    cycle_check(6-2);
+    cycle_check(6);
     unsigned short indirect_address = get_zp_y_ind_address(low_order_address);
     vm.cycles -= 1;
     memory.data[indirect_address] = vm.accumulator;

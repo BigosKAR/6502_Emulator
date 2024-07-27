@@ -24,7 +24,7 @@ unsigned short get_abs_indexed_address_pc(unsigned char low_order_address, unsig
         else
         {
         vm.cycles -= 1; // If page boundary crossed then take 1 cycle
-        cycle_check(1);
+        cycle_check(1+1); // Adjustment
         }
     }
     return address + vm_register;
@@ -68,7 +68,7 @@ unsigned short get_zp_y_ind_address_pc(unsigned char low_order_address)
         else
         {
         vm.cycles -= 1; // If page boundary crossed then take 1 cycle
-        cycle_check(1);
+        cycle_check(1+1); // cycle check adjustment
         }
     }
     return indirect_address;
@@ -83,23 +83,52 @@ unsigned short get_zp_y_ind_address(unsigned char low_order_address)
     return indirect_address;
 }
 
-unsigned short fetch_address(unsigned int cycles_required, AddressingModes addressing_mode, unsigned char low_order_address, unsigned char vm_register)
+unsigned short fetch_address(InstructionParams params, unsigned char* vm_register)
 {
-    cycle_check(cycles_required-2);
-    switch(addressing_mode) {
-        case ABSOLUTE:
-            return get_abs_indexed_address(low_order_address, vm_register);
-        case ABSOLUTE_INDEXED:
-            return get_abs_indexed_address_pc(low_order_address, vm_register);
+    cycle_check(params.required_cycles);
+    switch(params.addressing_mode) {
+        case IMMEDIATE:
+            return 0; //  No address (should not be used)
+        case ABSOLUTE: {
+            if(*vm_register == NULL){
+                printf("Invalid register. Tried to dereference a NULL pointer!\n");
+                exit(1);
+            }
+            return get_abs_indexed_address(params.low_byte, *vm_register);
+        }
+        case ABSOLUTE_INDEXED: {
+            if(*vm_register == NULL){
+                printf("Invalid register. Tried to dereference a NULL pointer!\n");
+                exit(1);
+            }
+            return get_abs_indexed_address(params.low_byte, *vm_register);
+        }
+        case ABSOLUTE_INDEXED_PC: {
+            if(*vm_register == NULL){
+                printf("Invalid register. Tried to dereference a NULL pointer!\n");
+                exit(1);
+            }
+            return get_abs_indexed_address_pc(params.low_byte, *vm_register);
+        }
         case ZERO_PAGE:
-            return get_zp_address(low_order_address);
-        case ZERO_PAGE_INDEXED:
-            return get_zp_indexed_address(low_order_address, vm_register);
+            return get_zp_address(params.low_byte);
+        case ZERO_PAGE_INDEXED: {
+            if(*vm_register == NULL){
+                printf("Invalid register. Tried to dereference a NULL pointer!\n");
+                exit(1);
+            }
+            return get_zp_indexed_address(params.low_byte, *vm_register);
+        }
         case ZERO_PAGE_X_INDIRECT:
-            return get_zp_x_ind_address(low_order_address);
+            return get_zp_x_ind_address(params.low_byte);
         case ZERO_PAGE_Y_INDIRECT:
-            return get_zp_y_ind_address(low_order_address);
+            return get_zp_y_ind_address(params.low_byte);
         case ZERO_PAGE_Y_INDIRECT_PC:
-            return get_zp_y_ind_address_pc(low_order_address);
+            return get_zp_y_ind_address_pc(params.low_byte);
+        default: {
+            printf("Invalid addressing mode\n");
+            return 0;
+            exit(1);
+        }
     }
 }
