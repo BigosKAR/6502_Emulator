@@ -21,6 +21,13 @@ void adc_instruction(InstructionParams params, unsigned char* vm_register)
     debug(params.instruction, vm.accumulator);
 }
 
+void sbc_imm(InstructionParams params)
+{
+    cycle_check(params.required_cycles);
+    adc_logic(255 - params.low_byte);
+    debug(params.instruction, vm.accumulator);
+}
+
 // Seperate function for the immediate addressing mode because of the lack of an address + no additional cycles required
 void cm_imm(InstructionParams params,unsigned char vm_register)
 {

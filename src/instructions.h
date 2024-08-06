@@ -184,6 +184,16 @@
 #define CPY_ABS 0xCC // 4 Cycles
 #define CPY_ZP 0xC4 // 3 Cycles
 
+// SBC instructions
+#define SBC_IMM 0xE9 // 2 Cycles
+#define SBC_ABS 0xED // 4 Cycles
+#define SBC_ABS_X 0xFD // 4 Cycles + 1 if page crossed
+#define SBC_ABS_Y 0xF9 // 4 Cycles + 1 if page crossed
+#define SBC_ZP 0xE5 // 3 Cycles
+#define SBC_ZP_X 0xF5 // 4 Cycles
+#define SBC_ZP_X_IND 0xE1 // 6 Cycles
+#define SBC_ZP_Y_IND 0xF1 // 5 Cycles + 1 if page crossed
+
 #define NOP 0xEA
 #define RTI 0x40
 #define RTS 0x60
@@ -263,6 +273,6 @@ void cycle_check(int cycle_amount);
 bool out_of_bounds(unsigned short address);
 void wrap_address(unsigned short* address);
 void onebyte_ins_fix(); // Function for fixing the cycle count and the instruction pointer for one byte instructions
-InstructionParams load_ins_params(unsigned int required_cycles, unsigned char low_byte, unsigned char instruction, AddressingModes addressing_mode);
+void load_ins_params(InstructionParams *params, int required_cycles, unsigned char instruction, AddressingModes addressing_mode);
 
 #endif

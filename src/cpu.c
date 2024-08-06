@@ -36,15 +36,14 @@ struct Memory memory;
 int main()
 {
     reset();
-    vm.cycles = 6;
-    vm.accumulator = 0b10000111; // 87
+    vm.cycles = 3;
+    vm.accumulator = 135; // 87
     vm.x = 2;
     vm.y = 2;
-    memory.data[0xFFFC] = LDA_ZP_Y_IND;
-    memory.data[0xFFFD] = 0xFE; 
-    memory.data[0x00FE] = 0xFF;
-    memory.data[0x00FF] = 0x34;
-    memory.data[0x3501] = 139;
+    memory.data[0xFFFC] = ORA_ZP;
+    memory.data[0xFFFD] = 0xFF;
+    memory.data[0x00FF] = 14;
+    memory.data[0x5401] = 59; 
     //printf("Memory[0x0033]: %d (%x in hexa)\n", memory.data[0x0033], memory.data[0x0033]);
     printf("Accumulator: %d\n", vm.accumulator);
     execute();
