@@ -40,13 +40,14 @@ int main()
     vm.accumulator = 234; // 87
     vm.x = 3;
     vm.y = 2;
-    memory.data[0xFFFC] = ROL_A;
-    memory.data[0xFFFD] = 234;
+    memory.data[0xFFFC] = TYA;
+    memory.data[0x01FF] = 0b00100111;
     memory.data[0xFFFE] = 0x12;
     memory.data[0x12FE] = 129;
-    //printf("Memory[0x0033]: %d (%x in hexa)\n", memory.data[0x0033], memory.data[0x0033]);
     execute();
-    printf("Memory[0x12FE]: %d (%x in hexa)\n", memory.data[0x12FE], memory.data[0x12FE]);
-    //printf("Memory[0x0033]: %d (%x in hexa)\n", memory.data[0x0033], memory.data[0x0033]);
+    printf("X register: %d\n", vm.x);
+    printf("Y register: %d\n", vm.y);
+    printf("Accumulator: %d\n", vm.accumulator);
+    printf("Stack pointer: %d\n", vm.sp);
     return 0;
 }

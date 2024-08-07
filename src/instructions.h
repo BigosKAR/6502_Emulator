@@ -236,6 +236,7 @@ struct Memory{
 
 typedef enum{
     IMMEDIATE,
+    IMPLIED,
     ACCUMULATOR,
     ABSOLUTE,
     ABSOLUTE_INDEXED,
