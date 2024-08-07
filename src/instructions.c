@@ -183,45 +183,53 @@ void execute()
                 break;
             }
             case TAX: {
-                trans_logic(&vm.x, vm.accumulator, TAX, false);
+                load_ins_params(&params, 2, TAX, IMPLIED);
+                transfer_instruction(params, &vm.x, vm.accumulator);
                 break;
             }
             case TAY: {
-                trans_logic(&vm.y, vm.accumulator, TAY, false);
+                load_ins_params(&params, 2, TAY, IMPLIED);
+                transfer_instruction(params, &vm.y, vm.accumulator);
                 break;
             }
             case TSX: {
-                unsigned short temp_add = 0x01 << 8 | vm.sp;
-                trans_logic(&vm.x, memory.data[temp_add], TSX, false);
+                load_ins_params(&params, 2, TSX, IMPLIED);
+                transfer_instruction(params, &vm.x, vm.sp);
                 break;
             }
             case TXA: {
-                trans_logic(&vm.accumulator, vm.x, TXA, false);
+                load_ins_params(&params, 2, TXA, IMPLIED);
+                transfer_instruction(params, &vm.accumulator, vm.x);
                 break;
             }
             case TXS: {
-                unsigned short temp_add = 0x01 << 8 | vm.sp;
-                trans_logic(&memory.data[temp_add], vm.x, TXS, true);
+                load_ins_params(&params, 2, TXS, IMPLIED);
+                transfer_instruction(params, &vm.sp, vm.x);
                 break;
             }
             case TYA: {
-                trans_logic(&vm.accumulator, vm.y, TYA, false);
+                load_ins_params(&params, 2, TYA, IMPLIED);
+                transfer_instruction(params, &vm.accumulator, vm.y);
                 break;
             }
             case PHA: {
-                push_stack_logic(&vm.accumulator, PHA);
+                load_ins_params(&params, 3, PHA, IMPLIED);
+                push_stack_instruction(params, &vm.accumulator);
                 break;
             }
             case PHP: {
-                push_stack_logic(&vm.processor_status, PHP);
+                load_ins_params(&params, 3, PHP, IMPLIED);
+                push_stack_instruction(params, &vm.processor_status);
                 break;
             }
             case PLA: {
-                pull_stack_logic(&vm.accumulator, PLA, true);
+                load_ins_params(&params, 4, PLA, IMPLIED);
+                pull_stack_instruction(params, &vm.accumulator);
                 break;
             }
             case PLP: {
-                pull_stack_logic(&vm.processor_status, PLP, false);
+                load_ins_params(&params, 4, PLP, IMPLIED);
+                pull_stack_instruction(params, &vm.processor_status);
                 break;
             }
             case ASL_A: {

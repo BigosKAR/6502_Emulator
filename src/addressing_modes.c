@@ -89,6 +89,8 @@ unsigned short fetch_address(InstructionParams params, unsigned char* vm_registe
     switch(params.addressing_mode) {
         case ACCUMULATOR:
         case IMMEDIATE:
+        case IMPLIED:
+            printf("Invalid addressing mode\n");
             return 0; //  No address (should not be used)
         case ABSOLUTE: {
             return get_abs_address(params.low_byte);
