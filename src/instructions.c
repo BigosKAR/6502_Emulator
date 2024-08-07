@@ -225,84 +225,103 @@ void execute()
                 break;
             }
             case ASL_A: {
-                shift_acc_logic(ASL_A);
+                load_ins_params(&params, 2, ASL_A, ACCUMULATOR);
+                shift_accumulator(params, SHIFT_ASL);
                 break;
             }
             case ASL_ABS: {
-                shift_abs_logic(low_byte_data, ASL_ABS);
+                load_ins_params(&params, 6, ASL_ABS, ABSOLUTE);
+                shift_instruction(params, NULL, SHIFT_ASL);
                 break;
             }
             case ASL_ABS_X: {
-                shift_abs_x_logic(low_byte_data, ASL_ABS_X);
+                load_ins_params(&params, 7, ASL_ABS_X, ABSOLUTE_INDEXED);
+                shift_instruction(params, &vm.x, SHIFT_ASL);
                 break;
             }
             case ASL_ZP: {
-                shift_zp_logic(low_byte_data, ASL_ZP);
+                load_ins_params(&params, 5, ASL_ZP, ZERO_PAGE);
+                shift_instruction(params, NULL, SHIFT_ASL);
                 break;
             }
             case ASL_ZP_X: {
-                shift_zp_x_logic(low_byte_data, ASL_ZP_X);
+                load_ins_params(&params, 6, ASL_ZP_X, ZERO_PAGE_INDEXED);
+                shift_instruction(params, &vm.x, SHIFT_ASL);
                 break;
             }
             case LSR_A: {
-                shift_acc_logic(LSR_A);
+                load_ins_params(&params, 2, LSR_A, ACCUMULATOR);
+                shift_accumulator(params, SHIFT_LSR);
                 break;
             }
             case LSR_ABS: {
-                shift_abs_logic(low_byte_data, LSR_ABS);
+                load_ins_params(&params, 6, LSR_ABS, ABSOLUTE);
+                shift_instruction(params, NULL, SHIFT_LSR);
                 break;
             }
             case LSR_ABS_X: {
-                shift_abs_x_logic(low_byte_data, LSR_ABS_X);
+                load_ins_params(&params, 7, LSR_ABS_X, ABSOLUTE_INDEXED);
+                shift_instruction(params, &vm.x, SHIFT_LSR);
                 break;
             }
             case LSR_ZP: {
-                shift_zp_logic(low_byte_data, LSR_ZP);
+                load_ins_params(&params, 5, LSR_ZP, ZERO_PAGE);
+                shift_instruction(params, NULL, SHIFT_LSR);
                 break;
             }
             case LSR_ZP_X: {
-                shift_zp_x_logic(low_byte_data, LSR_ZP_X);
+                load_ins_params(&params, 6, LSR_ZP_X, ZERO_PAGE_INDEXED);
+                shift_instruction(params, &vm.x, SHIFT_LSR);
                 break;
             }
             case ROL_A: {
-                rotate_acc_logic(ROL_A);
+                load_ins_params(&params, 2, ROL_A, ACCUMULATOR);
+                rotate_accumulator(params, SHIFT_ROL);
                 break;
             }
             case ROL_ABS: {
-                rotate_abs_logic(low_byte_data, ROL_ABS);
+                load_ins_params(&params, 6, ROL_ABS, ABSOLUTE);
+                rotate_instruction(params, NULL, SHIFT_ROL);
                 break;
             }
             case ROL_ABS_X: {
-                rotate_abs_x_logic(low_byte_data, ROL_ABS_X);
+                load_ins_params(&params, 7, ROL_ABS_X, ABSOLUTE_INDEXED);
+                rotate_instruction(params, &vm.x, SHIFT_ROL);
                 break;
             }
             case ROL_ZP:{
-                rotate_zp_logic(low_byte_data, ROL_ZP);
+                load_ins_params(&params, 5, ROL_ZP, ZERO_PAGE);
+                rotate_instruction(params, NULL, SHIFT_ROL);
                 break;
             }
             case ROL_ZP_X: {
-                rotate_zp_x_logic(low_byte_data, ROL_ZP_X);
+                load_ins_params(&params, 6, ROL_ZP_X, ZERO_PAGE_INDEXED);
+                rotate_instruction(params, &vm.x, SHIFT_ROL);
                 break;
             }
             case ROR_A: {
-                rotate_acc_logic(ROR_A);
+                load_ins_params(&params, 2, ROR_A, ACCUMULATOR);
+                rotate_accumulator(params, SHIFT_ROR);
                 break;
             }
-            case ROR_ABS:
-            {
-                rotate_abs_logic(low_byte_data, ROR_ABS);
+            case ROR_ABS:{
+                load_ins_params(&params, 6, ROR_ABS, ABSOLUTE);
+                rotate_instruction(params, NULL, SHIFT_ROR);
                 break;
             }
             case ROR_ABS_X: {
-                rotate_abs_x_logic(low_byte_data, ROR_ABS_X);
+                load_ins_params(&params, 7, ROR_ABS_X, ABSOLUTE_INDEXED);
+                rotate_instruction(params, &vm.x, SHIFT_ROR);
                 break;
             }
             case ROR_ZP: {
-                rotate_zp_logic(low_byte_data, ROR_ZP);
+                load_ins_params(&params, 5, ROR_ZP, ZERO_PAGE);
+                rotate_instruction(params, NULL, SHIFT_ROR);
                 break;
             }
             case ROR_ZP_X: {
-                rotate_zp_x_logic(low_byte_data, ROR_ZP_X);
+                load_ins_params(&params, 6, ROR_ZP_X, ZERO_PAGE_INDEXED);
+                rotate_instruction(params, &vm.x, SHIFT_ROR);
                 break;
             }
             case AND_IMM: {
@@ -548,6 +567,7 @@ void execute()
             case SBC_IMM:{
                 load_ins_params(&params, 2, SBC_IMM, IMMEDIATE);
                 sbc_imm(params);
+                break;
             }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");

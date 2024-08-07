@@ -87,14 +87,11 @@ unsigned short fetch_address(InstructionParams params, unsigned char* vm_registe
 {
     cycle_check(params.required_cycles);
     switch(params.addressing_mode) {
+        case ACCUMULATOR:
         case IMMEDIATE:
             return 0; //  No address (should not be used)
         case ABSOLUTE: {
-            if(vm_register == NULL){
-                printf("Invalid register. Tried to dereference a NULL pointer!\n");
-                exit(1);
-            }
-            return get_abs_indexed_address(params.low_byte, *vm_register);
+            return get_abs_address(params.low_byte);
         }
         case ABSOLUTE_INDEXED: {
             if(vm_register == NULL){

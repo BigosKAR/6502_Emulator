@@ -1,18 +1,19 @@
 #ifndef SHIFT_INSTRUCTIONS_H
 #define SHIFT_INSTRUCTIONS_H
 
-void shift_acc_logic(unsigned char instruction);
-void shift_abs_logic(unsigned char low_order_address, unsigned char instruction);
-void shift_abs_x_logic(unsigned char low_order_address, unsigned char instruction);
-void shift_zp_logic(unsigned char low_order_address, unsigned char instruction);
-void shift_zp_x_logic(unsigned char low_order_address, unsigned char instruction);
+typedef enum {
+    SHIFT_ASL,
+    SHIFT_LSR,
+    SHIFT_ROL,
+    SHIFT_ROR
+} ShiftType;
 
-void rotate_acc_logic(unsigned char instruction);
-void rotate_abs_logic(unsigned char low_order_address, unsigned char instruction);
-void rotate_abs_x_logic(unsigned char low_order_address, unsigned char instruction);
-void rotate_zp_logic(unsigned char low_order_address, unsigned char instruction);
-void rotate_zp_x_logic(unsigned char low_order_address, unsigned char instruction);
+void shift_accumulator(InstructionParams params, ShiftType shift_type);
+void shift_instruction(InstructionParams params, unsigned char* vm_register, ShiftType shift_type);
+void rotate_accumulator(InstructionParams params, ShiftType shift_type);
+void rotate_instruction(InstructionParams params, unsigned char* vm_register, ShiftType shift_type);
 
-void rotate_logic(unsigned char* value, bool isLeft);
+void rotate_logic(unsigned char* value, ShiftType shift_type);
+void shift_logic(unsigned short address, unsigned char temp_var, ShiftType shift_type);
 
 #endif
