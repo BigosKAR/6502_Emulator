@@ -10,8 +10,7 @@
 // Main shift functions
 void shift_accumulator(InstructionParams params, ShiftType shift_type)
 {
-    onebyte_ins_fix();
-    cycle_check(params.required_cycles+1); // + 1 because its a onebyte instruction
+    cycle_check(params.required_cycles);
     unsigned char temp_var = vm.accumulator;
     if(shift_type == SHIFT_ASL)
     {
@@ -29,6 +28,7 @@ void shift_accumulator(InstructionParams params, ShiftType shift_type)
 
 void shift_instruction(InstructionParams params, unsigned char* vm_register, ShiftType shift_type)
 {
+    cycle_check(params.required_cycles);
     unsigned short address = fetch_address(params, vm_register);
     printf("Memory[address]: %d\n", memory.data[address]);
     unsigned char temp_var = memory.data[address];
@@ -59,8 +59,7 @@ void shift_instruction(InstructionParams params, unsigned char* vm_register, Shi
 
 void rotate_accumulator(InstructionParams params, ShiftType shift_type)
 {
-    onebyte_ins_fix();
-    cycle_check(params.required_cycles+1);
+    cycle_check(params.required_cycles);
     rotate_logic(&vm.accumulator, shift_type);
     vm.cycles -= 1; // performing the shift
     debug(params.instruction, vm.accumulator);
@@ -68,6 +67,7 @@ void rotate_accumulator(InstructionParams params, ShiftType shift_type)
 
 void rotate_instruction(InstructionParams params, unsigned char* vm_register, ShiftType shift_type)
 {
+    cycle_check(params.required_cycles);
     unsigned short address = fetch_address(params, vm_register);
     rotate_logic(&memory.data[address], shift_type);
     switch(params.instruction)

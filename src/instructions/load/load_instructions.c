@@ -9,8 +9,9 @@
 
 void ld_imm(InstructionParams params, unsigned char *vm_register)
 {
+    unsigned char immediate_value = fetch_byte();
     cycle_check(params.required_cycles);
-    ld_logic(vm_register, params.low_byte);
+    ld_logic(vm_register, immediate_value);
     debug(params.instruction, *vm_register);
 }
 

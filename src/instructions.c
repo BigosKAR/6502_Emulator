@@ -14,8 +14,7 @@
 // execution of instructions *most important function*
 void execute()
 {
-    unsigned char high_byte_data;
-    unsigned char low_byte_data;
+    unsigned char fetched_byte;
     InstructionParams params;
     while(vm.cycles > 0)
     {
@@ -23,9 +22,8 @@ void execute()
             printf("Breaking loop, CYCLES: %d\n", vm.cycles);
             break;
         }
-        fetch_word(&low_byte_data, &high_byte_data); // takes 2 cycles away
-        params.low_byte = low_byte_data; // Setting the low byte to the param struct so that we do not have to load it every time
-        switch(high_byte_data)
+        fetched_byte = fetch_byte();
+        switch(fetched_byte)
         {
             case LDA_IMM: {
                 load_ins_params(&params, 2, LDA_IMM, IMMEDIATE);
@@ -587,35 +585,35 @@ void execute()
 }
 
 // fetching functions
-void fetch_word(unsigned char* low_byte, unsigned char* high_byte)
+void fetch_word(unsigned char* first_byte, unsigned char* second_byte)
 {
     if(vm.ip == MEM_MAX_SIZE)
     {
         vm.ip = 0;
-        *high_byte = memory.data[vm.ip];
+        *first_byte = memory.data[vm.ip];
         vm.ip++;
-        *low_byte = memory.data[vm.ip];
+        *second_byte = memory.data[vm.ip];
         vm.ip++;
     }
     
     else if(vm.ip+2 == MEM_MAX_SIZE)
     {
-        *high_byte = memory.data[vm.ip];
-        *low_byte = memory.data[vm.ip+1];
+        *first_byte = memory.data[vm.ip];
+        *second_byte = memory.data[vm.ip+1];
         vm.ip = 0;
     }
     else if(vm.ip+1 == MEM_MAX_SIZE)
     {
-        *high_byte = memory.data[vm.ip];
+        *first_byte = memory.data[vm.ip];
         vm.ip = 0;
-        *low_byte = memory.data[vm.ip];
+        *second_byte = memory.data[vm.ip];
         vm.ip++;
     }
     else
     {
-        *high_byte = memory.data[vm.ip];
+        *first_byte = memory.data[vm.ip];
         vm.ip++;
-        *low_byte = memory.data[vm.ip];
+        *second_byte = memory.data[vm.ip];
         vm.ip++;
     }
     vm.cycles -= 2;
@@ -640,18 +638,18 @@ void zp_wrapping(unsigned short* address, unsigned char vm_register)
     else *address = *address + vm_register;
     vm.cycles -= 1;
 }
-void fetch_word_zp(unsigned short address, unsigned char* low_byte, unsigned char* high_byte)
+void fetch_word_zp(unsigned short address, unsigned char* first_byte, unsigned char* second_byte)
 {
     // fetching the word from an address given by 2 bytes in the zeropage
     if(address == 0x00FF)
     {
-        *high_byte = memory.data[0x00FF];
-        *low_byte = memory.data[0x0000];
+        *first_byte = memory.data[0x00FF];
+        *second_byte = memory.data[0x0000];
     }
     else
     {
-        *high_byte = memory.data[address];
-        *low_byte = memory.data[address+1];
+        *first_byte = memory.data[address];
+        *second_byte = memory.data[address+1];
     }
     vm.cycles -= 2;
 }
@@ -666,7 +664,7 @@ void debug(unsigned char instruction, unsigned char component)
 // other functions
 void cycle_check(int cycle_amount)
 {
-    if(!(vm.cycles >= (cycle_amount-2))) // -2 cycles because the first operation is the same for every instruction (opcode and 1 operand)
+    if(!(vm.cycles >= (cycle_amount-1))) // -1 cycle because the first operation is the same for every instruction (fetching opcode)
     {
         printf("Insufficient cycle amount!\n");
         abort();

@@ -10,7 +10,8 @@
 void adc_imm(InstructionParams params)
 {
     cycle_check(params.required_cycles);
-    adc_logic(params.low_byte);
+    unsigned char immediate_value = fetch_byte();
+    adc_logic(immediate_value);
     debug(params.instruction, vm.accumulator);
 }
 void adc_instruction(InstructionParams params, unsigned char* vm_register)
@@ -24,7 +25,8 @@ void adc_instruction(InstructionParams params, unsigned char* vm_register)
 void sbc_imm(InstructionParams params)
 {
     cycle_check(params.required_cycles);
-    adc_logic(255 - params.low_byte);
+    unsigned char immediate_value = fetch_byte();
+    adc_logic(255 - immediate_value);
     debug(params.instruction, vm.accumulator);
 }
 
@@ -32,7 +34,8 @@ void sbc_imm(InstructionParams params)
 void cm_imm(InstructionParams params,unsigned char vm_register)
 {
     cycle_check(params.required_cycles);
-    compare_logic(vm_register, params.low_byte);
+    unsigned char immediate_value = fetch_byte();
+    compare_logic(vm_register, immediate_value);
     debug(params.instruction, vm_register);
 }
 void cm_instruction(InstructionParams params, unsigned char vm_register, unsigned char *index_register)
