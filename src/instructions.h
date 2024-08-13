@@ -250,7 +250,6 @@ typedef enum{
 
 typedef struct InstructionParams{
     unsigned int required_cycles;
-    unsigned char low_byte;
     unsigned char instruction;
     AddressingModes addressing_mode;
 }InstructionParams;
@@ -259,7 +258,7 @@ extern struct VirtualMachine vm;
 extern struct Memory memory;
 
 // fetch functions
-void fetch_word(unsigned char *low_byte, unsigned char *high_byte);
+void fetch_word(unsigned char *first_byte, unsigned char *second_byte);
 unsigned char fetch_byte();
 
 // main execution function
@@ -267,7 +266,7 @@ void execute();
 
 // zeropage-related functions
 void zp_wrapping(unsigned short* address, unsigned char vm_register);
-void fetch_word_zp(unsigned short address, unsigned char* low_byte, unsigned char* high_byte);
+void fetch_word_zp(unsigned short address, unsigned char* first_byte, unsigned char* second_byte);
 
 // helper functions
 void debug(unsigned char instruction, unsigned char component);

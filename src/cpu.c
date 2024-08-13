@@ -36,14 +36,13 @@ struct Memory memory;
 int main()
 {
     reset();
-    vm.cycles = 6;
-    vm.accumulator = 234; // 87
+    vm.cycles = 3;
+    vm.accumulator = 0x10;
     vm.x = 3;
     vm.y = 2;
-    memory.data[0xFFFC] = TYA;
-    memory.data[0x01FF] = 0b00100111;
-    memory.data[0xFFFE] = 0x12;
-    memory.data[0x12FE] = 129;
+    memory.data[0xFFFC] = SBC_ZP;
+    memory.data[0xFFFD] = 0x12;
+    memory.data[0x0012] = 0x13;
     execute();
     printf("X register: %d\n", vm.x);
     printf("Y register: %d\n", vm.y);

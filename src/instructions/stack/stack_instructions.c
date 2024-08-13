@@ -9,8 +9,7 @@
 // Main stack instructions
 void push_stack_instruction(InstructionParams params, unsigned char* vm_register)
 {
-    onebyte_ins_fix();
-    cycle_check(params.required_cycles+1); // +1 cycle adjustment for onebyte instructions
+    cycle_check(params.required_cycles);
     unsigned short stack_add = 0x01 << 8 | vm.sp;
     vm.sp--;
     wrap_stack_pointer(); // Wraps the stack pointer if it goes out of bounds
@@ -21,13 +20,12 @@ void push_stack_instruction(InstructionParams params, unsigned char* vm_register
 }
 void pull_stack_instruction(InstructionParams params, unsigned char* vm_register)
 {
-    onebyte_ins_fix();
-    cycle_check(params.required_cycles+1);
+    cycle_check(params.required_cycles);
     unsigned short stack_add = 0x01 << 8 | vm.sp;
     vm.sp++;
     vm.cycles -= 1; 
     *vm_register = memory.data[stack_add];
-    vm.cycles -=2 ; // Read value from stack and write the value to the register (takes 2 cycles)
+    vm.cycles -= 2 ; // Read value from stack and write the value to the register (takes 2 cycles)
     wrap_stack_pointer();
     if(params.instruction == PLA)updateNZFlags(*vm_register);
     debug(params.instruction, *vm_register);

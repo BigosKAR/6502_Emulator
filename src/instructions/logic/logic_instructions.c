@@ -13,9 +13,10 @@
 void logical_imm(InstructionParams params)
 {
     cycle_check(params.required_cycles);
-    if(params.instruction == AND_IMM)and_bitwise_logic(params.low_byte);
-    else if(params.instruction == EOR_IMM)eor_bitwise_logic(params.low_byte);
-    else if(params.instruction == ORA_IMM)ora_bitwise_logic(params.low_byte);
+    unsigned char immediate_value = fetch_byte();
+    if(params.instruction == AND_IMM)and_bitwise_logic(immediate_value);
+    else if(params.instruction == EOR_IMM)eor_bitwise_logic(immediate_value);
+    else if(params.instruction == ORA_IMM)ora_bitwise_logic(immediate_value);
     else printf("Could not find the given instruction!\n");
     debug(params.instruction, vm.accumulator);
 }

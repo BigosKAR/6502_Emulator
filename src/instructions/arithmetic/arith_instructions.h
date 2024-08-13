@@ -10,5 +10,7 @@ void cm_imm(InstructionParams params, unsigned char vm_register);
 void cm_instruction(InstructionParams params, unsigned char vm_register, unsigned char *index_register);
 void compare_logic(unsigned char vm_register, unsigned char memory_value);
 void adc_logic(unsigned char char_value);
+void sbc_logic(unsigned char char_value);
+void sbc_instruction(InstructionParams params, unsigned char* vm_register);
 
 #endif
