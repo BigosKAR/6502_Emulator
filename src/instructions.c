@@ -575,6 +575,41 @@ void execute()
                 sbc_imm(params);
                 break;
             }
+            case SBC_ABS: {
+                load_ins_params(&params, 4, SBC_ABS, ABSOLUTE);
+                sbc_instruction(params, NULL);
+                break;
+            }
+            case SBC_ABS_X: {
+                load_ins_params(&params, 4, SBC_ABS_X, ABSOLUTE_INDEXED_PC);
+                sbc_instruction(params, &vm.x);
+                break;
+            }
+            case SBC_ABS_Y: {
+                load_ins_params(&params, 4, SBC_ABS_Y, ABSOLUTE_INDEXED_PC);
+                sbc_instruction(params, &vm.y);
+                break;
+            }
+            case SBC_ZP: {
+                load_ins_params(&params, 3, SBC_ZP, ZERO_PAGE);
+                sbc_instruction(params, NULL);
+                break;
+            }
+            case SBC_ZP_X: {
+                load_ins_params(&params, 4, SBC_ZP_X, ZERO_PAGE_INDEXED);
+                sbc_instruction(params, &vm.x);
+                break;
+            }
+            case SBC_ZP_X_IND: {
+                load_ins_params(&params, 6, SBC_ZP_X_IND, ZERO_PAGE_X_INDIRECT);
+                sbc_instruction(params, &vm.x);
+                break;
+            }
+            case SBC_ZP_Y_IND: {
+                load_ins_params(&params, 5, SBC_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT_PC);
+                sbc_instruction(params, &vm.y);
+                break;
+            }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 vm.cycles = 0;

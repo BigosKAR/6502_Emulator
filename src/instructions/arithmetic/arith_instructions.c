@@ -30,6 +30,14 @@ void sbc_imm(InstructionParams params)
     debug(params.instruction, vm.accumulator);
 }
 
+void sbc_instruction(InstructionParams params, unsigned char* vm_register)
+{
+    unsigned short address = fetch_address(params, vm_register);
+    sbc_logic(memory.data[address]);
+    vm.cycles -= 1;
+    debug(params.instruction, vm.accumulator);
+}
+
 // Seperate function for the immediate addressing mode because of the lack of an address + no additional cycles required
 void cm_imm(InstructionParams params,unsigned char vm_register)
 {
@@ -88,6 +96,63 @@ void adc_logic(unsigned char char_value)
         if(result > 0xFF)set_flag(FLAG_CARRY);
         else clear_flag(FLAG_CARRY);
     }
+    bool accumulator_sign = accumulator & 0x80;
+    bool value_sign = value & 0x80;
+    bool result_sign = result & 0x80;
+
+    if((accumulator_sign == value_sign) && (accumulator_sign != result_sign))set_flag(FLAG_OVERFLOW);
+    else clear_flag(FLAG_OVERFLOW);
+
+    vm.accumulator = result & 0xFF;
+    updateNZFlags(vm.accumulator);
+}
+void sbc_logic(unsigned char char_value)
+{
+    unsigned short accumulator = vm.accumulator;
+    unsigned short result;
+    unsigned int value = char_value;
+    bool carry = vm.processor_status & FLAG_CARRY;
+    bool decimal_mode = vm.processor_status & FLAG_DECIMAL;
+    if(decimal_mode)
+    {
+        unsigned char low_nibble, high_nibble;
+        bool borrow = false;
+
+        if ((accumulator & 0x0F) < ((value & 0x0F) + (carry ? 0 : 1))) {
+            low_nibble = 10 + (accumulator & 0x0F) - (value & 0x0F) - (carry ? 0 : 1);
+            borrow = true;
+        } else {
+            low_nibble = (accumulator & 0x0F) - (value & 0x0F) - (carry ? 0 : 1);
+        }
+
+        if (low_nibble > 9) low_nibble += 6;
+
+        // Subtract upper nibble
+        if ((accumulator & 0xF0) < ((value & 0xF0) + (borrow ? 0x10 : 0))) {
+            high_nibble = 10 + ((accumulator & 0xF0) >> 4) - ((value & 0xF0) >> 4) - (borrow ? 1 : 0);
+        } else {
+            high_nibble = ((accumulator & 0xF0) >> 4) - ((value & 0xF0) >> 4) - (borrow ? 1 : 0);
+        }
+
+        if (high_nibble > 9) high_nibble += 6;
+
+        result = ((high_nibble & 0x0F) << 4) | (low_nibble & 0x0F);
+
+        // To get an interpretable result, the result stored in the accumulator (in hexa) must be subtracted by 100
+    }
+    else
+    {
+        printf("Value: %x\n", value);
+        // coppied from adc_logic
+        if(!carry)result = accumulator - value - 1;
+        else result = accumulator - value;
+    }
+    if (accumulator >= value + (carry ? 0 : 1)) {
+        set_flag(FLAG_CARRY);
+    } else {
+        clear_flag(FLAG_CARRY);
+    }
+
     bool accumulator_sign = accumulator & 0x80;
     bool value_sign = value & 0x80;
     bool result_sign = result & 0x80;
