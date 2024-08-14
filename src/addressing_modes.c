@@ -72,7 +72,7 @@ unsigned short get_zp_y_ind_address_pc()
         else
         {
         vm.cycles -= 1; // If page boundary crossed then take 1 cycle
-        cycle_check(3); // It is 3 because the cycle check takes 2 cycles away and we are checking if there is 1 cycle saved
+        cycle_check(2); // It is 3 because the cycle check takes 2 cycles away and we are checking if there is 1 cycle saved
         }
     }
     return indirect_address;

@@ -36,11 +36,14 @@ struct Memory memory;
 int main()
 {
     reset();
-    vm.cycles = 8;
-    vm.accumulator = 0x10;
-    vm.x = 255;
+    vm.cycles = 6;
+    vm.accumulator = 45;
+    vm.x = 2;
     vm.y = 0;
-    memory.data[0xFFFC] = INX;
+    memory.data[0xFFFC] = AND_ABS_X;
+    memory.data[0xFFFD] = 0xFF;
+    memory.data[0xFFFE] = 0x7F;
+    memory.data[0x8001] = 34;
     execute();
     return 0;
 }
