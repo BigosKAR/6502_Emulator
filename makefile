@@ -1,6 +1,6 @@
 # Compiler and linker settings
 CC = gcc
-CFLAGS = -Isrc -Isrc/instructions/load -Isrc/instructions/logic -Isrc/instructions/shift -Isrc/instructions/stack -Isrc/instructions/transfer -Isrc/instructions/arith -Wall
+CFLAGS = -Isrc -Isrc/instructions/load -Isrc/instructions/logic -Isrc/instructions/shift -Isrc/instructions/stack -Isrc/instructions/transfer -Isrc/instructions/arith -Isrc/instructions/inc -Wall
 LDFLAGS =
 
 # Project settings

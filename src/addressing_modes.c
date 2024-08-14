@@ -9,15 +9,15 @@
 
 unsigned short get_abs_address()
 {
-    unsigned char low_order_address = fetch_byte();
-    unsigned char high_order_address = fetch_byte();
+    unsigned char low_order_address, high_order_address;
+    fetch_word(&low_order_address, &high_order_address);
     return high_order_address << 8 | low_order_address;
 }
 // function for getting an address from adding the contents of a register to the absolute address (taking into account crossing mem pages)
 unsigned short get_abs_indexed_address_pc(unsigned char vm_register)
 {
-    unsigned char low_order_address = fetch_byte();
-    unsigned char high_order_address = fetch_byte();
+    unsigned char low_order_address, high_order_address;
+    fetch_word(&low_order_address, &high_order_address);
     unsigned short address = (high_order_address << 8) | low_order_address;
     unsigned short temp_address = address + vm_register;
     if((address & 0xFF00) != (temp_address & 0xFF00))
@@ -26,15 +26,15 @@ unsigned short get_abs_indexed_address_pc(unsigned char vm_register)
         else
         {
         vm.cycles -= 1; // If page boundary crossed then take 1 cycle
-        cycle_check(3); // Check if there is 1 cycle saved (2 cycles are subtracted)
+        cycle_check(2); // Check if there is 1 cycle saved (1 cycle are subtracted)
         }
     }
     return address + vm_register;
 }
 unsigned short get_abs_indexed_address(unsigned char vm_register)
 {
-    unsigned char low_order_address = fetch_byte();
-    unsigned char high_order_address = fetch_byte();
+    unsigned char low_order_address, high_order_address;
+    fetch_word(&low_order_address, &high_order_address);
     unsigned short address = (high_order_address << 8) | low_order_address;
     return address + vm_register;
 }

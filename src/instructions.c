@@ -10,6 +10,7 @@
 #include "./instructions/shift/shift_instructions.h"
 #include "./instructions/logic/logic_instructions.h"
 #include "./instructions/arithmetic/arith_instructions.h"
+#include "./instructions/inc/inc_instructions.h"
 
 // execution of instructions *most important function*
 void execute()
@@ -610,6 +611,80 @@ void execute()
                 sbc_instruction(params, &vm.y);
                 break;
             }
+            case DEC_ABS: {
+                load_ins_params(&params, 6, DEC_ABS, ABSOLUTE);
+                IncParams inc_params = {MEMORY, DECREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case DEC_ABS_X: {
+                load_ins_params(&params, 7, DEC_ABS_X, ABSOLUTE_INDEXED);
+                IncParams inc_params = {MEMORY, DECREMENT};
+                inc_instruction(params, inc_params, &vm.x);
+                break;
+            }
+            case DEC_ZP: {
+                load_ins_params(&params, 5, DEC_ZP, ZERO_PAGE);
+                IncParams inc_params = {MEMORY, DECREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case DEC_ZP_X: {
+                load_ins_params(&params, 6, DEC_ZP_X, ZERO_PAGE_INDEXED);
+                IncParams inc_params = {MEMORY, DECREMENT};
+                inc_instruction(params, inc_params, &vm.x);
+                break;
+            }
+            case DEX: {
+                load_ins_params(&params, 2, DEX, IMPLIED);
+                IncParams inc_params = {REGISTER_X, DECREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case DEY: {
+                load_ins_params(&params, 2, DEY, IMPLIED);
+                IncParams inc_params = {REGISTER_Y, DECREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case INC_ABS: {
+                load_ins_params(&params, 6, INC_ABS, ABSOLUTE);
+                IncParams inc_params = {MEMORY, INCREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case INC_ABS_X: {
+                load_ins_params(&params, 7, INC_ABS_X, ABSOLUTE_INDEXED);
+                IncParams inc_params = {MEMORY, INCREMENT};
+                inc_instruction(params, inc_params, &vm.x);
+                break;
+            }
+            case INC_ZP: {
+                load_ins_params(&params, 5, INC_ZP, ZERO_PAGE);
+                IncParams inc_params = {MEMORY, INCREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case INC_ZP_X: {
+                load_ins_params(&params, 6, INC_ZP_X, ZERO_PAGE_INDEXED);
+                IncParams inc_params = {MEMORY, INCREMENT};
+                inc_instruction(params, inc_params, &vm.x);
+                break;
+            }
+            case INX: {
+                load_ins_params(&params, 2, INX, IMPLIED);
+                IncParams inc_params = {REGISTER_X, INCREMENT};
+                printf("INC PARAMS: %d\n", inc_params.source_type);
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case INY: {
+                load_ins_params(&params, 2, INY, IMPLIED);
+                IncParams inc_params = {REGISTER_Y, INCREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 vm.cycles = 0;
@@ -712,11 +787,6 @@ void wrap_address(unsigned short* address) // Wraps the address if it goes out o
 bool out_of_bounds(unsigned short address)
 {
     return address > MEM_MAX_SIZE;
-}
-void onebyte_ins_fix() // Function for fixing the cycle count and the instruction pointer for one byte instructions
-{
-    vm.ip--; // move the pointer one byte back because of the fetch word function at the start of the while loop
-    vm.cycles+=1; // also need to restore 1 cycle back
 }
 
 void load_ins_params(InstructionParams *params, int required_cycles, unsigned char instruction, AddressingModes addressing_mode)

@@ -36,17 +36,11 @@ struct Memory memory;
 int main()
 {
     reset();
-    vm.cycles = 3;
+    vm.cycles = 8;
     vm.accumulator = 0x10;
-    vm.x = 3;
-    vm.y = 2;
-    memory.data[0xFFFC] = SBC_ZP;
-    memory.data[0xFFFD] = 0x12;
-    memory.data[0x0012] = 0x13;
+    vm.x = 255;
+    vm.y = 0;
+    memory.data[0xFFFC] = INX;
     execute();
-    printf("X register: %d\n", vm.x);
-    printf("Y register: %d\n", vm.y);
-    printf("Accumulator: %d\n", vm.accumulator);
-    printf("Stack pointer: %d\n", vm.sp);
     return 0;
 }
