@@ -11,6 +11,7 @@
 #include "./instructions/logic/logic_instructions.h"
 #include "./instructions/arithmetic/arith_instructions.h"
 #include "./instructions/inc/inc_instructions.h"
+#include "./instructions/ctrl/ctrl_instructions.h"
 
 // execution of instructions *most important function*
 void execute()
@@ -674,7 +675,6 @@ void execute()
             case INX: {
                 load_ins_params(&params, 2, INX, IMPLIED);
                 IncParams inc_params = {REGISTER_X, INCREMENT};
-                printf("INC PARAMS: %d\n", inc_params.source_type);
                 inc_instruction(params, inc_params, NULL);
                 break;
             }
@@ -684,7 +684,36 @@ void execute()
                 inc_instruction(params, inc_params, NULL);
                 break;
             }
-
+            case BRK: {
+                load_ins_params(&params, 7, BRK, IMPLIED);
+                brk_instruction(params);
+                break;
+            }
+            case JMP_ABS: {
+                load_ins_params(&params, 3, JMP_ABS, ABSOLUTE);
+                jmp_instruction(params);
+                break;
+            }
+            case JMP_ABS_IND: {
+                load_ins_params(&params, 5, JMP_ABS_IND, ABSOLUTE_INDIRECT);
+                jmp_instruction(params);
+                break;
+            }
+            case JSR: {
+                load_ins_params(&params, 6, JSR, ABSOLUTE);
+                jsr_instruction(params);
+                break;
+            }
+            case RTI: {
+                load_ins_params(&params, 6, RTI, IMPLIED);
+                rti_instruction(params);
+                break;
+            }
+            case RTS: {
+                load_ins_params(&params, 6, RTS, IMPLIED);
+                rts_instruction(params);
+                break;
+            }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 vm.cycles = 0;

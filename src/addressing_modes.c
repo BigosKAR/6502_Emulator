@@ -38,6 +38,20 @@ unsigned short get_abs_indexed_address(unsigned char vm_register)
     unsigned short address = (high_order_address << 8) | low_order_address;
     return address + vm_register;
 }
+
+unsigned short get_abs_ind_address()
+{
+    unsigned char low_order_address, high_order_address;
+    fetch_word(&low_order_address, &high_order_address);
+    unsigned short initial_address = (high_order_address << 8) | low_order_address;
+    unsigned char Low_order_indirect_address, high_order_indirect_address;
+    Low_order_indirect_address = memory.data[initial_address];
+    high_order_indirect_address = memory.data[initial_address + 1];
+    unsigned short indirect_address = (high_order_indirect_address << 8) | Low_order_indirect_address;
+    vm.cycles -= 2;
+    return indirect_address;
+}
+
 unsigned short get_zp_address()
 {
     unsigned char low_order_address = fetch_byte();
@@ -113,6 +127,8 @@ unsigned short fetch_address(InstructionParams params, unsigned char* vm_registe
             }
             return get_abs_indexed_address_pc(*vm_register);
         }
+        case ABSOLUTE_INDIRECT:
+            return get_abs_ind_address();
         case ZERO_PAGE:
             return get_zp_address();
         case ZERO_PAGE_INDEXED: {

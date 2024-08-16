@@ -23,7 +23,7 @@ void reset(void)
     initialize_memory();
 
     vm.ip = 0xFFFC;
-    vm.sp = 0xFF; // Stack is in addresses: 0x0100 to 0x01FF
+    vm.sp = 0xFD; // Stack is in addresses: 0x0100 to 0x01FF
 
     vm.processor_status = 0x20;
     vm.accumulator = vm.x = vm.y = 0;
@@ -36,14 +36,21 @@ struct Memory memory;
 int main()
 {
     reset();
-    vm.cycles = 6;
+    vm.cycles = 26;
     vm.accumulator = 45;
     vm.x = 2;
     vm.y = 0;
-    memory.data[0xFFFC] = AND_ABS_X;
-    memory.data[0xFFFD] = 0xFF;
-    memory.data[0xFFFE] = 0x7F;
-    memory.data[0x8001] = 34;
+    memory.data[0xFFFC] = INY;
+    memory.data[0xFFFD] = JSR;
+    memory.data[0xFFFE] = 0x13;
+    memory.data[0xFFFF] = 0x37;
+    memory.data[0x3713] = INX;
+    memory.data[0x3714] = INX;
+    memory.data[0x3715] = INX;
+    memory.data[0x3716] = TXA;
+    memory.data[0x3717] = TAY;
+    memory.data[0x3718] = RTI;
+    memory.data[0x0000] = INY;
     execute();
     return 0;
 }

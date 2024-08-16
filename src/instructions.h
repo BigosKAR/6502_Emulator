@@ -20,15 +20,12 @@
 #define BMI 0x30
 #define BNE 0xD0
 #define BPL 0x10
-#define BRK 0x00
 #define BVC 0x50
 #define BVS 0x70
 #define CLC 0x18
 #define CLD 0xD8
 #define CLI 0x58
 #define CLV 0xB8
-#define JMP 0x4C
-#define JSR 0x20
 
 // LDA instructions
 #define LDA_IMM 0xA9 // 2 Cycles
@@ -213,9 +210,15 @@
 // INY instruction
 #define INY 0xC8 // 2 Cycles
 
+// CTRL instructions
+#define BRK 0x00 // 7 Cycles
+#define JMP_ABS 0x4C // 3 Cycles
+#define JMP_ABS_IND 0x6C // 5 Cycles
+#define JSR 0x20 // 6 Cycles
+#define RTI 0x40 // 6 Cycles
+#define RTS 0x60 // 6 Cycles
+
 #define NOP 0xEA
-#define RTI 0x40
-#define RTS 0x60
 #define SBC 0xE9
 #define SEC 0x38
 #define SED 0xF8

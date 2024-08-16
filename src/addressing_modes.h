@@ -15,6 +15,7 @@ typedef enum{
     ABSOLUTE,
     ABSOLUTE_INDEXED,
     ABSOLUTE_INDEXED_PC,
+    ABSOLUTE_INDIRECT,
     ZERO_PAGE,
     ZERO_PAGE_INDEXED,
     ZERO_PAGE_X_INDIRECT,
@@ -31,6 +32,7 @@ typedef struct InstructionParams{
 unsigned short get_abs_address(); // -2 Cycle
 unsigned short get_abs_indexed_address_pc(unsigned char vm_register); // -2 Cycle (additional -1 if page crossed)
 unsigned short get_abs_indexed_address(unsigned char vm_register); // -2 Cycle
+unsigned short get_abs_ind_address(); // -4 Cycles
 unsigned short get_zp_address(); // -1 Cycle
 unsigned short get_zp_indexed_address(unsigned char vm_register); // -2 Cycle
 unsigned short get_zp_x_ind_address(); // -4 Cycles

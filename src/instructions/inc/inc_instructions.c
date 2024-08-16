@@ -8,8 +8,6 @@
 #include "../../addressing_modes.h"
 
 void inc_instruction(InstructionParams params, IncParams inc_params, unsigned char* vm_register){
-    printf("Source Type: %d\n", inc_params.source_type);
-    printf("Operation Type: %d\n", inc_params.operation_type);
     cycle_check(params.required_cycles);
     unsigned char result;
     switch(inc_params.source_type){
