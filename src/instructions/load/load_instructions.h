@@ -1,19 +1,11 @@
 #ifndef LOAD_INSTRUCTIONS_H
 #define LOAD_INSTRUCTIONS_H
 
-void ld_abs_reg_logic(unsigned char low_order_address, unsigned char* vm_register, unsigned char vm_reg_indexed, unsigned char instruction);
-void ld_imm_logic(unsigned char low_byte, unsigned char *vm_register, unsigned char instruction);
-void ld_abs_logic(unsigned char low_order_address, unsigned char* vm_register, unsigned char instruction);
-void ld_zp_logic(unsigned char low_order_address, unsigned char* vm_register, unsigned char instruction);
-void ld_zp_reg_logic(unsigned char low_byte, unsigned char* vm_register, unsigned char vm_reg_indexed, unsigned char instruction);
-void lda_zp_x_ind(unsigned char low_order_address);
-void lda_zp_y_ind(unsigned char low_order_address);
+void ld_imm(InstructionParams params, unsigned char *vm_register);
+void ld_instruction(InstructionParams params, unsigned char* vm_register, unsigned char* index_register);
+void ld_logic(unsigned char* vm_register, unsigned char value);
 
-void st_abs_logic(unsigned char low_order_address, unsigned char vm_register, unsigned char instruction);
-void st_zp_logic(unsigned char low_order_address, unsigned char vm_register, unsigned char instruction);
-void st_zp_reg_logic(unsigned char low_order_address, unsigned char vm_register, unsigned char vm_reg_indexed, unsigned char instruction);
-void sta_abs_reg_logic(unsigned char low_order_address, unsigned char vm_reg_indexed, unsigned char instruction);
-void sta_zp_x_ind(unsigned char low_order_address);
-void sta_zp_y_ind(unsigned char low_order_address);
+void st_instruction(InstructionParams params, unsigned char vm_register, unsigned char* index_register);
+void st_logic(unsigned char register_value, unsigned short address);
 
 #endif

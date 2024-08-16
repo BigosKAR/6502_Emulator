@@ -8,12 +8,11 @@
 #include "../../addressing_modes.h"
 
 // Main shift functions
-void shift_acc_logic(unsigned char instruction)
+void shift_accumulator(InstructionParams params, ShiftType shift_type)
 {
-    onebyte_ins_fix();
-    cycle_check(2-1);
+    cycle_check(params.required_cycles);
     unsigned char temp_var = vm.accumulator;
-    if(instruction == ASL_A)
+    if(shift_type == SHIFT_ASL)
     {
         vm.accumulator = vm.accumulator << 1;
         updateNZC_Flags(vm.accumulator, temp_var);
@@ -24,161 +23,80 @@ void shift_acc_logic(unsigned char instruction)
         LSR_update_NZC_Flags(vm.accumulator, temp_var);
     }
     vm.cycles -= 1;
-    debug(instruction, vm.accumulator);
-}
-void shift_abs_logic(unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(6-2);
-    unsigned short address = get_abs_address(low_order_address);
-    unsigned char temp_var = memory.data[address];
-    if(instruction == ASL_ABS)
-    {
-        memory.data[address] = memory.data[address] << 1;
-        updateNZC_Flags(memory.data[address], temp_var);
-    }
-    else
-    {
-        memory.data[address] = memory.data[address] >> 1;
-        LSR_update_NZC_Flags(memory.data[address], temp_var);
-    }
-    vm.cycles -= 3; // reading memory from initial address, shifting the value, and writing it back to the same location
-    debug(instruction, memory.data[address]);
-}
-void shift_abs_x_logic(unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(7-2);
-    unsigned short address = get_abs_indexed_address(low_order_address, vm.x);
-    unsigned char temp_var = memory.data[address];
-    if(instruction == ASL_ABS_X)
-    {
-        memory.data[address] = memory.data[address] << 1;
-        updateNZC_Flags(memory.data[address], temp_var);
-    }
-    else
-    {
-        memory.data[address] = memory.data[address] >> 1;
-        LSR_update_NZC_Flags(memory.data[address], temp_var);
-    }
-    vm.cycles -= 4; // adding x reg content to an address, reading memory from that address, performing the shift, and writing the result back to the same location
-    debug(instruction, memory.data[address]);
-}
-void shift_zp_logic(unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(5-2);
-    unsigned short zp_address = get_zp_address(low_order_address);
-    unsigned char temp_var = memory.data[zp_address];
-    if(instruction == ASL_ZP)
-    {
-        memory.data[zp_address] = memory.data[zp_address] << 1;
-        updateNZC_Flags(memory.data[zp_address], temp_var);
-    }
-    else
-    {
-        memory.data[zp_address] = memory.data[zp_address] >> 1;
-        LSR_update_NZC_Flags(memory.data[zp_address], temp_var);
-    }
-    vm.cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
-    debug(instruction, memory.data[zp_address]);
-}
-void shift_zp_x_logic(unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(6-2);
-    unsigned short zp_address = get_zp_indexed_address(low_order_address, vm.x);
-    unsigned char temp_var = memory.data[zp_address];
-    if(instruction == ASL_ABS_X)
-    {
-        memory.data[zp_address] = memory.data[zp_address] << 1;
-        updateNZC_Flags(memory.data[zp_address], temp_var);
-    }
-    else
-    {
-        memory.data[zp_address] = memory.data[zp_address] >> 1;
-        LSR_update_NZC_Flags(memory.data[zp_address], temp_var);
-    }
-    vm.cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
-    debug(instruction, memory.data[zp_address]);
+    debug(params.instruction, vm.accumulator);
 }
 
-void rotate_acc_logic(unsigned char instruction)
+void shift_instruction(InstructionParams params, unsigned char* vm_register, ShiftType shift_type)
 {
-    onebyte_ins_fix();
-    cycle_check(2-1);
-    if(instruction == ROL_A)
+    cycle_check(params.required_cycles);
+    unsigned short address = fetch_address(params, vm_register);
+    printf("Memory[address]: %d\n", memory.data[address]);
+    unsigned char temp_var = memory.data[address];
+    shift_logic(address, temp_var, shift_type);
+    switch (params.instruction)
     {
-       rotate_logic(&vm.accumulator, true);
+    case ASL_ABS:
+    case LSR_ABS:
+    case ASL_ZP:
+    case LSR_ZP:
+    case ASL_ZP_X:
+    case LSR_ZP_X:
+        vm.cycles -= 3;
+        break;
+    case ASL_ABS_X:
+    case LSR_ABS_X:
+        vm.cycles -= 4;
+        break;
+    default: {
+        printf("Invalid instruction for this function!\n");
+        exit(1);
+        break;
+        }
     }
-    else
-    {
-        rotate_logic(&vm.accumulator, false);
-    }
+        debug(params.instruction, memory.data[address]);
+
+}
+
+void rotate_accumulator(InstructionParams params, ShiftType shift_type)
+{
+    cycle_check(params.required_cycles);
+    rotate_logic(&vm.accumulator, shift_type);
     vm.cycles -= 1; // performing the shift
-    debug(instruction, vm.accumulator);
+    debug(params.instruction, vm.accumulator);
 }
-void rotate_abs_logic(unsigned char low_order_address, unsigned char instruction)
+
+void rotate_instruction(InstructionParams params, unsigned char* vm_register, ShiftType shift_type)
 {
-    cycle_check(6-2);
-    unsigned short address = get_abs_address(low_order_address);
-    if(instruction == ROL_ABS)
+    cycle_check(params.required_cycles);
+    unsigned short address = fetch_address(params, vm_register);
+    rotate_logic(&memory.data[address], shift_type);
+    switch(params.instruction)
     {
-        rotate_logic(&memory.data[address], true);
+        case ROL_ABS_X:
+        case ROR_ABS_X:
+            vm.cycles -= 4;
+            break;
+        case ROL_ABS:
+        case ROR_ABS:
+        case ROL_ZP:
+        case ROR_ZP:
+        case ROL_ZP_X:
+        case ROR_ZP_X:
+            vm.cycles -= 4;
+            break;
+        default: {
+            printf("Invalid rotate instruction!\n");
+            exit(1);
+            break;
+        }
     }
-    else
-    {
-        rotate_logic(&memory.data[address], false);
-    }
-    vm.cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
-    debug(instruction, memory.data[address]);
-}
-void rotate_abs_x_logic(unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(7-2);
-    unsigned short address = get_abs_indexed_address(low_order_address, vm.x);
-    if(instruction == ROL_ABS_X)
-    {
-        rotate_logic(&memory.data[address], true);
-    }
-    else
-    {
-        rotate_logic(&memory.data[address], false);
-    }
-    vm.cycles -= 4; // adding x reg content to an address, reading memory from that address, performing the shift, and writing the result back to the same location
-    debug(instruction, memory.data[address]);
-}
-void rotate_zp_logic(unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(5-2);
-    unsigned short zp_address = get_zp_address(low_order_address);
-    if(instruction == ROL_ZP)
-    {
-        rotate_logic(&memory.data[zp_address], true);
-    }
-    else
-    {
-        rotate_logic(&memory.data[zp_address], false);
-    }
-    vm.cycles -= 3; // reading memory from initial address, performing the shift, and writing the result back to the same location
-    debug(instruction, memory.data[zp_address]);
-}
-void rotate_zp_x_logic(unsigned char low_order_address, unsigned char instruction)
-{
-    cycle_check(6-2);
-    unsigned short zp_address = get_zp_indexed_address(low_order_address, vm.x);
-    if(instruction == ROL_ZP_X)
-    {
-        rotate_logic(&memory.data[zp_address], true);
-    }
-    else
-    {
-        rotate_logic(&memory.data[zp_address], false);
-    }
-    vm.cycles -= 3; // read, shift, write back
-    debug(instruction, memory.data[zp_address]);
+    debug(params.instruction, memory.data[address]);
 }
 
 // Helper shift functions
-void rotate_logic(unsigned char* value, bool isLeft)
+void rotate_logic(unsigned char* value, ShiftType shift_type)
 {
-    if(isLeft)
+    if(shift_type == SHIFT_ROL)
     {
         if(*value & 0b10000000){
             set_flag(FLAG_CARRY); // Set the carry flag to the value of the 7th bit of the A register
@@ -189,7 +107,7 @@ void rotate_logic(unsigned char* value, bool isLeft)
         *value = *value << 1;
         *value |= (vm.processor_status & 0b00000001) ? 1 : 0;
     }
-    else
+    else if(shift_type == SHIFT_ROR)
     {
         if(*value & 1){
             set_flag(FLAG_CARRY); // Set the carry flag to the value of the 7th bit of the A register
@@ -201,4 +119,18 @@ void rotate_logic(unsigned char* value, bool isLeft)
         *value |= (vm.processor_status & 0b00000001) ? 0b10000000 : 0b00000000;
     }
     updateNZFlags(*value);
+}
+void shift_logic(unsigned short address, unsigned char temp_var, ShiftType shift_type)
+{
+    if(shift_type == SHIFT_ASL)
+    {
+        memory.data[address] = memory.data[address] << 1;
+        updateNZC_Flags(memory.data[address], temp_var);
+    }
+    else if(shift_type == SHIFT_LSR)
+    {
+        memory.data[address] = memory.data[address] >> 1;
+        LSR_update_NZC_Flags(memory.data[address], temp_var);
+    }
+    else printf("Invalid shift type for this type of instruction!\n");
 }

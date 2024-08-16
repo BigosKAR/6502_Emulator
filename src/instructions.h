@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "addressing_modes.h"
 
 // CONSTANTS
 
@@ -19,24 +20,12 @@
 #define BMI 0x30
 #define BNE 0xD0
 #define BPL 0x10
-#define BRK 0x00
 #define BVC 0x50
 #define BVS 0x70
 #define CLC 0x18
 #define CLD 0xD8
 #define CLI 0x58
 #define CLV 0xB8
-#define CMP 0xC9
-#define CPX 0xE0
-#define CPY 0xC0
-#define DEC 0xC6
-#define DEX 0xCA
-#define DEY 0x88
-#define INC 0xE6
-#define INX 0xE8
-#define INY 0xC8
-#define JMP 0x4C
-#define JSR 0x20
 
 // LDA instructions
 #define LDA_IMM 0xA9 // 2 Cycles
@@ -187,9 +176,49 @@
 #define CPY_ABS 0xCC // 4 Cycles
 #define CPY_ZP 0xC4 // 3 Cycles
 
+// SBC instructions
+#define SBC_IMM 0xE9 // 2 Cycles
+#define SBC_ABS 0xED // 4 Cycles
+#define SBC_ABS_X 0xFD // 4 Cycles + 1 if page crossed
+#define SBC_ABS_Y 0xF9 // 4 Cycles + 1 if page crossed
+#define SBC_ZP 0xE5 // 3 Cycles
+#define SBC_ZP_X 0xF5 // 4 Cycles
+#define SBC_ZP_X_IND 0xE1 // 6 Cycles
+#define SBC_ZP_Y_IND 0xF1 // 5 Cycles + 1 if page crossed
+
+// DEC instructions
+#define DEC_ABS 0xCE // 6 Cycles
+#define DEC_ABS_X 0xDE // 7 Cycles
+#define DEC_ZP 0xC6 // 5 Cycles
+#define DEC_ZP_X 0xD6 // 6 Cycles
+
+// DEX instruction
+#define DEX 0xCA // 2 Cycles
+
+// DEY instruction
+#define DEY 0x88 // 2 Cycles
+
+// INC instruction
+#define INC_ABS 0xEE // 6 Cycles
+#define INC_ABS_X 0xFE // 7 Cycles
+#define INC_ZP 0xE6 // 5 Cycles
+#define INC_ZP_X 0xF6 // 6 Cycles
+
+// INX instruction
+#define INX 0xE8 // 2 Cycles
+
+// INY instruction
+#define INY 0xC8 // 2 Cycles
+
+// CTRL instructions
+#define BRK 0x00 // 7 Cycles
+#define JMP_ABS 0x4C // 3 Cycles
+#define JMP_ABS_IND 0x6C // 5 Cycles
+#define JSR 0x20 // 6 Cycles
+#define RTI 0x40 // 6 Cycles
+#define RTS 0x60 // 6 Cycles
+
 #define NOP 0xEA
-#define RTI 0x40
-#define RTS 0x60
 #define SBC 0xE9
 #define SEC 0x38
 #define SED 0xF8
@@ -207,7 +236,7 @@
 // 0x4020 - 0xFFFF: Cartridge space: PRG ROM, PRG RAM, and mapper registers
 
 struct VirtualMachine{
-    unsigned short ip; // Pointer pointing to the instructions (high byte)
+    unsigned short ip; // Pointer pointing to the instructions
     
     // Registers
     unsigned char accumulator; // Accumulator register
@@ -219,7 +248,7 @@ struct VirtualMachine{
     unsigned char sp; // Stack pointer
 
     // Cycle Counter
-    unsigned int cycles;
+    int cycles;
     
 };
 
@@ -227,17 +256,11 @@ struct Memory{
     unsigned char data[MEM_MAX_SIZE];
 };
 
-typedef struct InstructionParams{
-    unsigned int required_cycles;
-    unsigned char instruction;
-    AddressingModes addressing_mode;
-}InstructionParams;
-
 extern struct VirtualMachine vm;
 extern struct Memory memory;
 
 // fetch functions
-void fetch_word(unsigned char *low_byte, unsigned char *high_byte);
+void fetch_word(unsigned char *first_byte, unsigned char *second_byte);
 unsigned char fetch_byte();
 
 // main execution function
@@ -245,13 +268,13 @@ void execute();
 
 // zeropage-related functions
 void zp_wrapping(unsigned short* address, unsigned char vm_register);
-void fetch_word_zp(unsigned short address, unsigned char* low_byte, unsigned char* high_byte);
+void fetch_word_zp(unsigned short address, unsigned char* first_byte, unsigned char* second_byte);
 
 // helper functions
 void debug(unsigned char instruction, unsigned char component);
-void cycle_check(unsigned int cycle_amount);
+void cycle_check(int cycle_amount);
 bool out_of_bounds(unsigned short address);
 void wrap_address(unsigned short* address);
-void onebyte_ins_fix(); // Function for fixing the cycle count and the instruction pointer for one byte instructions
+void load_ins_params(InstructionParams *params, int required_cycles, unsigned char instruction, AddressingModes addressing_mode);
 
 #endif

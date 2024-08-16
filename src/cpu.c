@@ -23,7 +23,7 @@ void reset(void)
     initialize_memory();
 
     vm.ip = 0xFFFC;
-    vm.sp = 0xFF; // Stack is in addresses: 0x0100 to 0x01FF
+    vm.sp = 0xFD; // Stack is in addresses: 0x0100 to 0x01FF
 
     vm.processor_status = 0x20;
     vm.accumulator = vm.x = vm.y = 0;
@@ -36,20 +36,21 @@ struct Memory memory;
 int main()
 {
     reset();
-    vm.cycles = 0;
-    vm.accumulator = 0b10000111; // 87
-    vm.x = 0x68;
-    vm.y = 0xFF;
-    memory.data[0xFFFC] = ADC_ZP_Y_IND;
-    memory.data[0xFFFD] = 0xF0; 
-    memory.data[0x00F0] = 0x12;
-    memory.data[0x00F1] = 0x54;
-    memory.data[0x5511] = 0b01100101; //65
-    set_flag(FLAG_DECIMAL);
-    //printf("Memory[0x0033]: %d (%x in hexa)\n", memory.data[0x0033], memory.data[0x0033]);
-    printf("Accumulator: %d\n", vm.accumulator);
+    vm.cycles = 26;
+    vm.accumulator = 45;
+    vm.x = 2;
+    vm.y = 0;
+    memory.data[0xFFFC] = INY;
+    memory.data[0xFFFD] = JSR;
+    memory.data[0xFFFE] = 0x13;
+    memory.data[0xFFFF] = 0x37;
+    memory.data[0x3713] = INX;
+    memory.data[0x3714] = INX;
+    memory.data[0x3715] = INX;
+    memory.data[0x3716] = TXA;
+    memory.data[0x3717] = TAY;
+    memory.data[0x3718] = RTI;
+    memory.data[0x0000] = INY;
     execute();
-    printf("Accumulator: %d\n", vm.accumulator);
-    //printf("Memory[0x0033]: %d (%x in hexa)\n", memory.data[0x0033], memory.data[0x0033]);
     return 0;
 }

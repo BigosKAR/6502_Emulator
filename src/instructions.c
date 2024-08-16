@@ -10,401 +10,708 @@
 #include "./instructions/shift/shift_instructions.h"
 #include "./instructions/logic/logic_instructions.h"
 #include "./instructions/arithmetic/arith_instructions.h"
+#include "./instructions/inc/inc_instructions.h"
+#include "./instructions/ctrl/ctrl_instructions.h"
 
 // execution of instructions *most important function*
 void execute()
 {
-    unsigned char high_byte_data;
-    unsigned char low_byte_data;
+    unsigned char fetched_byte;
+    InstructionParams params;
     while(vm.cycles > 0)
     {
-        if(vm.cycles <= 0)break;
-        fetch_word(&low_byte_data, &high_byte_data); // takes 2 cycles away
-        switch(high_byte_data)
+        if(vm.cycles <= 0) {
+            printf("Breaking loop, CYCLES: %d\n", vm.cycles);
+            break;
+        }
+        fetched_byte = fetch_byte();
+        switch(fetched_byte)
         {
             case LDA_IMM: {
-                ld_imm_logic(low_byte_data, &vm.accumulator, LDA_IMM);
+                load_ins_params(&params, 2, LDA_IMM, IMMEDIATE);
+                ld_imm(params, &vm.accumulator);
                 break;
             }
             case LDA_ABS: {
-                ld_abs_logic(low_byte_data, &vm.accumulator, LDA_ABS);
+                load_ins_params(&params, 4, LDA_ABS, ABSOLUTE);
+                ld_instruction(params, &vm.accumulator, NULL);
                 break;
             }
             case LDA_ABS_X: {
-                ld_abs_reg_logic(low_byte_data, &vm.accumulator, vm.x, LDA_ABS_X);
+                load_ins_params(&params, 4, LDA_ABS_X, ABSOLUTE_INDEXED_PC);
+                ld_instruction(params, &vm.accumulator, &vm.x);
                 break;
             }
             case LDA_ABS_Y: {
-                ld_abs_reg_logic(low_byte_data, &vm.accumulator, vm.y, LDA_ABS_Y);
+                load_ins_params(&params, 4, LDA_ABS_Y, ABSOLUTE_INDEXED_PC);
+                ld_instruction(params, &vm.accumulator, &vm.y);
                 break;
             }
             case LDA_ZP: {
-                // Useful for faster execution time because there is no need to fetch another byte
-                ld_zp_logic(low_byte_data, &vm.accumulator, LDA_ZP);
+                load_ins_params(&params, 3, LDA_ZP, ZERO_PAGE);
+                ld_instruction(params, &vm.accumulator, NULL);
                 break;
             }
             case LDA_ZP_X: {
-                ld_zp_reg_logic(low_byte_data, &vm.accumulator, vm.x, LDA_ZP_X);
+                load_ins_params(&params, 4, LDA_ZP_X, ZERO_PAGE_INDEXED);
+                ld_instruction(params, &vm.accumulator, &vm.x);
                 break;
             }
-            case LDA_ZP_X_IND: {
-                lda_zp_x_ind(low_byte_data);
+            case LDA_ZP_X_IND: {   
+                load_ins_params(&params, 6, LDA_ZP_X_IND, ZERO_PAGE_X_INDIRECT);
+                ld_instruction(params, &vm.accumulator, &vm.x);
                 break;
             }
             case LDA_ZP_Y_IND: {
-                lda_zp_y_ind(low_byte_data);
+                load_ins_params(&params, 5, LDA_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT_PC);
+                ld_instruction(params, &vm.accumulator, &vm.y);
                 break;
             }
             case LDX_IMM: {
-                ld_imm_logic(low_byte_data, &vm.x, LDX_IMM);
+                load_ins_params(&params, 2, LDX_IMM, IMMEDIATE);
+                ld_imm(params, &vm.x);
                 break;
             }
             case LDX_ABS: {
-                ld_abs_logic(low_byte_data, &vm.x, LDX_ABS);
+                load_ins_params(&params, 4, LDX_ABS, ABSOLUTE);
+                ld_instruction(params, &vm.x, NULL);
                 break;
             }
             case LDX_ABS_Y: {
-                ld_abs_reg_logic(low_byte_data, &vm.x, vm.y, LDX_ABS_Y);
+                load_ins_params(&params, 4, LDX_ABS_Y, ABSOLUTE_INDEXED_PC);
+                ld_instruction(params, &vm.x, &vm.y);
                 break;
             }
             case LDX_ZP: {
-                ld_zp_logic(low_byte_data, &vm.x, LDX_ZP);
+                load_ins_params(&params, 3, LDX_ZP, ZERO_PAGE);
+                ld_instruction(params, &vm.x, NULL);
                 break;
             }
             case LDX_ZP_Y: {
-                ld_zp_reg_logic(low_byte_data, &vm.x, vm.y, LDX_ZP_Y);
+                load_ins_params(&params, 4, LDX_ZP_Y, ZERO_PAGE_INDEXED);
+                ld_instruction(params, &vm.x, &vm.y);
                 break;
             }
             case LDY_IMM: {
-                ld_imm_logic(low_byte_data, &vm.y, LDY_IMM);
+                load_ins_params(&params, 2, LDY_IMM, IMMEDIATE);
+                ld_imm(params, &vm.y);
                 break;
             }
             case LDY_ABS: {
-                ld_abs_logic(low_byte_data, &vm.y, LDY_ABS);
+                load_ins_params(&params, 4, LDY_ABS, ABSOLUTE);
+                ld_instruction(params, &vm.y, NULL);
                 break;
             }
             case LDY_ZP: {
-                ld_zp_logic(low_byte_data, &vm.y, LDY_ZP);
+                load_ins_params(&params, 3, LDY_ZP, ZERO_PAGE);
+                ld_instruction(params, &vm.y, NULL);
                 break;
             }
             case LDY_ABS_X: {
-                ld_abs_reg_logic(low_byte_data, &vm.y, vm.x, LDY_ABS_X);
+                load_ins_params(&params, 4, LDY_ABS_X, ABSOLUTE_INDEXED_PC);
+                ld_instruction(params, &vm.y, &vm.x);
                 break;
             }
             case LDY_ZP_X: {
-                ld_zp_reg_logic(low_byte_data, &vm.y, vm.x, LDY_ZP_X);
+                load_ins_params(&params, 4, LDY_ZP_X, ZERO_PAGE_INDEXED);
+                ld_instruction(params, &vm.y, &vm.x);
                 break;
             }
             case STA_ABS: {
-                st_abs_logic(low_byte_data, vm.accumulator, STA_ABS);
+                load_ins_params(&params, 4, STA_ABS, ABSOLUTE);
+                st_instruction(params, vm.accumulator, NULL);
                 break;
             }
             case STA_ZP: {
-                st_zp_logic(low_byte_data, vm.accumulator, STA_ZP);
+                load_ins_params(&params, 3, STA_ZP, ZERO_PAGE);
+                st_instruction(params, vm.accumulator, NULL);
                 break;
             }
-            case STA_ZP_X:
-            {
-                st_zp_reg_logic(low_byte_data, vm.accumulator, vm.x, STA_ZP_X);
+            case STA_ZP_X:{
+                load_ins_params(&params, 4, STA_ZP_X, ZERO_PAGE_INDEXED);
+                st_instruction(params, vm.accumulator, &vm.x); 
                 break;
             }
             case STA_ABS_X: {
-                sta_abs_reg_logic(low_byte_data, vm.x, STA_ABS_X);
+                load_ins_params(&params, 5, STA_ABS_X, ABSOLUTE_INDEXED);
+                st_instruction(params, vm.accumulator, &vm.x);
                 break;
             }
             case STA_ABS_Y: {
-                sta_abs_reg_logic(low_byte_data, vm.y, STA_ABS_Y);
+                load_ins_params(&params, 5, STA_ABS_Y, ABSOLUTE_INDEXED);
+                st_instruction(params, vm.accumulator, &vm.y);
                 break;
             }
             case STA_ZP_X_IND: {
-                sta_zp_x_ind(low_byte_data);
+                load_ins_params(&params, 6, STA_ZP_X_IND, ZERO_PAGE_X_INDIRECT);
+                st_instruction(params, vm.accumulator, &vm.x);
                 break;
             }
             case STA_ZP_Y_IND: {
-                sta_zp_y_ind(low_byte_data);
+                load_ins_params(&params, 6, STA_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT);
+                st_instruction(params, vm.accumulator, &vm.y);
                 break;
             }
             case STX_ABS: {
-                st_abs_logic(low_byte_data, vm.x, STX_ABS);
+                load_ins_params(&params, 4, STX_ABS, ABSOLUTE);
+                st_instruction(params, vm.x, NULL);
                 break;
             }
             case STX_ZP:{
-                st_zp_logic(low_byte_data, vm.x, STX_ZP);
+                load_ins_params(&params, 3, STX_ZP, ZERO_PAGE);
+                st_instruction(params, vm.x, NULL);
                 break;
             }
             case STX_ZP_Y: {
-                st_zp_reg_logic(low_byte_data, vm.x, vm.y, STX_ZP_Y);
+                load_ins_params(&params, 4, STX_ZP_Y, ZERO_PAGE_INDEXED);
+                st_instruction(params, vm.x, &vm.y);
                 break;
             }
             case STY_ABS: {
-                st_abs_logic(low_byte_data, vm.y, STY_ABS);
+                load_ins_params(&params, 4, STY_ABS, ABSOLUTE);
+                st_instruction(params, vm.y, NULL);
                 break;
             }
             case STY_ZP: {
-                st_zp_logic(low_byte_data, vm.y, STX_ZP);
+                load_ins_params(&params, 3, STY_ZP, ZERO_PAGE);
+                st_instruction(params, vm.y, NULL);
                 break;
             }
             case STY_ZP_X: {
-                st_zp_reg_logic(low_byte_data, vm.y, vm.x,STY_ZP_X);
+                load_ins_params(&params, 4, STY_ZP_X, ZERO_PAGE_INDEXED);
+                st_instruction(params, vm.y, &vm.x);
                 break;
             }
             case TAX: {
-                trans_logic(&vm.x, vm.accumulator, TAX, false);
+                load_ins_params(&params, 2, TAX, IMPLIED);
+                transfer_instruction(params, &vm.x, vm.accumulator);
                 break;
             }
             case TAY: {
-                trans_logic(&vm.y, vm.accumulator, TAY, false);
+                load_ins_params(&params, 2, TAY, IMPLIED);
+                transfer_instruction(params, &vm.y, vm.accumulator);
                 break;
             }
             case TSX: {
-                unsigned short temp_add = 0x01 << 8 | vm.sp;
-                trans_logic(&vm.x, memory.data[temp_add], TSX, false);
+                load_ins_params(&params, 2, TSX, IMPLIED);
+                transfer_instruction(params, &vm.x, vm.sp);
                 break;
             }
             case TXA: {
-                trans_logic(&vm.accumulator, vm.x, TXA, false);
+                load_ins_params(&params, 2, TXA, IMPLIED);
+                transfer_instruction(params, &vm.accumulator, vm.x);
                 break;
             }
             case TXS: {
-                unsigned short temp_add = 0x01 << 8 | vm.sp;
-                trans_logic(&memory.data[temp_add], vm.x, TXS, true);
+                load_ins_params(&params, 2, TXS, IMPLIED);
+                transfer_instruction(params, &vm.sp, vm.x);
                 break;
             }
             case TYA: {
-                trans_logic(&vm.accumulator, vm.y, TYA, false);
+                load_ins_params(&params, 2, TYA, IMPLIED);
+                transfer_instruction(params, &vm.accumulator, vm.y);
                 break;
             }
             case PHA: {
-                push_stack_logic(&vm.accumulator, PHA);
+                load_ins_params(&params, 3, PHA, IMPLIED);
+                push_stack_instruction(params, &vm.accumulator);
                 break;
             }
             case PHP: {
-                push_stack_logic(&vm.processor_status, PHP);
+                load_ins_params(&params, 3, PHP, IMPLIED);
+                push_stack_instruction(params, &vm.processor_status);
                 break;
             }
             case PLA: {
-                pull_stack_logic(&vm.accumulator, PLA, true);
+                load_ins_params(&params, 4, PLA, IMPLIED);
+                pull_stack_instruction(params, &vm.accumulator);
                 break;
             }
             case PLP: {
-                pull_stack_logic(&vm.processor_status, PLP, false);
+                load_ins_params(&params, 4, PLP, IMPLIED);
+                pull_stack_instruction(params, &vm.processor_status);
                 break;
             }
             case ASL_A: {
-                shift_acc_logic(ASL_A);
+                load_ins_params(&params, 2, ASL_A, ACCUMULATOR);
+                shift_accumulator(params, SHIFT_ASL);
                 break;
             }
             case ASL_ABS: {
-                shift_abs_logic(low_byte_data, ASL_ABS);
+                load_ins_params(&params, 6, ASL_ABS, ABSOLUTE);
+                shift_instruction(params, NULL, SHIFT_ASL);
                 break;
             }
             case ASL_ABS_X: {
-                shift_abs_x_logic(low_byte_data, ASL_ABS_X);
+                load_ins_params(&params, 7, ASL_ABS_X, ABSOLUTE_INDEXED);
+                shift_instruction(params, &vm.x, SHIFT_ASL);
                 break;
             }
             case ASL_ZP: {
-                shift_zp_logic(low_byte_data, ASL_ZP);
+                load_ins_params(&params, 5, ASL_ZP, ZERO_PAGE);
+                shift_instruction(params, NULL, SHIFT_ASL);
                 break;
             }
             case ASL_ZP_X: {
-                shift_zp_x_logic(low_byte_data, ASL_ZP_X);
+                load_ins_params(&params, 6, ASL_ZP_X, ZERO_PAGE_INDEXED);
+                shift_instruction(params, &vm.x, SHIFT_ASL);
                 break;
             }
             case LSR_A: {
-                shift_acc_logic(LSR_A);
+                load_ins_params(&params, 2, LSR_A, ACCUMULATOR);
+                shift_accumulator(params, SHIFT_LSR);
                 break;
             }
             case LSR_ABS: {
-                shift_abs_logic(low_byte_data, LSR_ABS);
+                load_ins_params(&params, 6, LSR_ABS, ABSOLUTE);
+                shift_instruction(params, NULL, SHIFT_LSR);
                 break;
             }
             case LSR_ABS_X: {
-                shift_abs_x_logic(low_byte_data, LSR_ABS_X);
+                load_ins_params(&params, 7, LSR_ABS_X, ABSOLUTE_INDEXED);
+                shift_instruction(params, &vm.x, SHIFT_LSR);
                 break;
             }
             case LSR_ZP: {
-                shift_zp_logic(low_byte_data, LSR_ZP);
+                load_ins_params(&params, 5, LSR_ZP, ZERO_PAGE);
+                shift_instruction(params, NULL, SHIFT_LSR);
                 break;
             }
             case LSR_ZP_X: {
-                shift_zp_x_logic(low_byte_data, LSR_ZP_X);
+                load_ins_params(&params, 6, LSR_ZP_X, ZERO_PAGE_INDEXED);
+                shift_instruction(params, &vm.x, SHIFT_LSR);
                 break;
             }
             case ROL_A: {
-                rotate_acc_logic(ROL_A);
+                load_ins_params(&params, 2, ROL_A, ACCUMULATOR);
+                rotate_accumulator(params, SHIFT_ROL);
                 break;
             }
             case ROL_ABS: {
-                rotate_abs_logic(low_byte_data, ROL_ABS);
+                load_ins_params(&params, 6, ROL_ABS, ABSOLUTE);
+                rotate_instruction(params, NULL, SHIFT_ROL);
                 break;
             }
             case ROL_ABS_X: {
-                rotate_abs_x_logic(low_byte_data, ROL_ABS_X);
+                load_ins_params(&params, 7, ROL_ABS_X, ABSOLUTE_INDEXED);
+                rotate_instruction(params, &vm.x, SHIFT_ROL);
                 break;
             }
             case ROL_ZP:{
-                rotate_zp_logic(low_byte_data, ROL_ZP);
+                load_ins_params(&params, 5, ROL_ZP, ZERO_PAGE);
+                rotate_instruction(params, NULL, SHIFT_ROL);
                 break;
             }
             case ROL_ZP_X: {
-                rotate_zp_x_logic(low_byte_data, ROL_ZP_X);
+                load_ins_params(&params, 6, ROL_ZP_X, ZERO_PAGE_INDEXED);
+                rotate_instruction(params, &vm.x, SHIFT_ROL);
                 break;
             }
             case ROR_A: {
-                rotate_acc_logic(ROR_A);
+                load_ins_params(&params, 2, ROR_A, ACCUMULATOR);
+                rotate_accumulator(params, SHIFT_ROR);
                 break;
             }
-            case ROR_ABS:
-            {
-                rotate_abs_logic(low_byte_data, ROR_ABS);
+            case ROR_ABS:{
+                load_ins_params(&params, 6, ROR_ABS, ABSOLUTE);
+                rotate_instruction(params, NULL, SHIFT_ROR);
                 break;
             }
             case ROR_ABS_X: {
-                rotate_abs_x_logic(low_byte_data, ROR_ABS_X);
+                load_ins_params(&params, 7, ROR_ABS_X, ABSOLUTE_INDEXED);
+                rotate_instruction(params, &vm.x, SHIFT_ROR);
                 break;
             }
             case ROR_ZP: {
-                rotate_zp_logic(low_byte_data, ROR_ZP);
+                load_ins_params(&params, 5, ROR_ZP, ZERO_PAGE);
+                rotate_instruction(params, NULL, SHIFT_ROR);
                 break;
             }
             case ROR_ZP_X: {
-                rotate_zp_x_logic(low_byte_data, ROR_ZP_X);
+                load_ins_params(&params, 6, ROR_ZP_X, ZERO_PAGE_INDEXED);
+                rotate_instruction(params, &vm.x, SHIFT_ROR);
                 break;
             }
             case AND_IMM: {
-                logical_imm(low_byte_data, AND_IMM);
+                load_ins_params(&params, 2, AND_IMM, IMMEDIATE);
+                logical_imm(params);
                 break;
             }
             case AND_ABS: {
-                logical_abs(low_byte_data, AND_ABS);
+                load_ins_params(&params, 4, AND_ABS, ABSOLUTE);
+                logical_instruction(params, NULL, LOGIC_AND);
                 break;
             }
             case AND_ABS_X: {
-                logical_abs_reg_logic(low_byte_data, vm.x, AND_ABS_X);
+                load_ins_params(&params, 4, AND_ABS_X, ABSOLUTE_INDEXED_PC);
+                logical_instruction(params, &vm.x, LOGIC_AND);
                 break;
             }
             case AND_ABS_Y: {
-                logical_abs_reg_logic(low_byte_data, vm.y, AND_ABS_Y);
+                load_ins_params(&params, 4, AND_ABS_Y, ABSOLUTE_INDEXED_PC);
+                logical_instruction(params, &vm.y, LOGIC_AND);
                 break;
             }
             case AND_ZP: {
-                logical_zp(low_byte_data, AND_ZP);
+                load_ins_params(&params, 3, AND_ZP, ZERO_PAGE);
+                logical_instruction(params, NULL, LOGIC_AND);
                 break;
             }
             case AND_ZP_X: {
-                logical_zp_x(low_byte_data, AND_ZP_X);
+                load_ins_params(&params, 4, AND_ZP_X, ZERO_PAGE_INDEXED);
+                logical_instruction(params, &vm.x, LOGIC_AND);
                 break;
             }
             case AND_ZP_X_IND: {
-                logical_zp_x_ind(low_byte_data, AND_ZP_X_IND);
+                load_ins_params(&params, 6, AND_ZP_X_IND, ZERO_PAGE_X_INDIRECT);
+                logical_instruction(params, &vm.x, LOGIC_AND);
                 break;
             }
             case AND_ZP_Y_IND: {
-                logical_zp_y_ind(low_byte_data, AND_ZP_Y_IND);
+                load_ins_params(&params, 5, AND_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT_PC);
+                logical_instruction(params, &vm.y, LOGIC_AND);
                 break;
             }
             case BIT_ABS:{
-                bit_abs(low_byte_data, BIT_ABS);
+                load_ins_params(&params, 4, BIT_ABS, ABSOLUTE);
+                bit_instruction(params);
                 break;
             }
             case BIT_ZP:{
-                bit_zp(low_byte_data, BIT_ZP);
+                load_ins_params(&params, 3, BIT_ZP, ZERO_PAGE);
+                bit_instruction(params);
                 break;
             }
             case EOR_IMM: {
-                logical_imm(low_byte_data, EOR_IMM);
+                load_ins_params(&params, 2, EOR_IMM, IMMEDIATE);
+                logical_imm(params);
                 break;
             }
             case EOR_ABS: {
-                logical_abs(low_byte_data, EOR_ABS);
+                load_ins_params(&params, 4, EOR_ABS, ABSOLUTE);
+                logical_instruction(params, NULL, LOGIC_XOR);
                 break;
             }
             case EOR_ABS_X: {
-                logical_abs_reg_logic(low_byte_data, vm.x, EOR_ABS_X);
+                load_ins_params(&params, 4, EOR_ABS_X, ABSOLUTE_INDEXED_PC);
+                logical_instruction(params, &vm.x, LOGIC_XOR);
                 break;
             }
             case EOR_ABS_Y: {
-                logical_abs_reg_logic(low_byte_data, vm.y, EOR_ABS_Y);
+                load_ins_params(&params, 4, EOR_ABS_Y, ABSOLUTE_INDEXED_PC);
+                logical_instruction(params, &vm.y, LOGIC_XOR);
                 break;
             }
             case EOR_ZP: {
-                logical_zp(low_byte_data, EOR_ZP);
+                load_ins_params(&params, 3, EOR_ZP, ZERO_PAGE);
+                logical_instruction(params, NULL, LOGIC_XOR);
                 break;
             }
             case EOR_ZP_X: {
-                logical_zp_x(low_byte_data, EOR_ZP_X);
+                load_ins_params(&params, 4, EOR_ZP_X, ZERO_PAGE_INDEXED);
+                logical_instruction(params, &vm.x, LOGIC_XOR);
                 break;
             }
             case EOR_ZP_X_IND: {
-                logical_zp_x_ind(low_byte_data, EOR_ZP_X_IND);
+                load_ins_params(&params, 6, EOR_ZP_X_IND, ZERO_PAGE_X_INDIRECT);
+                logical_instruction(params, &vm.x, LOGIC_XOR);
                 break;
             }
             case EOR_ZP_Y_IND: {
-                logical_zp_y_ind(low_byte_data, EOR_ZP_Y_IND);
+                load_ins_params(&params, 5, EOR_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT_PC);
+                logical_instruction(params, &vm.y, LOGIC_XOR);
                 break;
             }
             case ORA_IMM: {
-                logical_imm(low_byte_data, ORA_IMM);
+                load_ins_params(&params, 2, ORA_IMM, IMMEDIATE);
+                logical_imm(params);
                 break;
             }
             case ORA_ABS: {
-                logical_abs(low_byte_data, ORA_ABS);
+                load_ins_params(&params, 4, ORA_ABS, ABSOLUTE);
+                logical_instruction(params, NULL, LOGIC_OR);                
                 break;
             }
             case ORA_ABS_X: {
-                logical_abs_reg_logic(low_byte_data, vm.x, ORA_ABS_X);
+                load_ins_params(&params, 4, ORA_ABS_X, ABSOLUTE_INDEXED_PC);
+                logical_instruction(params, &vm.x, LOGIC_OR);
                 break;
             }
             case ORA_ABS_Y: {
-                logical_abs_reg_logic(low_byte_data, vm.y, ORA_ABS_Y);
+                load_ins_params(&params, 4, ORA_ABS_Y, ABSOLUTE_INDEXED_PC);
+                logical_instruction(params, &vm.y, LOGIC_OR);
                 break;
             }
             case ORA_ZP: {
-                logical_zp(low_byte_data, ORA_ZP);
+                load_ins_params(&params, 3, ORA_ZP, ZERO_PAGE);
+                logical_instruction(params, NULL, LOGIC_OR);                
                 break;
             }
             case ORA_ZP_X: {
-                logical_zp_x(low_byte_data, ORA_ZP_X);
+                load_ins_params(&params, 4, ORA_ZP_X, ZERO_PAGE_INDEXED);
+                logical_instruction(params, &vm.x, LOGIC_OR);
                 break;
             }
             case ORA_ZP_X_IND: {
-                logical_zp_x_ind(low_byte_data, ORA_ZP_X_IND);
+                load_ins_params(&params, 6, ORA_ZP_X_IND, ZERO_PAGE_X_INDIRECT);
+                logical_instruction(params, &vm.x, LOGIC_OR);
                 break;
             }
             case ORA_ZP_Y_IND: {
-                logical_zp_y_ind(low_byte_data, ORA_ZP_Y_IND);
+                load_ins_params(&params, 5, ORA_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT_PC);
+                logical_instruction(params, &vm.y, LOGIC_OR);
                 break;
             }
             case ADC_IMM: {
-                adc_imm(low_byte_data, ADC_IMM);
+                load_ins_params(&params, 2, ADC_IMM, IMMEDIATE);
+                adc_imm(params);
                 break;
             }
             case ADC_ABS: {
-                adc_abs(low_byte_data, ADC_ABS);
+                load_ins_params(&params, 4, ADC_ABS, ABSOLUTE);
+                adc_instruction(params, NULL);
                 break;
             }
             case ADC_ABS_X: {
-                adc_abs_reg_logic(low_byte_data, vm.x, ADC_ABS_X);
+                load_ins_params(&params, 4, ADC_ABS_X, ABSOLUTE_INDEXED_PC);
+                adc_instruction(params, &vm.x);
                 break;
             }
             case ADC_ABS_Y: {
-                adc_abs_reg_logic(low_byte_data, vm.y, ADC_ABS_Y);
+                load_ins_params(&params, 4, ADC_ABS_Y, ABSOLUTE_INDEXED_PC);
+                adc_instruction(params, &vm.y);
                 break;
             }
             case ADC_ZP: {
-                adc_zp(low_byte_data, ADC_ZP);
+                load_ins_params(&params, 3, ADC_ZP, ZERO_PAGE);
+                adc_instruction(params, NULL);
                 break;
             }
             case ADC_ZP_X: {
-                adc_zp_x(low_byte_data, ADC_ZP_X);
+                load_ins_params(&params, 4, ADC_ZP_X, ZERO_PAGE_INDEXED);
+                adc_instruction(params, &vm.x);
                 break;
             }
             case ADC_ZP_X_IND: {
-                adc_zp_x_ind(low_byte_data, ADC_ZP_X_IND);
+                load_ins_params(&params, 6, ADC_ZP_X_IND, ZERO_PAGE_X_INDIRECT);
+                adc_instruction(params, &vm.x);
                 break;
             }
             case ADC_ZP_Y_IND: {
-                adc_zp_y_ind(low_byte_data, ADC_ZP_Y_IND);
+                load_ins_params(&params, 5, ADC_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT_PC);
+                adc_instruction(params, &vm.y);
+                break;
+            }
+            case CMP_IMM: {
+                load_ins_params(&params, 2, CMP_IMM, IMMEDIATE);
+                cm_imm(params, vm.accumulator);
+                break;
+            }
+            case CMP_ABS: {
+                load_ins_params(&params, 4, CMP_ABS, ABSOLUTE);
+                cm_instruction(params, vm.accumulator, NULL);
+                break;
+            }
+            case CMP_ABS_X: {
+                load_ins_params(&params, 4, CMP_ABS_X, ABSOLUTE_INDEXED_PC);
+                cm_instruction(params, vm.accumulator, &vm.x);
+                break;
+            }
+            case CMP_ABS_Y: {
+                load_ins_params(&params, 4, CMP_ABS_Y, ABSOLUTE_INDEXED_PC);
+                cm_instruction(params, vm.accumulator, &vm.y);
+                break;
+            }
+            case CMP_ZP: {
+                load_ins_params(&params, 3, CMP_ZP, ZERO_PAGE);
+                cm_instruction(params, vm.accumulator, NULL);
+                break;
+            }
+            case CMP_ZP_X: {
+                load_ins_params(&params, 4, CMP_ZP_X, ZERO_PAGE_INDEXED);
+                cm_instruction(params, vm.accumulator, &vm.x);
+                break;
+            }
+            case CMP_ZP_X_IND: {
+                load_ins_params(&params, 6, CMP_ZP_X_IND, ZERO_PAGE_X_INDIRECT);
+                cm_instruction(params, vm.accumulator, &vm.x);
+                break;
+            }
+            case CMP_ZP_Y_IND: {
+                load_ins_params(&params, 5, CMP_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT_PC);
+                cm_instruction(params, vm.accumulator, &vm.y);
+                break;
+            }
+            case CPX_IMM: {
+                load_ins_params(&params, 2, CPX_IMM, IMMEDIATE);
+                cm_imm(params, vm.x);
+                break;
+            }
+            case CPX_ABS: {
+                load_ins_params(&params, 4, CPX_ABS, ABSOLUTE);
+                cm_instruction(params, vm.x, NULL);
+                break;
+            }
+            case CPX_ZP: {
+                load_ins_params(&params, 3, CPX_ZP, ZERO_PAGE);
+                cm_instruction(params, vm.x, NULL);
+                break;
+            }
+            case CPY_IMM: {
+                load_ins_params(&params, 2, CPY_IMM, IMMEDIATE);
+                cm_imm(params, vm.y);
+                break;
+            }
+            case CPY_ABS: {
+                load_ins_params(&params, 4, CPY_ABS, ABSOLUTE);
+                cm_instruction(params, vm.y, NULL);
+                break;
+            }
+            case CPY_ZP: {
+                load_ins_params(&params, 3, CPY_ZP, ZERO_PAGE);
+                cm_instruction(params, vm.y, NULL);
+                break;
+            }
+            case SBC_IMM:{
+                load_ins_params(&params, 2, SBC_IMM, IMMEDIATE);
+                sbc_imm(params);
+                break;
+            }
+            case SBC_ABS: {
+                load_ins_params(&params, 4, SBC_ABS, ABSOLUTE);
+                sbc_instruction(params, NULL);
+                break;
+            }
+            case SBC_ABS_X: {
+                load_ins_params(&params, 4, SBC_ABS_X, ABSOLUTE_INDEXED_PC);
+                sbc_instruction(params, &vm.x);
+                break;
+            }
+            case SBC_ABS_Y: {
+                load_ins_params(&params, 4, SBC_ABS_Y, ABSOLUTE_INDEXED_PC);
+                sbc_instruction(params, &vm.y);
+                break;
+            }
+            case SBC_ZP: {
+                load_ins_params(&params, 3, SBC_ZP, ZERO_PAGE);
+                sbc_instruction(params, NULL);
+                break;
+            }
+            case SBC_ZP_X: {
+                load_ins_params(&params, 4, SBC_ZP_X, ZERO_PAGE_INDEXED);
+                sbc_instruction(params, &vm.x);
+                break;
+            }
+            case SBC_ZP_X_IND: {
+                load_ins_params(&params, 6, SBC_ZP_X_IND, ZERO_PAGE_X_INDIRECT);
+                sbc_instruction(params, &vm.x);
+                break;
+            }
+            case SBC_ZP_Y_IND: {
+                load_ins_params(&params, 5, SBC_ZP_Y_IND, ZERO_PAGE_Y_INDIRECT_PC);
+                sbc_instruction(params, &vm.y);
+                break;
+            }
+            case DEC_ABS: {
+                load_ins_params(&params, 6, DEC_ABS, ABSOLUTE);
+                IncParams inc_params = {MEMORY, DECREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case DEC_ABS_X: {
+                load_ins_params(&params, 7, DEC_ABS_X, ABSOLUTE_INDEXED);
+                IncParams inc_params = {MEMORY, DECREMENT};
+                inc_instruction(params, inc_params, &vm.x);
+                break;
+            }
+            case DEC_ZP: {
+                load_ins_params(&params, 5, DEC_ZP, ZERO_PAGE);
+                IncParams inc_params = {MEMORY, DECREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case DEC_ZP_X: {
+                load_ins_params(&params, 6, DEC_ZP_X, ZERO_PAGE_INDEXED);
+                IncParams inc_params = {MEMORY, DECREMENT};
+                inc_instruction(params, inc_params, &vm.x);
+                break;
+            }
+            case DEX: {
+                load_ins_params(&params, 2, DEX, IMPLIED);
+                IncParams inc_params = {REGISTER_X, DECREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case DEY: {
+                load_ins_params(&params, 2, DEY, IMPLIED);
+                IncParams inc_params = {REGISTER_Y, DECREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case INC_ABS: {
+                load_ins_params(&params, 6, INC_ABS, ABSOLUTE);
+                IncParams inc_params = {MEMORY, INCREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case INC_ABS_X: {
+                load_ins_params(&params, 7, INC_ABS_X, ABSOLUTE_INDEXED);
+                IncParams inc_params = {MEMORY, INCREMENT};
+                inc_instruction(params, inc_params, &vm.x);
+                break;
+            }
+            case INC_ZP: {
+                load_ins_params(&params, 5, INC_ZP, ZERO_PAGE);
+                IncParams inc_params = {MEMORY, INCREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case INC_ZP_X: {
+                load_ins_params(&params, 6, INC_ZP_X, ZERO_PAGE_INDEXED);
+                IncParams inc_params = {MEMORY, INCREMENT};
+                inc_instruction(params, inc_params, &vm.x);
+                break;
+            }
+            case INX: {
+                load_ins_params(&params, 2, INX, IMPLIED);
+                IncParams inc_params = {REGISTER_X, INCREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case INY: {
+                load_ins_params(&params, 2, INY, IMPLIED);
+                IncParams inc_params = {REGISTER_Y, INCREMENT};
+                inc_instruction(params, inc_params, NULL);
+                break;
+            }
+            case BRK: {
+                load_ins_params(&params, 7, BRK, IMPLIED);
+                brk_instruction(params);
+                break;
+            }
+            case JMP_ABS: {
+                load_ins_params(&params, 3, JMP_ABS, ABSOLUTE);
+                jmp_instruction(params);
+                break;
+            }
+            case JMP_ABS_IND: {
+                load_ins_params(&params, 5, JMP_ABS_IND, ABSOLUTE_INDIRECT);
+                jmp_instruction(params);
+                break;
+            }
+            case JSR: {
+                load_ins_params(&params, 6, JSR, ABSOLUTE);
+                jsr_instruction(params);
+                break;
+            }
+            case RTI: {
+                load_ins_params(&params, 6, RTI, IMPLIED);
+                rti_instruction(params);
+                break;
+            }
+            case RTS: {
+                load_ins_params(&params, 6, RTS, IMPLIED);
+                rts_instruction(params);
                 break;
             }
             default: {
@@ -417,35 +724,35 @@ void execute()
 }
 
 // fetching functions
-void fetch_word(unsigned char* low_byte, unsigned char* high_byte)
+void fetch_word(unsigned char* first_byte, unsigned char* second_byte)
 {
     if(vm.ip == MEM_MAX_SIZE)
     {
         vm.ip = 0;
-        *high_byte = memory.data[vm.ip];
+        *first_byte = memory.data[vm.ip];
         vm.ip++;
-        *low_byte = memory.data[vm.ip];
+        *second_byte = memory.data[vm.ip];
         vm.ip++;
     }
     
     else if(vm.ip+2 == MEM_MAX_SIZE)
     {
-        *high_byte = memory.data[vm.ip];
-        *low_byte = memory.data[vm.ip+1];
+        *first_byte = memory.data[vm.ip];
+        *second_byte = memory.data[vm.ip+1];
         vm.ip = 0;
     }
     else if(vm.ip+1 == MEM_MAX_SIZE)
     {
-        *high_byte = memory.data[vm.ip];
+        *first_byte = memory.data[vm.ip];
         vm.ip = 0;
-        *low_byte = memory.data[vm.ip];
+        *second_byte = memory.data[vm.ip];
         vm.ip++;
     }
     else
     {
-        *high_byte = memory.data[vm.ip];
+        *first_byte = memory.data[vm.ip];
         vm.ip++;
-        *low_byte = memory.data[vm.ip];
+        *second_byte = memory.data[vm.ip];
         vm.ip++;
     }
     vm.cycles -= 2;
@@ -470,18 +777,18 @@ void zp_wrapping(unsigned short* address, unsigned char vm_register)
     else *address = *address + vm_register;
     vm.cycles -= 1;
 }
-void fetch_word_zp(unsigned short address, unsigned char* low_byte, unsigned char* high_byte)
+void fetch_word_zp(unsigned short address, unsigned char* first_byte, unsigned char* second_byte)
 {
     // fetching the word from an address given by 2 bytes in the zeropage
     if(address == 0x00FF)
     {
-        *high_byte = memory.data[0x00FF];
-        *low_byte = memory.data[0x0000];
+        *first_byte = memory.data[0x00FF];
+        *second_byte = memory.data[0x0000];
     }
     else
     {
-        *high_byte = memory.data[address];
-        *low_byte = memory.data[address+1];
+        *first_byte = memory.data[address];
+        *second_byte = memory.data[address+1];
     }
     vm.cycles -= 2;
 }
@@ -494,12 +801,12 @@ void debug(unsigned char instruction, unsigned char component)
 }
 
 // other functions
-void cycle_check(unsigned int cycle_amount)
+void cycle_check(int cycle_amount)
 {
-    if(!(vm.cycles >= cycle_amount)) // -2 cycles because the first operation is the same for every instruction (opcode and 1 operand)
+    if(!(vm.cycles >= (cycle_amount-1))) // -1 cycle because the first operation is the same for every instruction (fetching opcode)
     {
         printf("Insufficient cycle amount!\n");
-        exit(EXIT_FAILURE);
+        abort();
     }
 }
 void wrap_address(unsigned short* address) // Wraps the address if it goes out of bounds (for absolute addressing), use after incrementing the register
@@ -510,10 +817,11 @@ bool out_of_bounds(unsigned short address)
 {
     return address > MEM_MAX_SIZE;
 }
-void onebyte_ins_fix() // Function for fixing the cycle count and the instruction pointer for one byte instructions
-{
-    vm.ip--; // move the pointer one byte back because of the fetch word function at the start of the while loop
-    vm.cycles+=1; // also need to restore 1 cycle back
-}
 
-// address fetching functions
+void load_ins_params(InstructionParams *params, int required_cycles, unsigned char instruction, AddressingModes addressing_mode)
+{
+    params->required_cycles = required_cycles;
+    // Omit loading the low byte because it will be set at the start of the loop
+    params->instruction = instruction;
+    params->addressing_mode = addressing_mode;
+}
