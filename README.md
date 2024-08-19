@@ -1,6 +1,6 @@
 # 6052 Emulator
 
-This project aims to accurately simulate the actions of the MOS Technology 6502 processor. The aforementioned processor was used in the NES, and Apple computers in the 70s.
+This project aims to accurately simulate the actions of the MOS Technology 6502 processor. The aforementioned processor was used in, for example, the NES, and Apple computers in the 70s.
 
 ## Features
 
