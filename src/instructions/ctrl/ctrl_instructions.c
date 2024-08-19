@@ -22,7 +22,7 @@ void brk_instruction(InstructionParams params)
     unsigned short intterupt_address = (memory.data[0xFFFE] << 4) | memory.data[0xFFFF];
     vm.ip = intterupt_address;
     vm.cycles -= 5;
-    debug(params.instruction, vm.processor_status);
+    if(VERBOSE)debug(params.instruction, vm.processor_status);
 }
 
 void jmp_instruction(InstructionParams params)
@@ -30,7 +30,7 @@ void jmp_instruction(InstructionParams params)
     printf("CYCLES: %d\n", vm.cycles);
     unsigned short new_ip_val = fetch_address(params, NULL);
     vm.ip = new_ip_val;
-    debug(params.instruction, memory.data[vm.ip]);
+    if(VERBOSE)debug(params.instruction, memory.data[vm.ip]);
 }
 
 void jsr_instruction(InstructionParams params)
@@ -49,7 +49,7 @@ void jsr_instruction(InstructionParams params)
     vm.sp--;
     memory.data[stack_add] = low_order_rAddress;
     vm.cycles -= 3;
-    debug(params.instruction, memory.data[vm.ip]);
+    if(VERBOSE)debug(params.instruction, memory.data[vm.ip]);
 }
 
 void rti_instruction(InstructionParams params)
@@ -66,7 +66,7 @@ void rti_instruction(InstructionParams params)
     vm.sp++;
     vm.ip = (high_order_rAddress << 8) | low_order_rAddress;
     vm.cycles -= 5;
-    debug(params.instruction, vm.processor_status);
+    if(VERBOSE)debug(params.instruction, vm.processor_status);
 }
 
 void rts_instruction(InstructionParams params)
@@ -80,4 +80,5 @@ void rts_instruction(InstructionParams params)
     vm.sp++;
     vm.ip = (high_order_IP << 8) | low_order_IP;
     vm.cycles -= 5;
+    if(VERBOSE)debug(params.instruction, vm.processor_status);
 }

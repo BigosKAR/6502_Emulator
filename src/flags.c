@@ -90,5 +90,5 @@ void modify_flag_instruction(InstructionParams params, unsigned char flag, bool 
     if(set)set_flag(flag);
     else clear_flag(flag);
     vm.cycles -= 1;
-    debug(params.instruction, vm.processor_status);
+    if(VERBOSE)debug(params.instruction, vm.processor_status);
 }

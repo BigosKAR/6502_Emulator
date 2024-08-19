@@ -12,7 +12,7 @@ void ld_imm(InstructionParams params, unsigned char *vm_register)
     unsigned char immediate_value = fetch_byte();
     cycle_check(params.required_cycles);
     ld_logic(vm_register, immediate_value);
-    debug(params.instruction, *vm_register);
+    if(VERBOSE)debug(params.instruction, *vm_register);
 }
 
 void ld_instruction(InstructionParams params, unsigned char* vm_register, unsigned char* index_register)
@@ -20,7 +20,7 @@ void ld_instruction(InstructionParams params, unsigned char* vm_register, unsign
     unsigned short address = fetch_address(params, index_register);
     ld_logic(vm_register, memory.data[address]);
     vm.cycles -= 1;
-    debug(params.instruction, *vm_register);
+    if(VERBOSE)debug(params.instruction, *vm_register);
 }
 
 void ld_logic(unsigned char* vm_register, unsigned char value)
@@ -36,7 +36,7 @@ void st_instruction(InstructionParams params, unsigned char vm_register, unsigne
     // 3 Addressing modes for STA take 1 more cycle then rest (not considering the cycles taken during the address fetch process)
     if(params.instruction == STA_ABS_X || params.instruction == STA_ABS_Y || params.instruction == STA_ZP_Y_IND)vm.cycles -= 2; 
     else vm.cycles -= 1;
-    debug(params.instruction, memory.data[address]);
+    if(VERBOSE)debug(params.instruction, memory.data[address]);
 }
 
 void st_logic(unsigned char register_value, unsigned short address)

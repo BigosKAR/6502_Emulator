@@ -898,10 +898,7 @@ void cycle_check(int cycle_amount)
         abort();
     }
 }
-void wrap_address(unsigned short* address) // Wraps the address if it goes out of bounds (for absolute addressing), use after incrementing the register
-{
-    *address = *address % 0x10000;
-}
+
 bool out_of_bounds(unsigned short address)
 {
     return address > MEM_MAX_SIZE;

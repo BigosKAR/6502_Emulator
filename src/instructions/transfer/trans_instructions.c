@@ -11,5 +11,5 @@ void transfer_instruction(InstructionParams params, unsigned char* vmr_destinati
     *vmr_destination = vmr_source;
     vm.cycles -= 1;
     if(!(params.instruction == TXS))updateNZFlags(*vmr_destination);
-    debug(params.instruction, *vmr_destination);
+    if(VERBOSE)debug(params.instruction, *vmr_destination);
 }

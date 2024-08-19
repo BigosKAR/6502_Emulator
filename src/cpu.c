@@ -36,14 +36,21 @@ struct Memory memory;
 int main()
 {
     reset();
-    vm.cycles = 6;
-    vm.accumulator = 45;
-    vm.x = 2;
-    vm.y = 0;
-    set_flag(FLAG_CARRY);
-    memory.data[0xFFFC] = CLC;
-    memory.data[0xFFFD] = SED;
-    memory.data[0xFFFE] = SEI;
+    // Users have to set the amount of cycles depening on the instruction
+    vm.cycles = 23;
+
+    // Manually loading instructions and operands into memory (Sample program)
+
+    memory.data[0xFFFC] = INX;
+    memory.data[0xFFFD] = JSR;
+    memory.data[0xFFFE] = 0x12;
+    memory.data[0xFFFF] = 0x34;
+    memory.data[0x3412] = TXA;
+    memory.data[0x3413] = RTS;
+    memory.data[0x0000] = BRK;
+
+    // Execute the instructions
     execute();
+
     return 0;
 }

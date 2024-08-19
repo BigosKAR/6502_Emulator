@@ -12,14 +12,14 @@ void adc_imm(InstructionParams params)
     cycle_check(params.required_cycles);
     unsigned char immediate_value = fetch_byte();
     adc_logic(immediate_value);
-    debug(params.instruction, vm.accumulator);
+    if(VERBOSE)debug(params.instruction, vm.accumulator);
 }
 void adc_instruction(InstructionParams params, unsigned char* vm_register)
 {
     unsigned short address = fetch_address(params, vm_register);
     adc_logic(memory.data[address]);
     vm.cycles -= 1;
-    debug(params.instruction, vm.accumulator);
+    if(VERBOSE)debug(params.instruction, vm.accumulator);
 }
 
 void sbc_imm(InstructionParams params)
@@ -27,7 +27,7 @@ void sbc_imm(InstructionParams params)
     cycle_check(params.required_cycles);
     unsigned char immediate_value = fetch_byte();
     adc_logic(255 - immediate_value);
-    debug(params.instruction, vm.accumulator);
+    if(VERBOSE)debug(params.instruction, vm.accumulator);
 }
 
 void sbc_instruction(InstructionParams params, unsigned char* vm_register)
@@ -35,7 +35,7 @@ void sbc_instruction(InstructionParams params, unsigned char* vm_register)
     unsigned short address = fetch_address(params, vm_register);
     sbc_logic(memory.data[address]);
     vm.cycles -= 1;
-    debug(params.instruction, vm.accumulator);
+    if(VERBOSE)debug(params.instruction, vm.accumulator);
 }
 
 // Seperate function for the immediate addressing mode because of the lack of an address + no additional cycles required
@@ -44,7 +44,7 @@ void cm_imm(InstructionParams params,unsigned char vm_register)
     cycle_check(params.required_cycles);
     unsigned char immediate_value = fetch_byte();
     compare_logic(vm_register, immediate_value);
-    debug(params.instruction, vm_register);
+    if(VERBOSE)debug(params.instruction, vm_register);
 }
 void cm_instruction(InstructionParams params, unsigned char vm_register, unsigned char *index_register)
 {
@@ -52,7 +52,7 @@ void cm_instruction(InstructionParams params, unsigned char vm_register, unsigne
     printf("Address: %x\n", address);
     compare_logic(vm_register, memory.data[address]);
     vm.cycles -= 1;
-    debug(params.instruction, vm_register);
+    if(VERBOSE)debug(params.instruction, vm_register);
 }
 
 void compare_logic(unsigned char vm_register, unsigned char memory_value)

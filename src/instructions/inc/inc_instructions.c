@@ -39,5 +39,5 @@ void inc_instruction(InstructionParams params, IncParams inc_params, unsigned ch
         }
     }
     updateNZFlags(result);
-    debug(params.instruction, result);
+    if(VERBOSE)debug(params.instruction, result);
 }

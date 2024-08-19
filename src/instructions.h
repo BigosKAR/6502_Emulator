@@ -8,13 +8,14 @@
 #include <stdlib.h>
 #include "addressing_modes.h"
 
+// VERBOSE
+
+#define VERBOSE 1
+
 // CONSTANTS
 
 #define MEM_MAX_SIZE 64 * 1024
 #define HIGH_STACK_ADDRESS 0x001
-
-// INSTRUCTIONS
-
 
 // LDA instructions
 #define LDA_IMM 0xA9 // 2 Cycles
@@ -279,7 +280,6 @@ void fetch_word_zp(unsigned short address, unsigned char* first_byte, unsigned c
 void debug(unsigned char instruction, unsigned char component);
 void cycle_check(int cycle_amount);
 bool out_of_bounds(unsigned short address);
-void wrap_address(unsigned short* address);
 void load_ins_params(InstructionParams *params, int required_cycles, unsigned char instruction, AddressingModes addressing_mode);
 
 // NOP function

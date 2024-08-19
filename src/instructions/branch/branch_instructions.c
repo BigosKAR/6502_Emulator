@@ -23,5 +23,5 @@ void flag_branch_instruction(InstructionParams params, bool condition){
         vm.ip++;
         vm.cycles -= 1; // not running the get_relative_address function
     }
-    debug(params.instruction, vm.processor_status);
+    if(VERBOSE)debug(params.instruction, vm.processor_status);
 }

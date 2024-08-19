@@ -5,7 +5,7 @@ This project aims to accurately simulate the actions of the MOS Technology 6502 
 ## Features
 
 - **All instructions included**: This project includes all processor instructions, which have been taken from: [6502 Instructions](https://www.pagetable.com/c64ref/6502/?tab=2). All instructions are also split among different categories in different folders (categories are the same as on the website)
-- **Execution**: There is no text editor that is included to compile 6502 assembly code. The user will have to manually load the instructions and operands into memory (can be seen in main.c)
+- **Execution**: There is no text editor that is included to compile 6502 assembly code. The user will have to manually load the instructions and operands into memory (can be seen in cpu.c)
 - **Compilation**: This project utilizes make to build the project (GCC for compiling).
 
 ### How to use the emulator?

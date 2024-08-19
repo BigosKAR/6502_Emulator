@@ -18,7 +18,7 @@ void logical_imm(InstructionParams params)
     else if(params.instruction == EOR_IMM)eor_bitwise_logic(immediate_value);
     else if(params.instruction == ORA_IMM)ora_bitwise_logic(immediate_value);
     else printf("Could not find the given instruction!\n");
-    debug(params.instruction, vm.accumulator);
+    if(VERBOSE)debug(params.instruction, vm.accumulator);
 }
 
 void logical_instruction(InstructionParams params, unsigned char* vm_register, LogicType logic_type)
@@ -29,7 +29,7 @@ void logical_instruction(InstructionParams params, unsigned char* vm_register, L
     else if(logic_type == LOGIC_OR)ora_bitwise_logic(memory.data[address]);
     else printf("Could not find the given logic type!\n");
     vm.cycles -= 1;
-    debug(params.instruction, vm.accumulator);
+    if(VERBOSE)debug(params.instruction, vm.accumulator);
 }
 
 void bit_instruction(InstructionParams params)
@@ -37,7 +37,7 @@ void bit_instruction(InstructionParams params)
     unsigned short address = fetch_address(params, NULL);
     unsigned char and_value = bit_logic(params, address);
     vm.cycles -= 1;
-    debug(params.instruction, and_value);
+    if(VERBOSE)debug(params.instruction, and_value);
 }
 
 // Main logic functions

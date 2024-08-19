@@ -23,7 +23,7 @@ void shift_accumulator(InstructionParams params, ShiftType shift_type)
         LSR_update_NZC_Flags(vm.accumulator, temp_var);
     }
     vm.cycles -= 1;
-    debug(params.instruction, vm.accumulator);
+    if(VERBOSE)debug(params.instruction, vm.accumulator);
 }
 
 void shift_instruction(InstructionParams params, unsigned char* vm_register, ShiftType shift_type)
@@ -53,7 +53,7 @@ void shift_instruction(InstructionParams params, unsigned char* vm_register, Shi
         break;
         }
     }
-        debug(params.instruction, memory.data[address]);
+        if(VERBOSE)debug(params.instruction, memory.data[address]);
 
 }
 
@@ -62,7 +62,7 @@ void rotate_accumulator(InstructionParams params, ShiftType shift_type)
     cycle_check(params.required_cycles);
     rotate_logic(&vm.accumulator, shift_type);
     vm.cycles -= 1; // performing the shift
-    debug(params.instruction, vm.accumulator);
+    if(VERBOSE)debug(params.instruction, vm.accumulator);
 }
 
 void rotate_instruction(InstructionParams params, unsigned char* vm_register, ShiftType shift_type)
@@ -90,7 +90,7 @@ void rotate_instruction(InstructionParams params, unsigned char* vm_register, Sh
             break;
         }
     }
-    debug(params.instruction, memory.data[address]);
+    if(VERBOSE)debug(params.instruction, memory.data[address]);
 }
 
 // Helper shift functions
