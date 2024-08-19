@@ -81,3 +81,14 @@ void BIT_update_NVZ(unsigned char memory_data, unsigned char AND_value)
     if(AND_value == 0)set_flag(FLAG_ZERO);
     else clear_flag(FLAG_ZERO);
 }
+
+// A function for flag instructions
+
+void modify_flag_instruction(InstructionParams params, unsigned char flag, bool set)
+{
+    cycle_check(params.required_cycles);
+    if(set)set_flag(flag);
+    else clear_flag(flag);
+    vm.cycles -= 1;
+    debug(params.instruction, vm.processor_status);
+}

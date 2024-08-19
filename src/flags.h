@@ -36,4 +36,8 @@ void updateNZC_Flags(unsigned char new_value, unsigned char old_value);
 void LSR_update_NZC_Flags(unsigned char new_value, unsigned char old_value);
 void BIT_update_NVZ(unsigned char memory_data, unsigned char AND_value);
 
+// Function for flag instructions
+
+void modify_flag_instruction(InstructionParams params, unsigned char flag, bool set);
+
 #endif

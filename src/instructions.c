@@ -763,6 +763,46 @@ void execute()
                 flag_branch_instruction(params, condition);
                 break;
             }
+            case CLC: {
+                load_ins_params(&params, 2, CLC, IMPLIED);
+                modify_flag_instruction(params, FLAG_CARRY, false);
+                break;
+            }
+            case CLD: {
+                load_ins_params(&params, 2, CLD, IMPLIED);
+                modify_flag_instruction(params, FLAG_DECIMAL, false);
+                break;
+            }
+            case CLI: {
+                load_ins_params(&params, 2, CLI, IMPLIED);
+                modify_flag_instruction(params, FLAG_INTERRUPT, false);
+                break;
+            }
+            case CLV: {
+                load_ins_params(&params, 2, CLV, IMPLIED);
+                modify_flag_instruction(params, FLAG_OVERFLOW, false);
+                break;
+            }
+            case SEC: {
+                load_ins_params(&params, 2, SEC, IMPLIED);
+                modify_flag_instruction(params, FLAG_CARRY, true);
+                break;
+            }
+            case SED: {
+                load_ins_params(&params, 2, SED, IMPLIED);
+                modify_flag_instruction(params, FLAG_DECIMAL, true);
+                break;
+            }
+            case SEI: {
+                load_ins_params(&params, 2, SEI, IMPLIED);
+                modify_flag_instruction(params, FLAG_INTERRUPT, true);
+                break;
+            }
+            case NOP: {
+                load_ins_params(&params, 2, NOP, IMPLIED);
+                nop_instruction(params);
+                break;
+            }
             default: {
                 printf("ERROR: OPCODE NOT FOUND\n");
                 vm.cycles = 0;
@@ -873,4 +913,10 @@ void load_ins_params(InstructionParams *params, int required_cycles, unsigned ch
     // Omit loading the low byte because it will be set at the start of the loop
     params->instruction = instruction;
     params->addressing_mode = addressing_mode;
+}
+
+void nop_instruction(InstructionParams params)
+{
+    cycle_check(params.required_cycles);
+    vm.cycles -= 1;
 }

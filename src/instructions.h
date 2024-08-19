@@ -14,10 +14,7 @@
 #define HIGH_STACK_ADDRESS 0x001
 
 // INSTRUCTIONS
-#define CLC 0x18
-#define CLD 0xD8
-#define CLI 0x58
-#define CLV 0xB8
+
 
 // LDA instructions
 #define LDA_IMM 0xA9 // 2 Cycles
@@ -220,10 +217,17 @@
 #define BVC 0x50 // 2 Cycles + 1 if page crossed + 1 if branch taken
 #define BVS 0x70 // 2 Cycles + 1 if page crossed + 1 if branch taken
 
-#define NOP 0xEA
-#define SEC 0x38
-#define SED 0xF8
-#define SEI 0x78
+// FLAG instructions
+#define CLC 0x18 // 2 Cycles
+#define CLD 0xD8 // 2 Cycles
+#define CLI 0x58 // 2 Cycles
+#define CLV 0xB8 // 2 Cycles
+#define SEC 0x38 // 2 Cycles
+#define SED 0xF8 // 2 Cycles
+#define SEI 0x78 // 2 Cycles
+
+// NOP instruction
+#define NOP 0xEA // 2 Cycles
 
 // MEMORY PAGES
 // 0x0000 - 0x00FF: Zero Page
@@ -277,5 +281,8 @@ void cycle_check(int cycle_amount);
 bool out_of_bounds(unsigned short address);
 void wrap_address(unsigned short* address);
 void load_ins_params(InstructionParams *params, int required_cycles, unsigned char instruction, AddressingModes addressing_mode);
+
+// NOP function
+void nop_instruction(InstructionParams params);
 
 #endif
