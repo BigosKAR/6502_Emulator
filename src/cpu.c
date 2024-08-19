@@ -41,10 +41,9 @@ int main()
     vm.x = 2;
     vm.y = 0;
     set_flag(FLAG_CARRY);
-    vm.ip = 0xFF00;
-    memory.data[0xFF00] = BCS;
-    memory.data[0xFF01] = 0b11111101;
-    memory.data[0xFEFE] = INX;
+    memory.data[0xFFFC] = CLC;
+    memory.data[0xFFFD] = SED;
+    memory.data[0xFFFE] = SEI;
     execute();
     return 0;
 }
