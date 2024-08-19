@@ -12,6 +12,7 @@ typedef enum{
     IMMEDIATE,
     IMPLIED,
     ACCUMULATOR,
+    RELATIVE,
     ABSOLUTE,
     ABSOLUTE_INDEXED,
     ABSOLUTE_INDEXED_PC,
@@ -29,6 +30,7 @@ typedef struct InstructionParams{
     AddressingModes addressing_mode;
 }InstructionParams;
 
+unsigned short get_relative_address(); // -1 Cycle (additional -1 if page crossed)
 unsigned short get_abs_address(); // -2 Cycle
 unsigned short get_abs_indexed_address_pc(unsigned char vm_register); // -2 Cycle (additional -1 if page crossed)
 unsigned short get_abs_indexed_address(unsigned char vm_register); // -2 Cycle

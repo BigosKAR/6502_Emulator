@@ -14,14 +14,6 @@
 #define HIGH_STACK_ADDRESS 0x001
 
 // INSTRUCTIONS
-#define BCC 0x90
-#define BCS 0xB0
-#define BEQ 0xF0
-#define BMI 0x30
-#define BNE 0xD0
-#define BPL 0x10
-#define BVC 0x50
-#define BVS 0x70
 #define CLC 0x18
 #define CLD 0xD8
 #define CLI 0x58
@@ -218,8 +210,17 @@
 #define RTI 0x40 // 6 Cycles
 #define RTS 0x60 // 6 Cycles
 
+// BRANCH instructions
+#define BCC 0x90 // 2 Cycles + 1 if page crossed + 1 if branch taken
+#define BCS 0xB0 // 2 Cycles + 1 if page crossed + 1 if branch taken
+#define BEQ 0xF0 // 2 Cycles + 1 if page crossed + 1 if branch taken
+#define BMI 0x30 // 2 Cycles + 1 if page crossed + 1 if branch taken
+#define BNE 0xD0 // 2 Cycles + 1 if page crossed + 1 if branch taken
+#define BPL 0x10 // 2 Cycles + 1 if page crossed + 1 if branch taken
+#define BVC 0x50 // 2 Cycles + 1 if page crossed + 1 if branch taken
+#define BVS 0x70 // 2 Cycles + 1 if page crossed + 1 if branch taken
+
 #define NOP 0xEA
-#define SBC 0xE9
 #define SEC 0x38
 #define SED 0xF8
 #define SEI 0x78

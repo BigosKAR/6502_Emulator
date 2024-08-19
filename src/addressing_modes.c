@@ -7,6 +7,23 @@
 #include "addressing_modes.h"
 
 
+unsigned short get_relative_address()
+{
+    unsigned char offset = fetch_byte();
+    signed char signed_offset = (signed char)offset;
+    signed short relative_address = (vm.ip-1) + signed_offset; // -1 because the ip is pointing to the next instruction already
+    printf("Relative address: %x\n", (unsigned short)relative_address);
+    if((relative_address & 0xFF00) != (vm.ip & 0xFF00))
+    {
+        if((relative_address >> 8) != 0)
+        {
+        vm.cycles -= 1; // If page boundary crossed then take 1 cycle
+        cycle_check(2); // Check if there is 1 cycle saved (1 cycle are subtracted)
+        }
+    }
+    return (unsigned short)(relative_address);
+}
+
 unsigned short get_abs_address()
 {
     unsigned char low_order_address, high_order_address;
@@ -110,6 +127,10 @@ unsigned short fetch_address(InstructionParams params, unsigned char* vm_registe
         case IMPLIED:
             printf("Invalid addressing mode\n");
             return 0; //  No address (should not be used)
+        case RELATIVE:
+        {
+            return get_relative_address();
+        }
         case ABSOLUTE: {
             return get_abs_address();
         }
@@ -127,10 +148,13 @@ unsigned short fetch_address(InstructionParams params, unsigned char* vm_registe
             }
             return get_abs_indexed_address_pc(*vm_register);
         }
-        case ABSOLUTE_INDIRECT:
+        case ABSOLUTE_INDIRECT: {
             return get_abs_ind_address();
+        }
         case ZERO_PAGE:
+        {
             return get_zp_address();
+        }
         case ZERO_PAGE_INDEXED: {
             if(vm_register == NULL){
                 printf("Invalid register. Tried to dereference a NULL pointer!\n");
@@ -139,11 +163,17 @@ unsigned short fetch_address(InstructionParams params, unsigned char* vm_registe
             return get_zp_indexed_address(*vm_register);
         }
         case ZERO_PAGE_X_INDIRECT:
+        {
             return get_zp_x_ind_address();
+        }
         case ZERO_PAGE_Y_INDIRECT:
+        {
             return get_zp_y_ind_address();
+        }
         case ZERO_PAGE_Y_INDIRECT_PC:
+        {
             return get_zp_y_ind_address_pc();
+        }
         default: {
             printf("Invalid addressing mode\n");
             return 0;

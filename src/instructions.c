@@ -12,6 +12,7 @@
 #include "./instructions/arithmetic/arith_instructions.h"
 #include "./instructions/inc/inc_instructions.h"
 #include "./instructions/ctrl/ctrl_instructions.h"
+#include "./instructions/branch/branch_instructions.h"
 
 // execution of instructions *most important function*
 void execute()
@@ -712,6 +713,54 @@ void execute()
             case RTS: {
                 load_ins_params(&params, 6, RTS, IMPLIED);
                 rts_instruction(params);
+                break;
+            }
+            case BCC: {
+                load_ins_params(&params, 2, BCC, RELATIVE);
+                bool condition = !(vm.processor_status & FLAG_CARRY);
+                flag_branch_instruction(params, condition);
+                break;
+            }
+            case BCS: {
+                load_ins_params(&params, 2, BCS, RELATIVE);
+                bool condition = vm.processor_status & FLAG_CARRY;
+                flag_branch_instruction(params, condition);
+                break;
+            }
+            case BEQ: {
+                load_ins_params(&params, 2, BEQ, RELATIVE);
+                bool condition = vm.processor_status & FLAG_ZERO;
+                flag_branch_instruction(params, condition);
+                break;
+            }
+            case BMI: {
+                load_ins_params(&params, 2, BMI, RELATIVE);
+                bool condition = vm.processor_status & FLAG_NEGATIVE;
+                flag_branch_instruction(params, condition);
+                break;
+            }
+            case BNE: {
+                load_ins_params(&params, 2, BNE, RELATIVE);
+                bool condition = !(vm.processor_status & FLAG_ZERO);
+                flag_branch_instruction(params, condition);
+                break;
+            }
+            case BPL: {
+                load_ins_params(&params, 2, BPL, RELATIVE);
+                bool condition = !(vm.processor_status & FLAG_NEGATIVE);
+                flag_branch_instruction(params, condition);
+                break;
+            }
+            case BVC: {
+                load_ins_params(&params, 2, BVC, RELATIVE);
+                bool condition = !(vm.processor_status & FLAG_OVERFLOW);
+                flag_branch_instruction(params, condition);
+                break;
+            }
+            case BVS: {
+                load_ins_params(&params, 2, BVS, RELATIVE);
+                bool condition = vm.processor_status & FLAG_OVERFLOW;
+                flag_branch_instruction(params, condition);
                 break;
             }
             default: {

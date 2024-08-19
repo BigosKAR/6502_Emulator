@@ -36,21 +36,15 @@ struct Memory memory;
 int main()
 {
     reset();
-    vm.cycles = 26;
+    vm.cycles = 6;
     vm.accumulator = 45;
     vm.x = 2;
     vm.y = 0;
-    memory.data[0xFFFC] = INY;
-    memory.data[0xFFFD] = JSR;
-    memory.data[0xFFFE] = 0x13;
-    memory.data[0xFFFF] = 0x37;
-    memory.data[0x3713] = INX;
-    memory.data[0x3714] = INX;
-    memory.data[0x3715] = INX;
-    memory.data[0x3716] = TXA;
-    memory.data[0x3717] = TAY;
-    memory.data[0x3718] = RTI;
-    memory.data[0x0000] = INY;
+    set_flag(FLAG_CARRY);
+    vm.ip = 0xFF00;
+    memory.data[0xFF00] = BCS;
+    memory.data[0xFF01] = 0b11111101;
+    memory.data[0xFEFE] = INX;
     execute();
     return 0;
 }
